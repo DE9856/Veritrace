@@ -6,6 +6,7 @@ from pathlib import Path
 import chromadb
 
 from app.ingestion.chunker import Chunk
+from app.ingestion.parser import title_from_filename
 
 
 @dataclass
@@ -13,6 +14,7 @@ class StoredChunk:
     chunk_id: str
     document_id: str
     filename: str
+    title: str
     page: int
     chunk_index: int
     text: str
@@ -37,6 +39,7 @@ class VectorStore:
         self,
         document_id: str,
         filename: str,
+        title: str,
         chunks: list[Chunk],
         embeddings: list[list[float]],
     ) -> None:
@@ -50,6 +53,7 @@ class VectorStore:
                 {
                     "document_id": document_id,
                     "filename": filename,
+                    "title": title,
                     "page": c.page,
                     "chunk_index": c.index,
                     "token_count": c.token_count,
@@ -105,6 +109,8 @@ def _to_stored(cid: str, text: str, meta: dict, similarity: float | None = None)
         chunk_id=cid,
         document_id=meta["document_id"],
         filename=meta["filename"],
+        # Chunks indexed before titles were stored fall back to the filename.
+        title=meta.get("title") or title_from_filename(meta["filename"]),
         page=int(meta["page"]),
         chunk_index=int(meta["chunk_index"]),
         text=text,

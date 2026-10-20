@@ -24,6 +24,7 @@ async def retrieve(
             chunk_id=h.chunk_id,
             document_id=h.document_id,
             filename=h.filename,
+            title=h.title,
             page=h.page,
             text=h.text,
             similarity=round(h.similarity or 0.0, 4),

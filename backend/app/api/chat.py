@@ -13,12 +13,6 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 @router.post("")
 async def chat(request: ChatRequest, services: ServicesDep) -> ChatResponse:
     try:
-        return await answer_question(
-            request,
-            provider=services.provider,
-            embedder=services.embedder,
-            store=services.store,
-            default_k=services.settings.top_k,
-        )
+        return await answer_question(request, services)
     except LLMError as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc)) from exc

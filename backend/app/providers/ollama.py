@@ -14,6 +14,9 @@ from app.schemas import ProviderHealth
 # qwen3:4b tag) emit the reasoning with no opening <think>, only a closing one.
 _THINK_BLOCK = re.compile(r"^.*?</think>", re.DOTALL)
 
+# The client raises the built-in ConnectionError when the Ollama server is not running.
+_OLLAMA_ERRORS = (httpx.HTTPError, ollama.ResponseError, ConnectionError)
+
 
 class OllamaProvider:
     name = "ollama"
@@ -43,7 +46,7 @@ class OllamaProvider:
                 format=format,
                 options={"temperature": temperature},
             )
-        except (httpx.HTTPError, ollama.ResponseError) as exc:
+        except _OLLAMA_ERRORS as exc:
             raise LLMError(f"Ollama request failed: {exc}") from exc
         return _THINK_BLOCK.sub("", response.message.content or "").strip()
 
@@ -71,7 +74,7 @@ class OllamaProvider:
     async def health(self) -> ProviderHealth:
         try:
             listing = await self._client.list()
-        except (httpx.HTTPError, ollama.ResponseError) as exc:
+        except _OLLAMA_ERRORS as exc:
             return ProviderHealth(
                 provider=self.name,
                 model=self.model,

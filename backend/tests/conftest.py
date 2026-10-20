@@ -1,4 +1,5 @@
-"""Test doubles: a bag-of-words embedder and a scripted LLM, so tests need no models or Ollama."""
+"""Test doubles: a bag-of-words embedder, a word-overlap NLI model and a scripted LLM,
+so tests need no downloaded models and no Ollama."""
 
 import hashlib
 import math
@@ -9,10 +10,12 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.main import create_app
+from app.providers.base import LLMError
 from app.schemas import ProviderHealth
 from app.services import Services
 from app.store.chroma import VectorStore
 from app.store.sqlite import DocumentRepository
+from app.verification.nli import NLIScores
 
 DIM = 256
 
@@ -36,6 +39,31 @@ class FakeEmbedder:
     def embed_query(self, text: str) -> list[float]:
         return self._embed(text)
 
+    def embed_queries(self, texts: list[str]) -> list[list[float]]:
+        return [self._embed(t) for t in texts]
+
+
+class FakeNLI:
+    """Entailment = share of the claim's words found in the premise. Claims listed in
+    `contradicted` get a high contradiction score instead."""
+
+    model_name = "fake-nli"
+
+    def __init__(self):
+        self.contradicted: set[str] = set()
+
+    def predict(self, pairs):
+        results = []
+        for premise, claim in pairs:
+            if claim in self.contradicted:
+                results.append(NLIScores(0.02, 0.08, 0.9))
+                continue
+            words = set(re.findall(r"[a-z0-9]+", claim.lower()))
+            found = set(re.findall(r"[a-z0-9]+", premise.lower()))
+            e = len(words & found) / max(len(words), 1)
+            results.append(NLIScores(e, 1 - e, 0.0))
+        return results
+
 
 class FakeProvider:
     name = "fake"
@@ -43,6 +71,10 @@ class FakeProvider:
 
     def __init__(self):
         self.reply = "Vikram landed on 23 August 2023. [S1]"
+        # Claim extraction result returned by generate_json; None simulates a failure.
+        self.extraction: dict | None = {
+            "sentences": [{"index": 0, "claims": ["Vikram landed on 23 August 2023."]}]
+        }
         self.prompts: list[str] = []
 
     async def generate(self, prompt, *, system=None, temperature=None):
@@ -50,7 +82,9 @@ class FakeProvider:
         return self.reply
 
     async def generate_json(self, prompt, schema, *, system=None):
-        raise NotImplementedError
+        if self.extraction is None:
+            raise LLMError("scripted failure")
+        return schema.model_validate(self.extraction)
 
     async def sample(self, prompt, n, *, system=None, temperature=0.8):
         return [self.reply] * n
@@ -74,13 +108,19 @@ def provider() -> FakeProvider:
 
 
 @pytest.fixture
-def client(settings, provider):
+def nli() -> FakeNLI:
+    return FakeNLI()
+
+
+@pytest.fixture
+def client(settings, provider, nli):
     def factory(s: Settings) -> Services:
         s.uploads_dir.mkdir(parents=True, exist_ok=True)
         return Services(
             settings=s,
             provider=provider,
             embedder=FakeEmbedder(),
+            nli=nli,
             store=VectorStore(s.chroma_dir, s.collection_name),
             documents=DocumentRepository(s.sqlite_path),
         )

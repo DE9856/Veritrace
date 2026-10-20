@@ -19,7 +19,9 @@ class GeneratedAnswer:
 
 
 def format_sources(sources: list[SourceChunk]) -> str:
-    return "\n\n".join(f"[{s.label}] ({s.filename}, page {s.page})\n{s.text}" for s in sources)
+    return "\n\n".join(
+        f"[{s.label}] ({s.title}; {s.filename}, page {s.page})\n{s.text}" for s in sources
+    )
 
 
 def extract_citations(answer: str, valid_labels: set[str]) -> tuple[list[str], list[str]]:

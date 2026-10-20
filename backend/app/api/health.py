@@ -13,6 +13,7 @@ async def health(services: ServicesDep) -> HealthOut:
         status="ok" if llm.reachable and llm.model_available else "degraded",
         llm=llm,
         embedding_model=services.embedder.model_name,
+        nli_model=services.nli.model_name,
         documents=services.documents.count(),
         chunks=services.store.count(),
     )

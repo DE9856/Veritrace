@@ -46,3 +46,17 @@ def test_oversized_sentence_is_split():
 def test_overlap_must_be_smaller_than_chunk():
     with pytest.raises(ValueError):
         chunk_pages([Page(1, "x.")], words, max_tokens=10, overlap_tokens=10)
+
+
+def test_title_from_heading_or_filename(tmp_path):
+    from app.ingestion.parser import parse_file
+
+    md = tmp_path / "notes.md"
+    md.write_text("# Chandrayaan-3\n\nThe lander touched down.")
+    assert parse_file(md).title == "Chandrayaan-3"
+
+    # A first line that reads as a sentence is not a heading: fall back to the filename.
+    txt = tmp_path / "mission_notes.txt"
+    txt.write_text("The lander touched down on 23 August 2023.\nMore text.")
+    assert parse_file(txt).title == "mission notes"
+    assert parse_file(txt, filename="Original Name.txt").title == "Original Name"

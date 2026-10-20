@@ -16,6 +16,7 @@ class EmptyDocumentError(ValueError):
 
 @dataclass
 class IngestResult:
+    title: str
     pages: int
     chunks: int
 
@@ -29,7 +30,8 @@ def ingest_file(
     store: VectorStore,
     settings: Settings,
 ) -> IngestResult:
-    pages = parse_file(path)
+    parsed = parse_file(path, filename)
+    pages = parsed.pages
     if not pages:
         raise EmptyDocumentError(
             "No text could be extracted. Scanned PDFs need OCR, which is not supported yet."
@@ -42,8 +44,8 @@ def ingest_file(
     )
     embeddings = embedder.embed_documents([c.text for c in chunks])
     try:
-        store.add_chunks(document_id, filename, chunks, embeddings)
+        store.add_chunks(document_id, filename, parsed.title, chunks, embeddings)
     except Exception:
         store.delete_document(document_id)  # never leave half a document indexed
         raise
-    return IngestResult(pages=len(pages), chunks=len(chunks))
+    return IngestResult(title=parsed.title, pages=len(pages), chunks=len(chunks))

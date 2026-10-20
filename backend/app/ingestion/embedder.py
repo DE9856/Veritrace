@@ -21,7 +21,13 @@ class Embedder:
         return vectors.tolist()
 
     def embed_query(self, text: str) -> list[float]:
-        vector = self._model.encode(
-            QUERY_INSTRUCTION + text, normalize_embeddings=True, convert_to_numpy=True
+        return self.embed_queries([text])[0]
+
+    def embed_queries(self, texts: list[str]) -> list[list[float]]:
+        vectors = self._model.encode(
+            [QUERY_INSTRUCTION + t for t in texts],
+            batch_size=32,
+            normalize_embeddings=True,
+            convert_to_numpy=True,
         )
-        return vector.tolist()
+        return vectors.tolist()

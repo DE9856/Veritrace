@@ -32,6 +32,19 @@ class Settings(BaseSettings):
     top_k: int = 6
     max_upload_mb: int = 25
 
+    # Verification
+    nli_model: str = "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli"
+    nli_device: str = "cpu"
+    nli_batch_size: int = 16
+    nli_window_sentences: int = 3  # claims are checked against short sentence windows
+    nli_windows_per_claim: int = 4  # best-matching windows sent to NLI per claim
+
+    # Phase 2 labels come from the NLI verdict alone. Phase 3 replaces these with
+    # the weighted score (entailment, consistency, retrieval, self-label).
+    high_threshold: float = 0.75  # entailment at or above this -> high confidence
+    inferred_threshold: float = 0.45  # entailment at or above this -> inferred
+    contradiction_threshold: float = 0.7  # contradiction at or above this -> hallucinated
+
     # API
     cors_origins: list[str] = ["http://localhost:3000"]
 

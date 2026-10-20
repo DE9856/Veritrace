@@ -6,7 +6,7 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-Phase 1 is complete: document ingestion, retrieval, and grounded answers with citations, served by a FastAPI backend on a local Ollama model. Claim verification and confidence labels come in Phases 2 and 3.
+Phases 1 and 2 are complete. The backend ingests documents, answers questions with citations on a local Ollama model, splits each answer into atomic claims, checks every claim against the sources with a DeBERTa NLI model, and labels claims and sentences as high confidence, inferred, or potentially hallucinated. Phase 3 adds self-consistency sampling, the inference judge and the weighted confidence score.
 
 ## Run the backend
 
@@ -24,7 +24,7 @@ ollama pull qwen3:4b-instruct
 uvicorn app.main:app --reload
 ```
 
-The first start downloads the bge-small embedding model (about 130 MB). Interactive API docs are then at http://localhost:8000/docs.
+The first start downloads the bge-small embedding model (about 130 MB) and the DeBERTa NLI model (about 700 MB). Interactive API docs are then at http://localhost:8000/docs.
 
 ## Try it
 
