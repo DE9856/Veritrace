@@ -8,6 +8,7 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import SecretStr
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -29,6 +30,26 @@ class Settings(BaseSettings):
     ollama_model: str = "qwen3:4b-instruct"
     llm_temperature: float = 0.2
     llm_timeout_s: float = 180.0
+    llm_fallback: str = "groq"  # used when the primary is rate limited, if its key is set
+
+    # Gemini (LLM_PROVIDER=gemini). Keys are SecretStr so they never appear in logs.
+    gemini_api_key: SecretStr | None = None
+    # gemini-2.5-* is closed to new keys; 3.5-flash accepts thinking_budget=0 (the lite
+    # models reject it) and answered in about 6 s per call in testing.
+    gemini_model: str = "gemini-3.5-flash"
+    gemini_requests_per_minute: int = 10  # free-tier limit for the model; paced client-side
+    gemini_thinking_budget: int | None = 0  # 0 turns thinking off; None keeps the default
+
+    # Groq, the fallback (or LLM_PROVIDER=groq). Any OpenAI-compatible API works here.
+    groq_api_key: SecretStr | None = None
+    # Groq retired the Llama 3.3 models. gpt-oss-120b answered in 1-2 s and handles JSON
+    # mode; qwen3.8-27b is faster but failed JSON validation in testing.
+    groq_model: str = "openai/gpt-oss-120b"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_requests_per_minute: int = 30
+    # Free tier: 1000 requests a day but only 8000 tokens a minute, which counts the hidden
+    # reasoning of gpt-oss models. "low" keeps a question well under that.
+    groq_reasoning_effort: str | None = "low"
 
     # Embeddings
     embedding_model: str = "BAAI/bge-small-en-v1.5"
@@ -48,6 +69,7 @@ class Settings(BaseSettings):
     evidence_threshold: float = 0.55
     max_retrieval_retries: int = 2
     max_upload_mb: int = 25
+    seed_samples: bool = False  # index backend/samples at startup if the store is empty
 
     # Verification
     nli_model: str = "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli"

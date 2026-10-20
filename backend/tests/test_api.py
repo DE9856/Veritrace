@@ -163,3 +163,13 @@ def test_sampling_failure_leaves_consistency_out(client, provider):
     claim = ask(client)["sentences"][0]["claims"][0]
     assert claim["signals"]["consistency"] is None
     assert claim["label"] == "high"
+
+
+def test_seeding_indexes_the_samples_once_and_only_into_an_empty_store(client):
+    from app.ingestion.library import seed_samples
+
+    services = client.app.state.services
+    assert seed_samples(services) == 2
+    assert seed_samples(services) == 0  # already populated
+    names = sorted(d["filename"] for d in client.get("/api/documents").json())
+    assert names == ["chandrayaan-3.md", "james-webb-space-telescope.md"]

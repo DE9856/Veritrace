@@ -6,7 +6,7 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-Phases 1 to 5 are complete: the agent backend and the web app. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step, highlights every sentence by its label, and shows how each claim was checked and which passage supports it. Phase 6 switches the model to Gemini and deploys the app.
+All six phases are built. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step and shows how every claim was checked. It runs on Gemini (`gemini-3.5-flash`) with Groq (`openai/gpt-oss-120b`) as the fallback, or fully offline on a local Ollama model. The backend ships as a Docker image; see [`docs/deployment.md`](docs/deployment.md) to put it on Hugging Face Spaces and the frontend on Vercel.
 
 ## Run the backend
 
@@ -17,9 +17,10 @@ cd backend
 uv venv --python 3.12
 source .venv/bin/activate
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
-uv pip install -r requirements.txt
-cp .env.example .env
+uv pip install -r requirements-dev.txt   # runtime plus pytest and ruff
+cp .env.example .env   # then paste GEMINI_API_KEY (and GROQ_API_KEY) into .env
 
+# Only for LLM_PROVIDER=ollama (fully offline):
 ollama pull qwen3:4b-instruct
 uvicorn app.main:app --reload
 ```

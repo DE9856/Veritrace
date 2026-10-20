@@ -7,7 +7,7 @@ import httpx
 import ollama
 from pydantic import ValidationError
 
-from app.providers.base import LLMError, T
+from app.providers.base import LLMError, T, normalise_output
 from app.schemas import ProviderHealth
 
 # We always pass think=False and use a non-thinking model, but strip any stray
@@ -49,7 +49,7 @@ class OllamaProvider:
             )
         except _OLLAMA_ERRORS as exc:
             raise LLMError(f"Ollama request failed: {exc}") from exc
-        return _THINK_BLOCK.sub("", response.message.content or "").strip()
+        return normalise_output(_THINK_BLOCK.sub("", response.message.content or "")).strip()
 
     async def generate(
         self, prompt: str, *, system: str | None = None, temperature: float | None = None
@@ -73,7 +73,7 @@ class OllamaProvider:
             )
             async for part in parts:
                 if part.message.content:
-                    yield part.message.content
+                    yield normalise_output(part.message.content)
         except _OLLAMA_ERRORS as exc:
             raise LLMError(f"Ollama request failed: {exc}") from exc
 

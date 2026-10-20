@@ -335,8 +335,8 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
           <text class="d-title" x="794" y="86">LLM provider</text>
           <text class="d-text" x="794" y="107">dev: Ollama</text>
           <text class="d-text" x="794" y="124">  qwen3:4b-instruct</text>
-          <text class="d-text" x="794" y="145">final: Gemini API</text>
-          <text class="d-text" x="794" y="162">fallback: Sarvam / Groq</text>
+          <text class="d-text" x="794" y="145">final: Gemini 3.5 Flash</text>
+          <text class="d-text" x="794" y="162">fallback: Groq gpt-oss-120b</text>
 
           <rect class="d-box" x="780" y="220" width="165" height="100" rx="8"/>
           <text class="d-title" x="794" y="246">NLI verifier</text>
@@ -414,8 +414,8 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
           <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
           <tbody>
             <tr><td>LLM (development)</td><td>Ollama with <code>qwen3:4b-instruct</code> (Q4, non-thinking)</td><td>Free and offline. At about 2.5 GB it fits entirely in a 4 GB laptop GPU, so the roughly seven LLM calls per question stay fast. It is the non-thinking build of Qwen3 4B, close to Qwen2.5-7B in quality, and supports a JSON output mode.</td></tr>
-            <tr><td>LLM (final)</td><td>Google Gemini API, Flash model, free tier, <code>google-genai</code> SDK</td><td>Much better at claim extraction and judging; supports structured output with a response schema; fits the $0 budget.</td></tr>
-            <tr><td>LLM (fallback)</td><td>Sarvam or Groq free tier</td><td>Used when Gemini hits its rate limit. Plugs into the same provider interface.</td></tr>
+            <tr><td>LLM (final)</td><td>Google Gemini API, <code>gemini-3.5-flash</code> with thinking off, free tier, <code>google-genai</code> SDK</td><td>Better at claim extraction and judging; structured output with a JSON schema; fits the $0 budget. The free tier allows only 20 requests a day per model, so the fallback matters.</td></tr>
+            <tr><td>LLM (fallback)</td><td>Groq free tier, <code>openai/gpt-oss-120b</code>, low reasoning effort</td><td>Takes over when Gemini is rate limited, through any OpenAI-compatible API. 1000 requests a day, 1 to 2 seconds per call.</td></tr>
             <tr><td>Agent orchestration</td><td>LangGraph</td><td>Explicit state graph with conditional edges and loops. The agent design is visible and easy to explain in the viva.</td></tr>
             <tr><td>Backend API</td><td>FastAPI, Pydantic v2, Uvicorn, sse-starlette</td><td>Async Python, typed request and response models, automatic OpenAPI docs, and streaming over SSE.</td></tr>
             <tr><td>Document parsing</td><td>PyMuPDF, pysbd</td><td>Fast PDF text extraction; pysbd splits sentences reliably for chunking and highlighting.</td></tr>
@@ -505,20 +505,25 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
       <h2>Model strategy: local first, Gemini at the end</h2>
       <p>All LLM calls go through one small interface, so moving from Ollama to Gemini only changes an environment variable.</p>
 <pre>class LLMProvider(Protocol):
-    async def generate(self, prompt: str, *, temperature: float = 0.2) -&gt; str: ...
-    async def generate_json(self, prompt: str, schema: type[BaseModel]) -&gt; BaseModel: ...
-    async def sample(self, prompt: str, n: int, temperature: float = 0.8) -&gt; list[str]: ...
+    async def generate(self, prompt, *, system=None, temperature=None) -&gt; str: ...
+    def stream(self, prompt, *, system=None, temperature=None) -&gt; AsyncIterator[str]: ...
+    async def generate_json(self, prompt, schema, *, system=None) -&gt; BaseModel: ...
+    async def sample(self, prompt, n, *, system=None, temperature=0.8) -&gt; list[str]: ...
+    async def health(self) -&gt; ProviderHealth: ...
 
-# providers/ollama.py   -&gt; uses format="json" for structured output
-# providers/gemini.py   -&gt; uses response_schema for structured output
-# providers/factory.py  -&gt; picks one from LLM_PROVIDER=ollama|gemini|groq</pre>
+# providers/ollama.py         -&gt; local model, JSON via format=schema
+# providers/gemini.py         -&gt; Gemini, JSON via response_json_schema
+# providers/openai_compat.py  -&gt; Groq or any OpenAI-compatible API, JSON mode
+# providers/fallback.py       -&gt; primary + fallback, with a circuit breaker
+# providers/factory.py        -&gt; picks from LLM_PROVIDER and LLM_FALLBACK</pre>
       <h3>Staying inside the free tier</h3>
       <ul>
         <li>Extract claims for the whole answer in one call, and run the inference judge on a batch of claims at once, rather than one call per claim.</li>
         <li>NLI runs locally on DeBERTa, so the most frequent check costs no API calls.</li>
-        <li>Make the number of consistency samples configurable (3 locally, 2 on Gemini), and add a retry with backoff for rate-limit errors.</li>
-        <li>Cache results by question and document set, so repeated questions during development don't use up quota.</li>
-        <li>If Gemini returns a rate-limit error, the factory switches to the fallback provider.</li>
+        <li>Use 3 consistency samples locally and 2 on hosted models, sent in parallel.</li>
+        <li>Pace requests on the client to stay under each provider's per-minute limit, and retry rate-limit and overload errors after the delay the server gives.</li>
+        <li>When Gemini reports its daily quota is used up, skip it until the reset time it gives and send every call to Groq (a circuit breaker), instead of failing first on each call.</li>
+        <li>Normalise each model's quirks in one place: <code>【S1】</code> and <code>[ S1 ]</code> become <code>[S1]</code>, and special spaces and hyphens become plain ones.</li>
       </ul>
       <p>Prompts live in versioned files under <code>prompts/</code>. When the backend switches to Gemini, only the prompts that need adjusting change; the graph code stays the same.</p>
     </section>

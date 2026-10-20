@@ -6,7 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Planned
-- Phase 6: Gemini provider with prompt adjustments, rate-limit handling and a fallback provider, a backend Dockerfile, and deployment to Hugging Face Spaces and Vercel.
+- Push the backend to a Hugging Face Space and the frontend to Vercel, following `docs/deployment.md`.
+
+## [0.6.0] - 2026-10-20
+
+Phase 6: hosted models and deployment. Gemini is the primary model, Groq takes over when Gemini's free quota runs out, and the backend ships as a Docker image ready for Hugging Face Spaces.
+
+### Added
+- Gemini provider (`providers/gemini.py`): `gemini-3.5-flash` with thinking off, JSON output through `response_json_schema`, streaming, and consistency samples sent in parallel. Health checks are cached for five minutes so the app's status polling does not spend quota.
+- OpenAI-compatible provider (`providers/openai_compat.py`) over plain HTTP, used for Groq (`openai/gpt-oss-120b`, low reasoning effort) and usable for any OpenAI-style API.
+- Fallback provider with a circuit breaker (`providers/fallback.py`): a rate-limited call goes to the fallback, and the primary is skipped until its limit resets (the reset time comes from Gemini's daily-quota error). Other errors, such as a bad key, are not hidden. A half-streamed answer is never finished by a different model. Responses and `/api/health` name the model actually serving and when the primary resets.
+- Rate limiting and retries (`providers/limits.py`): a sliding-window limiter per provider, and retries with backoff that follow the server's suggested delay (`retryDelay`, `retry-after`), including when opening a stream.
+- Output normalisation for all providers: `【S1】` and `[ S1 ]` become `[S1]`, and narrow or non-breaking spaces and non-breaking hyphens become plain ones.
+- API keys are `SecretStr` settings, so they never appear in logs or tracebacks. `backend/.env` has the new settings ready for the keys.
+- Docker image (`backend/Dockerfile`, `.dockerignore`): CPU-only PyTorch, the embedding and NLI models baked in, runs as user 1000 on port 7860, and never contains `.env`.
+- `SEED_SAMPLES`: index the bundled sample documents at startup when the store is empty, for hosts whose disk is wiped on restart. Uploads and seeding share one function (`ingestion/library.py`).
+- `deploy/huggingface/README.md` (Space settings) and `docs/deployment.md` (step-by-step guide for Hugging Face Spaces and Vercel, with the measured limits).
+- `requirements-dev.txt` for pytest and ruff; `requirements.txt` holds only runtime dependencies.
+- 31 new tests (rate limiter, retries, Gemini error handling, Groq over a mock transport, fallback and circuit breaker, normalisation, settings and seeding), 114 in total.
+
+### Changed
+- Connective words ("using", "via", "also", "then") no longer count as new content in the novelty check. Groq's extractor writes "the rover, using its LIBS, detected iron", which marked eight correct claims as inferred. Calibration re-run on the local model afterwards: still 97% accuracy (macro-F1 0.97) on the 39 labelled claims, with unchanged thresholds.
+
+### Found while testing
+- `gemini-2.5-flash` and `gemini-2.5-flash-lite` are closed to new API keys (404). The 3.x lite models reject `thinking_budget=0`.
+- Gemini's free tier allows 20 requests a day per model and took 6 to 30 seconds per call: about three questions a day, at 50 to 60 seconds each. Groq's free tier allows 1000 requests a day and 8000 tokens a minute, at 1 to 2 seconds per call.
+- Groq retired the Llama 3.3 models; `qwen3.8-27b` failed JSON validation.
+
+### Verified
+- On Gemini: three questions answered (a correct factual answer scored 12 of 12 claims high), until the daily quota ran out.
+- On the Groq fallback: four questions in 14 to 27 seconds each; in a hand-written answer, the true claim was high, the deduction inferred, the two invented claims hallucinated, and the wrong date and rocket contradicted, each with the judge's reason.
+- The Docker image on this machine with `backend/.env`: two sample documents indexed at startup, a streamed question answered in 10.5 seconds with Gemini's quota error tripping the breaker to Groq, and `/api/health` reporting the switch and Gemini's reset time.
 
 ## [0.5.0] - 2026-10-20
 

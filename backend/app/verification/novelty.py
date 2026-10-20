@@ -14,7 +14,9 @@ _STOPWORDS = frozenset(
     (
         "a an the of in on at to for from by with and or but is are was were be been being "
         "it its this that these those as into about also than then their there which who "
-        "has have had do does did not no its it's"
+        "has have had do does did not no its it's "
+        # Connective words a rephrasing adds without adding a fact ("using its LIBS ...").
+        "using use used via through also then both each while after before during"
     ).split()
 )
 _NUMBER_WORDS = frozenset(

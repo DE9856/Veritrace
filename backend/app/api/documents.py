@@ -1,15 +1,14 @@
 """Upload, list and delete documents in the knowledge base."""
 
-import hashlib
-import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Response, UploadFile, status
 from fastapi.concurrency import run_in_threadpool
 
 from app.api.deps import ServicesDep
+from app.ingestion.library import add_document
 from app.ingestion.parser import SUPPORTED_EXTENSIONS, UnsupportedFileError
-from app.ingestion.pipeline import EmptyDocumentError, ingest_file
+from app.ingestion.pipeline import EmptyDocumentError
 from app.schemas import DocumentOut
 from app.store.sqlite import Document
 
@@ -43,46 +42,19 @@ async def upload_document(
     if not data:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "The file is empty.")
 
-    sha256 = hashlib.sha256(data).hexdigest()
-    existing = services.documents.find_by_hash(sha256)
-    if existing:
-        # Same bytes already indexed: return the existing record instead of duplicating chunks.
-        response.status_code = status.HTTP_200_OK
-        return _to_out(existing)
-
-    document_id = uuid.uuid4().hex[:12]
-    stored_path = services.settings.uploads_dir / f"{document_id}{ext}"
-    stored_path.write_bytes(data)
-
     try:
-        result = await run_in_threadpool(
-            ingest_file,
-            stored_path,
-            document_id=document_id,
-            filename=filename,
-            embedder=services.embedder,
-            store=services.store,
-            settings=services.settings,
+        doc, created = await run_in_threadpool(
+            add_document,
+            services,
+            data,
+            filename,
+            file.content_type or "application/octet-stream",
         )
     except (UnsupportedFileError, EmptyDocumentError) as exc:
-        stored_path.unlink(missing_ok=True)
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
-    except Exception:
-        stored_path.unlink(missing_ok=True)
-        raise
-
-    doc = services.documents.add(
-        Document(
-            id=document_id,
-            filename=filename,
-            content_type=file.content_type or "application/octet-stream",
-            sha256=sha256,
-            stored_path=str(stored_path),
-            pages=result.pages,
-            chunks=result.chunks,
-            size_bytes=len(data),
-        )
-    )
+    if not created:
+        # Same bytes already indexed: the existing record, not a duplicate set of chunks.
+        response.status_code = status.HTTP_200_OK
     return _to_out(doc)
 
 
