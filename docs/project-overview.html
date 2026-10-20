@@ -334,7 +334,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
           <rect class="d-box" x="780" y="60" width="165" height="115" rx="8"/>
           <text class="d-title" x="794" y="86">LLM provider</text>
           <text class="d-text" x="794" y="107">dev: Ollama</text>
-          <text class="d-text" x="794" y="124">  qwen3:4b (thinking off)</text>
+          <text class="d-text" x="794" y="124">  qwen3:4b-instruct</text>
           <text class="d-text" x="794" y="145">final: Gemini API</text>
           <text class="d-text" x="794" y="162">fallback: Sarvam / Groq</text>
 
@@ -410,7 +410,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <table>
           <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
           <tbody>
-            <tr><td>LLM (development)</td><td>Ollama with <code>qwen3:4b</code> (Q4, thinking mode off)</td><td>Free and offline. At about 2.5 GB it fits entirely in a 4 GB laptop GPU, so the roughly seven LLM calls per question stay fast. It is close to Qwen2.5-7B in quality and supports a JSON output mode.</td></tr>
+            <tr><td>LLM (development)</td><td>Ollama with <code>qwen3:4b-instruct</code> (Q4, non-thinking)</td><td>Free and offline. At about 2.5 GB it fits entirely in a 4 GB laptop GPU, so the roughly seven LLM calls per question stay fast. It is the non-thinking build of Qwen3 4B, close to Qwen2.5-7B in quality, and supports a JSON output mode.</td></tr>
             <tr><td>LLM (final)</td><td>Google Gemini API, Flash model, free tier, <code>google-genai</code> SDK</td><td>Much better at claim extraction and judging; supports structured output with a response schema; fits the $0 budget.</td></tr>
             <tr><td>LLM (fallback)</td><td>Sarvam or Groq free tier</td><td>Used when Gemini hits its rate limit. Plugs into the same provider interface.</td></tr>
             <tr><td>Agent orchestration</td><td>LangGraph</td><td>Explicit state graph with conditional edges and loops. The agent design is visible and easy to explain in the viva.</td></tr>
@@ -520,23 +520,28 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
 
     <section id="structure">
       <h2>Project structure</h2>
-<pre>hallucination-aware-assistant/
+<pre>veritrace/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI app, routes, SSE
-│   │   ├── config.py            # settings + config.yaml (weights, thresholds)
-│   │   ├── schemas.py           # Pydantic models: Claim, Sentence, Verdict
+│   │   ├── main.py              # FastAPI app factory, CORS, startup
+│   │   ├── config.py            # settings from .env (+ config.yaml for weights later)
+│   │   ├── services.py          # shared objects built once at startup
+│   │   ├── schemas.py           # Pydantic request/response models
+│   │   ├── api/                 # documents, chunks, chat, health routes
 │   │   ├── agent/
-│   │   │   ├── graph.py         # LangGraph StateGraph wiring
-│   │   │   ├── state.py         # AgentState
+│   │   │   ├── pipeline.py      # Phase 1 runner: retrieve -> generate
+│   │   │   ├── graph.py         # LangGraph StateGraph wiring (Phase 4)
+│   │   │   ├── state.py         # AgentState (Phase 4)
 │   │   │   └── nodes/           # analyze, retrieve, generate, extract,
 │   │   │                        # verify, judge, consistency, score, revise
-│   │   ├── providers/           # ollama.py, gemini.py, groq.py, factory.py
+│   │   ├── providers/           # base.py, ollama.py, factory.py (+ gemini.py)
 │   │   ├── verification/        # nli.py (DeBERTa), scoring.py
-│   │   ├── ingestion/           # parser.py, chunker.py, embedder.py
+│   │   ├── ingestion/           # parser, chunker, embedder, pipeline
 │   │   ├── store/               # chroma.py, sqlite.py
 │   │   └── prompts/             # *.md prompt templates
+│   ├── samples/                 # bundled sample documents
 │   ├── tests/
+│   ├── requirements.txt
 │   ├── pyproject.toml
 │   └── Dockerfile
 ├── frontend/
@@ -547,6 +552,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
 │   └── package.json
 ├── docs/
 │   └── project-overview.html
+├── CHANGELOG.md
 └── README.md</pre>
     </section>
 

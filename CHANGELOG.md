@@ -5,12 +5,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Added
-- Project name: Veritrace. Added to the project overview document.
-- `.gitignore` covering secrets (`.env`), the Python virtual environment and caches, runtime data (ChromaDB, uploads, SQLite), Node/Next.js build output, and editor files.
-
 ### Planned
-- Phase 1: FastAPI skeleton, Ollama provider, document ingestion pipeline (PyMuPDF, chunking, bge-small embeddings, ChromaDB), grounded answers with citations.
+- Phase 2: claim extraction (LLM, JSON output) and claim verification with the DeBERTa NLI model, with first labels based on the NLI verdict.
+
+## [0.1.0] - 2026-10-20
+
+Phase 1: foundations and RAG. The backend ingests documents and answers questions from them with citations.
+
+### Added
+- FastAPI backend (`backend/app/`) with an app factory, CORS for the Next.js dev server, and shared services built once at startup.
+- Settings loaded from `backend/.env` through pydantic-settings, with `.env.example` documenting every option.
+- LLM provider interface (`providers/base.py`) with `generate`, `generate_json`, `sample` and `health`, plus an Ollama implementation and a factory that selects the provider from `LLM_PROVIDER`.
+- Ingestion pipeline: PyMuPDF text extraction with line-wrap and hyphen cleanup, pysbd sentence splitting, page-bounded chunks of up to 400 tokens with 60 tokens of sentence overlap, bge-small-en-v1.5 embeddings, and storage in a persistent ChromaDB collection using cosine distance.
+- SQLite document records (SQLModel) with SHA-256 duplicate detection, so uploading the same file twice does not index it twice.
+- Retrieve node (top-k chunks labelled S1..Sk) and generate node (grounded answer with inline `[S1]` citations; citations to labels that were never provided are reported as invalid).
+- Grounded-answer prompts in `app/prompts/`, including an exact refusal sentence when the sources lack the answer.
+- API endpoints: `POST/GET /api/documents`, `GET/DELETE /api/documents/{id}`, `GET /api/chunks/{id}`, `POST /api/chat`, `GET /api/health`.
+- Sample document `backend/samples/chandrayaan-3.md`.
+- 16 tests (chunker, citation parsing, reasoning cleanup, full API flow) that use a fake embedder and LLM; Ruff lint and format configuration in `pyproject.toml`.
+- `README.md` with setup, run and test instructions.
+- Project name Veritrace and a `.gitignore` covering secrets, the virtual environment, runtime data, Node build output and editor files.
+
+### Changed
+- Development model switched from `qwen3:4b` to `qwen3:4b-instruct`. Ollama's `qwen3:4b` tag is the thinking-only Qwen3-4B-Thinking-2507 build, which ignores `think=False`: its reasoning leaked into answers and each answer took 25 to 80 seconds. The instruct build is the same size and answers in 1 to 2 seconds.
+- Project overview: project structure updated to match the code, and the development model renamed.
 
 ## [0.0.1] - 2026-10-20
 
