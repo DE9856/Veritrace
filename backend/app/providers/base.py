@@ -1,5 +1,6 @@
 """The interface every LLM backend implements, so the agent never depends on a vendor SDK."""
 
+from collections.abc import AsyncIterator
 from typing import Protocol, TypeVar
 
 from pydantic import BaseModel
@@ -20,6 +21,12 @@ class LLMProvider(Protocol):
     async def generate(
         self, prompt: str, *, system: str | None = None, temperature: float | None = None
     ) -> str: ...
+
+    def stream(
+        self, prompt: str, *, system: str | None = None, temperature: float | None = None
+    ) -> AsyncIterator[str]:
+        """Yield the answer as it is generated, in text pieces."""
+        ...
 
     async def generate_json(
         self, prompt: str, schema: type[T], *, system: str | None = None

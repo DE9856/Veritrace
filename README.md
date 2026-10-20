@@ -6,7 +6,7 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-Phases 1 to 3 are complete. The backend ingests documents, answers questions with citations on a local Ollama model, splits each answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. Each label combines NLI against the sources, self-consistency across resampled answers, the generator's own confidence tag, an LLM judge for claims NLI cannot settle, and a check for words the source does not contain. Weights and thresholds are in `backend/config.yaml`, tuned on hand-labelled claims in `backend/calibration/`.
+Phases 1 to 4 are complete. Veritrace is a LangGraph agent: it plans its searches and retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. Each label combines NLI against the sources, self-consistency across resampled answers, the generator's own confidence tag, an LLM judge, and a check for words the source does not contain. In safe mode it also returns a rewritten answer without the flagged claims. Every step streams to the client over Server-Sent Events. The frontend comes in Phase 5.
 
 ## Run the backend
 
@@ -35,6 +35,13 @@ curl -F "file=@samples/chandrayaan-3.md" localhost:8000/api/documents
 # Ask a question
 curl localhost:8000/api/chat -H 'content-type: application/json' \
   -d '{"question": "When did Vikram land and what did the rover find?"}'
+
+# Follow the agent step by step (Server-Sent Events), with safe mode on
+curl -N localhost:8000/api/chat/stream -H 'content-type: application/json' \
+  -d '{"question": "What does the mission mean for future missions?", "safe_mode": true}'
+
+# The agent graph as a Mermaid diagram
+curl localhost:8000/api/chat/graph
 
 # Check the model and index
 curl localhost:8000/api/health

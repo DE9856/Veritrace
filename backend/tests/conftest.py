@@ -84,13 +84,31 @@ class FakeProvider:
         self.judged: list[str] = []
         # Resampled answers; None simulates a sampling failure. Defaults to the reply.
         self.samples: list[str] | None = []
+        # Extra search queries the planner returns, per call (a list per attempt).
+        self.planned: list[list[str]] = []
+        self.plans_requested = 0
+        self.revision = "A revised answer [S1]."
         self.prompts: list[str] = []
 
     async def generate(self, prompt, *, system=None, temperature=None):
         self.prompts.append(prompt)
-        return self.reply
+        return self.revision if "Flagged claims:" in prompt else self.reply
+
+    async def stream(self, prompt, *, system=None, temperature=None):
+        self.prompts.append(prompt)
+        middle = len(self.reply) // 2
+        for piece in (self.reply[:middle], self.reply[middle:]):
+            yield piece
 
     async def generate_json(self, prompt, schema, *, system=None):
+        if schema.__name__ == "_SearchPlan":
+            plan = (
+                self.planned[self.plans_requested]
+                if self.plans_requested < len(self.planned)
+                else []
+            )
+            self.plans_requested += 1
+            return schema.model_validate({"queries": plan})
         if schema.__name__ == "_Judgement":
             claims = re.findall(r"^(\d+): (.+)$", prompt.split("Claims:")[1], re.MULTILINE)
             self.judged.extend(text for _, text in claims)
@@ -124,7 +142,12 @@ class FakeProvider:
 @pytest.fixture
 def settings(tmp_path) -> Settings:
     return Settings(
-        _env_file=None, data_dir=tmp_path / "data", chunk_tokens=40, chunk_overlap_tokens=8
+        _env_file=None,
+        data_dir=tmp_path / "data",
+        chunk_tokens=40,
+        chunk_overlap_tokens=8,
+        # The bag-of-words embedder gives lower similarities than bge; 0.55 is tuned for bge.
+        evidence_threshold=0.2,
     )
 
 

@@ -47,6 +47,10 @@ class ChatRequest(BaseModel):
         default=None, description="Limit retrieval to these documents. Omit to search all."
     )
     top_k: int | None = Field(default=None, ge=1, le=20)
+    safe_mode: bool = Field(
+        default=False,
+        description="Also return a rewritten answer without the claims flagged as hallucinated.",
+    )
 
 
 class ClaimSignals(BaseModel):
@@ -119,6 +123,18 @@ class ChatResponse(BaseModel):
         description="Labels the model cited that were not among the sources it was given."
     )
     sources: list[SourceChunk]
+    revised_answer: str | None = Field(
+        default=None,
+        description="Safe-mode rewrite without the flagged claims; None if not requested or "
+        "nothing was flagged.",
+    )
+    queries: list[str] = Field(default_factory=list, description="Search queries the agent ran.")
+    retrieval_attempts: int = 0
+    low_coverage: bool = Field(
+        default=False,
+        description="True if even the best search found only weakly related passages.",
+    )
+    trace: list[str] = Field(default_factory=list, description="Agent steps, in order.")
     provider: str
     model: str
     timings_ms: dict[str, int]

@@ -296,7 +296,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
           <!-- FastAPI -->
           <rect class="d-box em" x="250" y="175" width="180" height="140" rx="8"/>
           <text class="d-title" x="264" y="202">FastAPI backend</text>
-          <text class="d-mono" x="264" y="224">POST /api/chat (SSE)</text>
+          <text class="d-mono" x="264" y="224">POST /api/chat/stream</text>
           <text class="d-mono" x="264" y="242">POST /api/documents</text>
           <text class="d-mono" x="264" y="260">GET  /api/documents</text>
           <text class="d-mono" x="264" y="278">GET  /api/health</text>
@@ -447,10 +447,10 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <div>
           <h3>Question flow</h3>
           <ol>
-            <li>The user asks a question. Next.js opens an SSE stream to <code>POST /api/chat</code>.</li>
+            <li>The user asks a question. Next.js opens an SSE stream to <code>POST /api/chat/stream</code>.</li>
             <li>FastAPI creates the initial agent state and runs the LangGraph graph.</li>
             <li>As each node finishes, the backend sends a <code>status</code> event and the UI shows the current step.</li>
-            <li>The draft answer streams in as <code>token</code> events, displayed without highlights at first.</li>
+            <li>The draft answer streams in as <code>draft</code> events, displayed without highlights at first.</li>
             <li>After scoring, a <code>verdict</code> event carries every sentence, claim, score and evidence reference.</li>
             <li>The UI applies the highlights. Clicking a sentence opens the evidence inspector, and clicking a citation opens the source chunk.</li>
           </ol>
@@ -467,7 +467,9 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
             <tr><td class="mono">POST /api/documents</td><td>Upload and ingest a file. Returns the document id and chunk count.</td></tr>
             <tr><td class="mono">GET /api/documents</td><td>List indexed documents.</td></tr>
             <tr><td class="mono">DELETE /api/documents/{id}</td><td>Remove a document and its chunks from ChromaDB.</td></tr>
-            <tr><td class="mono">POST /api/chat</td><td>Ask a question. Streams <code>status</code>, <code>token</code> and <code>verdict</code> events. Body: <code>{ question, safe_mode, session_id }</code>.</td></tr>
+            <tr><td class="mono">POST /api/chat</td><td>Ask a question and get the labelled answer as one JSON response. Body: <code>{ question, safe_mode, document_ids, top_k }</code>.</td></tr>
+            <tr><td class="mono">POST /api/chat/stream</td><td>Same request, streamed as Server-Sent Events: <code>status</code> for each agent step, <code>draft</code> while the answer is written, then <code>verdict</code> (or <code>error</code>).</td></tr>
+            <tr><td class="mono">GET /api/chat/graph</td><td>The agent graph as a Mermaid diagram, generated from the compiled LangGraph.</td></tr>
             <tr><td class="mono">GET /api/chunks/{id}</td><td>Fetch a source chunk for the citation viewer.</td></tr>
             <tr><td class="mono">GET /api/health</td><td>Reports the active LLM provider and whether the models are loaded.</td></tr>
           </tbody>
@@ -532,9 +534,9 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
 │   │   ├── schemas.py           # Pydantic request/response models
 │   │   ├── api/                 # documents, chunks, chat, health routes
 │   │   ├── agent/
-│   │   │   ├── pipeline.py      # Phase 1 runner: retrieve -> generate
-│   │   │   ├── graph.py         # LangGraph StateGraph wiring (Phase 4)
-│   │   │   ├── state.py         # AgentState (Phase 4)
+│   │   │   ├── graph.py         # LangGraph StateGraph: nodes, edges, retry loop
+│   │   │   ├── state.py         # AgentState shared by all nodes
+│   │   │   ├── pipeline.py      # answer_question() entry point
 │   │   │   └── nodes/           # analyze, retrieve, generate, extract,
 │   │   │                        # verify, judge, consistency, score, revise
 │   │   ├── providers/           # base.py, ollama.py, factory.py (+ gemini.py)

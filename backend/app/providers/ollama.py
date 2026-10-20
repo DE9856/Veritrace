@@ -1,6 +1,7 @@
-"""Local models served by Ollama. Used during development (qwen3:4b)."""
+"""Local models served by Ollama. Used during development (qwen3:4b-instruct)."""
 
 import re
+from collections.abc import AsyncIterator
 
 import httpx
 import ollama
@@ -55,6 +56,26 @@ class OllamaProvider:
     ) -> str:
         t = self.temperature if temperature is None else temperature
         return await self._chat(prompt, system=system, temperature=t)
+
+    async def stream(
+        self, prompt: str, *, system: str | None = None, temperature: float | None = None
+    ) -> AsyncIterator[str]:
+        t = self.temperature if temperature is None else temperature
+        messages = [{"role": "system", "content": system}] if system else []
+        messages.append({"role": "user", "content": prompt})
+        try:
+            parts = await self._client.chat(
+                model=self.model,
+                messages=messages,
+                think=False,
+                stream=True,
+                options={"temperature": t},
+            )
+            async for part in parts:
+                if part.message.content:
+                    yield part.message.content
+        except _OLLAMA_ERRORS as exc:
+            raise LLMError(f"Ollama request failed: {exc}") from exc
 
     async def generate_json(self, prompt: str, schema: type[T], *, system: str | None = None) -> T:
         raw = await self._chat(

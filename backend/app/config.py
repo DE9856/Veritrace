@@ -42,6 +42,11 @@ class Settings(BaseSettings):
     chunk_tokens: int = 400
     chunk_overlap_tokens: int = 60
     top_k: int = 6
+    # Agent retrieval loop: below this best similarity the agent rewrites its queries and
+    # searches again, at most max_retrieval_retries times. Measured with bge-small on the
+    # sample documents: on-topic questions 0.53-0.73, off-topic 0.40-0.56.
+    evidence_threshold: float = 0.55
+    max_retrieval_retries: int = 2
     max_upload_mb: int = 25
 
     # Verification

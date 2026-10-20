@@ -96,15 +96,11 @@ def test_chat_labels_supported_and_invented_claims(client, provider):
     assert body["counts"] == {"high": 1, "inferred": 0, "hallucinated": 1}
     assert 0 < body["answer_confidence"] < 1
     assert body["extraction_fallback"] is False
-    assert set(body["timings_ms"]) == {
-        "retrieve",
-        "generate",
-        "extract",
-        "sample",
-        "verify",
-        "consistency",
-        "judge",
-    }
+    trace = body["trace"]
+    assert trace[:5] == ["analyze", "retrieve", "generate", "extract", "verify"]
+    assert set(trace[5:7]) == {"judge", "consistency"}  # parallel branches, either order
+    assert trace[7:] == ["score"]
+    assert set(body["timings_ms"]) == set(body["trace"])
 
 
 def test_chat_flags_contradicted_claim(client, provider, nli):

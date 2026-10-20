@@ -6,7 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Planned
-- Phase 4: move the pipeline into a LangGraph state graph with the retrieval retry loop and the optional revise node, and stream each step to the client over SSE.
+- Phase 5: Next.js frontend with the chat, highlighted answers, evidence inspector, citation viewer, document upload and the live agent-step indicator.
+
+## [0.4.0] - 2026-10-20
+
+Phase 4: the agentic graph. The pipeline is now a LangGraph state graph that plans its searches, retries when the evidence is weak, verifies claims on parallel branches, optionally revises its answer, and streams every step to the client.
+
+### Added
+- Agent graph (`agent/graph.py`) with ten nodes: analyze, retrieve, no_sources, generate, extract, verify, judge, consistency, score and revise. Every node is wrapped to emit a status event, time itself and append to the trace.
+- Retrieval loop: the analyze node plans up to three extra search queries, and retrieve searches with all of them. If the best match is below `evidence_threshold` (0.55, measured with bge on the samples: on-topic 0.53 to 0.73, off-topic 0.40 to 0.56), the graph loops back to analyze, which writes different queries, at most `max_retrieval_retries` (2) times. If the evidence is still weak, the agent answers and sets `low_coverage`.
+- Parallel branches: judge (LLM) and consistency (NLI on samples) both follow verify and join at score. Resampling starts as a background task in the extract node, because LangGraph waits for every branch of a step to finish before the next one starts.
+- Safe mode (`safe_mode` in the request): when any claim is flagged hallucinated, the revise node returns `revised_answer`, which removes flagged claims and phrases inferred ones as conclusions.
+- `POST /api/chat/stream`: Server-Sent Events with `status` per agent step, `draft` while the answer is written (with half-written confidence tags hidden), then `verdict` or `error`. If the client disconnects, the agent run is cancelled.
+- `GET /api/chat/graph`: the compiled graph as a Mermaid diagram.
+- Token streaming in the provider interface (`LLMProvider.stream`), implemented for Ollama.
+- Response fields: `queries`, `retrieval_attempts`, `low_coverage`, `trace` and `revised_answer`. Timings are now per graph node, summed over retries.
+- 9 new tests (retry loop recovering and giving up, empty knowledge base route, safe mode with and without flags, SSE stream and error event, graph endpoint), 82 in total.
+
+### Changed
+- `agent/pipeline.py` is now a thin wrapper around the graph; the API holds one compiled agent created at startup.
+
+### Verified
+- Live with `qwen3:4b-instruct`: a streamed question produced 8 status events, 81 draft updates and the verdict in 24 seconds. An off-topic question ("What is the capital of France?") retried twice, ended with `low_coverage` and a refusal. A safe-mode question that invited speculation about future missions had that claim flagged and removed by the revise node.
 
 ## [0.3.0] - 2026-10-20
 
