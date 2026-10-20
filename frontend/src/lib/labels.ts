@@ -1,0 +1,44 @@
+import type { Label } from "./types";
+
+export const LABEL_TEXT: Record<Label, string> = {
+  high: "High confidence",
+  inferred: "Inferred",
+  hallucinated: "Possibly hallucinated",
+};
+
+export const LABEL_HINT: Record<Label, string> = {
+  high: "A source passage states this.",
+  inferred: "Follows from the sources, but no passage says it directly.",
+  hallucinated: "Contradicted by the sources, or not supported by them.",
+};
+
+/** Tailwind classes for a small label pill. */
+export const LABEL_PILL: Record<Label, string> = {
+  high: "bg-high-soft text-high",
+  inferred: "bg-inferred-soft text-inferred",
+  hallucinated: "bg-halluc-soft text-halluc",
+};
+
+export const LABEL_BAR: Record<Label, string> = {
+  high: "bg-high",
+  inferred: "bg-inferred",
+  hallucinated: "bg-halluc",
+};
+
+/** The agent's graph nodes, in the order a normal run visits them, with short names. */
+export const STEP_NAMES: Record<string, string> = {
+  analyze: "Plan search",
+  retrieve: "Search documents",
+  no_sources: "No documents",
+  generate: "Write answer",
+  extract: "Split into claims",
+  verify: "Check against sources",
+  judge: "Judge unsettled claims",
+  consistency: "Compare resamples",
+  score: "Score confidence",
+  revise: "Safe rewrite",
+};
+
+export const percent = (value: number) => `${Math.round(value * 100)}`;
+
+export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;

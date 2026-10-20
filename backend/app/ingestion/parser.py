@@ -75,6 +75,9 @@ def parse_file(path: Path, filename: str | None = None) -> ParsedDocument:
         # Plain text has no pages; treat the whole file as page 1.
         raw_pages = [path.read_text(encoding="utf-8", errors="replace")]
         title = first_line_title(raw_pages[0])
+        if ext == ".md":
+            # Heading markers are formatting, not content: "## Landing" -> "Landing".
+            raw_pages = [re.sub(r"^\s{0,3}#{1,6}\s+", "", raw_pages[0], flags=re.MULTILINE)]
 
     pages = [Page(i, clean_text(raw)) for i, raw in enumerate(raw_pages, 1)]
     return ParsedDocument(

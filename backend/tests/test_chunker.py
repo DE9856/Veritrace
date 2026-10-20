@@ -60,3 +60,16 @@ def test_title_from_heading_or_filename(tmp_path):
     txt.write_text("The lander touched down on 23 August 2023.\nMore text.")
     assert parse_file(txt).title == "mission notes"
     assert parse_file(txt, filename="Original Name.txt").title == "Original Name"
+
+
+def test_markdown_heading_markers_are_removed(tmp_path):
+    from app.ingestion.parser import parse_file
+
+    md = tmp_path / "doc.md"
+    md.write_text(
+        "# Chandrayaan-3\n\nIntro text.\n\n## Landing\n\nIt landed in 2023. Use #tags inline."
+    )
+    parsed = parse_file(md)
+    assert parsed.title == "Chandrayaan-3"
+    assert "#" not in parsed.pages[0].text.replace("#tags", "")
+    assert "Landing\n\nIt landed in 2023." in parsed.pages[0].text

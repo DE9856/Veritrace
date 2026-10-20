@@ -6,7 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Planned
-- Phase 5: Next.js frontend with the chat, highlighted answers, evidence inspector, citation viewer, document upload and the live agent-step indicator.
+- Phase 6: Gemini provider with prompt adjustments, rate-limit handling and a fallback provider, a backend Dockerfile, and deployment to Hugging Face Spaces and Vercel.
+
+## [0.5.0] - 2026-10-20
+
+Phase 5: the web app. A Next.js frontend that streams the agent's work and shows every claim's check.
+
+### Added
+- `frontend/`: Next.js 16 (App Router, Cache Components), TypeScript, Tailwind CSS 4 and shadcn/ui on Radix, with the project overview's palette and fonts (Bricolage Grotesque, Source Sans 3, JetBrains Mono) and light, dark and system themes.
+- Three-panel layout: documents on the left, the conversation in the middle, the inspector on the right. Below 1024 and 1280 pixels the side panels become overlays.
+- Documents panel: drag-and-drop or choose `.pdf`, `.txt` and `.md` files, see pages and passages, remove documents with a confirm step, and load the two sample documents in one click.
+- Live agent steps from the SSE stream, with retries marked. The answer streams in as a draft, then becomes the checked answer. Once finished, the steps collapse into a summary ("Agent took 8 steps in 18.0s").
+- Checked answer: each sentence highlighted by the label of its weakest claim, with clickable `[S1]` citations; a confidence summary (score out of 100, a bar split by label, counts with explanations); warnings for low coverage, invalid citations and extraction fallback; tabs for the checked answer and the safe version in safe mode; and a list of sources showing which were cited.
+- Inspector: each claim's score, label, reason, signal bars (entailment, contradiction, consistency, passage match), self-label, judge verdict, NLI verdict and words not found in the passage, with a link to the supporting passage. The source view highlights the sentence that best matches the claim.
+- Composer with safe mode switch, Enter to send and a stop button that cancels the run on the server.
+- Health indicator (model and verifier) polled every 30 seconds.
+- `frontend/.env.example` (`NEXT_PUBLIC_API_URL`) and `frontend/README.md`.
+
+### Fixed
+- Markdown heading markers ("## Landing") stayed in the indexed text of `.md` files and showed in the source viewer; they are now removed on ingest. Re-upload Markdown documents indexed before this change.
+- The frontend's generated `.gitignore` ignored `.env.example`; it is now committed.
+
+### Verified
+- A scripted browser run (headless Chromium) against the real backend and `qwen3:4b-instruct`: load the samples, ask a question (verdict in about 20 seconds), open a claim and its source, ask in safe mode, switch to dark mode and a 400-pixel-wide phone layout. No console errors and no horizontal overflow on the phone layout. Type check, ESLint and a production build all pass.
 
 ## [0.4.0] - 2026-10-20
 

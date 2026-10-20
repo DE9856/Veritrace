@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Veritrace: an evidence workbench. Slate neutrals with a blue bias, one ink-blue accent,
+   and three label colours (stated / inferred / flagged) that carry the meaning of the app.
+   Same palette as docs/project-overview.html. */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-display);
+  --font-mono: var(--font-code);
+
+  --color-high: var(--high);
+  --color-high-soft: var(--high-soft);
+  --color-inferred: var(--inferred);
+  --color-inferred-soft: var(--inferred-soft);
+  --color-halluc: var(--halluc);
+  --color-halluc-soft: var(--halluc-soft);
+  --color-surface: var(--surface);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: #f6f7f9;
+  --surface: #ffffff;
+  --foreground: #1b2230;
+  --card: #ffffff;
+  --card-foreground: #1b2230;
+  --popover: #ffffff;
+  --popover-foreground: #1b2230;
+  --primary: #1d5c86;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f5;
+  --secondary-foreground: #1b2230;
+  --muted: #eef1f5;
+  --muted-foreground: #5b6577;
+  --accent: #e3eef6;
+  --accent-foreground: #1b2230;
+  --destructive: #b3261e;
+  --border: #dde1e8;
+  --input: #dde1e8;
+  --ring: #1d5c86;
+  --radius: 0.5rem;
+
+  --high: #1f7a4d;
+  --high-soft: #dff2e7;
+  --inferred: #9a6400;
+  --inferred-soft: #fbedcc;
+  --halluc: #b3261e;
+  --halluc-soft: #fbe0dd;
+}
+
+.dark {
+  --background: #11151c;
+  --surface: #181d26;
+  --foreground: #e4e8ef;
+  --card: #181d26;
+  --card-foreground: #e4e8ef;
+  --popover: #1e2430;
+  --popover-foreground: #e4e8ef;
+  --primary: #6fb2e0;
+  --primary-foreground: #0c1822;
+  --secondary: #1e2430;
+  --secondary-foreground: #e4e8ef;
+  --muted: #1e2430;
+  --muted-foreground: #98a2b3;
+  --accent: #1b2b3a;
+  --accent-foreground: #e4e8ef;
+  --destructive: #f08a80;
+  --border: #2a313d;
+  --input: #2a313d;
+  --ring: #6fb2e0;
+
+  --high: #5fcf94;
+  --high-soft: #16301f;
+  --inferred: #e9b44c;
+  --inferred-soft: #33280f;
+  --halluc: #f08a80;
+  --halluc-soft: #3a1a18;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading;
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  /* A sentence in a checked answer, coloured by the label of its weakest claim. */
+  .sentence {
+    @apply rounded-[3px] border-b-2 px-0.5 transition-colors;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .sentence[data-label="high"] {
+    @apply border-high bg-high-soft;
+  }
+  .sentence[data-label="inferred"] {
+    @apply border-inferred bg-inferred-soft;
+  }
+  .sentence[data-label="hallucinated"] {
+    @apply border-halluc bg-halluc-soft;
+  }
+  .sentence[data-label="none"] {
+    @apply border-transparent;
+  }
+  .sentence[aria-pressed="true"] {
+    @apply outline-2 outline-offset-1 outline-foreground;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

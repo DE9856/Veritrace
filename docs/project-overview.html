@@ -422,9 +422,9 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
             <tr><td>Embeddings</td><td><code>BAAI/bge-small-en-v1.5</code> via sentence-transformers</td><td>Small (about 130 MB), strong retrieval quality, and runs on CPU.</td></tr>
             <tr><td>Vector store</td><td>ChromaDB (persistent client)</td><td>Embedded in the backend, needs no server, and stores metadata (document, page, chunk id) for citations.</td></tr>
             <tr><td>NLI verifier</td><td><code>MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli</code></td><td>Trained on fact-verification data (FEVER) and runs locally. It is a different model from the generator, so the check is independent.</td></tr>
-            <tr><td>Frontend</td><td>Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui</td><td>Component-based UI for highlighted spans, hover cards and side panels. Streams through <code>@microsoft/fetch-event-source</code>.</td></tr>
+            <tr><td>Frontend</td><td>Next.js 16 (App Router), TypeScript, Tailwind CSS 4, shadcn/ui (Radix)</td><td>Component-based UI for highlighted spans, hover cards and side panels. Streams through <code>@microsoft/fetch-event-source</code>.</td></tr>
             <tr><td>Persistence</td><td>SQLite via SQLModel</td><td>Stores chat history and document records with no extra service.</td></tr>
-            <tr><td>Tooling</td><td>uv, Docker, Ruff, pytest, pnpm</td><td>Reproducible environments and one Dockerfile for deployment.</td></tr>
+            <tr><td>Tooling</td><td>uv, Docker, Ruff, pytest, npm, ESLint</td><td>Reproducible environments and one Dockerfile for deployment.</td></tr>
           </tbody>
         </table>
       </div>

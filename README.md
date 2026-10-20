@@ -6,7 +6,7 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-Phases 1 to 4 are complete. Veritrace is a LangGraph agent: it plans its searches and retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. Each label combines NLI against the sources, self-consistency across resampled answers, the generator's own confidence tag, an LLM judge, and a check for words the source does not contain. In safe mode it also returns a rewritten answer without the flagged claims. Every step streams to the client over Server-Sent Events. The frontend comes in Phase 5.
+Phases 1 to 5 are complete: the agent backend and the web app. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step, highlights every sentence by its label, and shows how each claim was checked and which passage supports it. Phase 6 switches the model to Gemini and deploys the app.
 
 ## Run the backend
 
@@ -46,6 +46,19 @@ curl localhost:8000/api/chat/graph
 # Check the model and index
 curl localhost:8000/api/health
 ```
+
+## Run the frontend
+
+Requires Node.js 20 or newer. With the backend running on port 8000:
+
+```bash
+cd frontend
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Open http://localhost:3000, choose **Add the two sample documents**, and ask one of the suggested questions. Select a highlighted sentence to see its claim check, or a citation to read the source passage.
 
 ## Calibration
 
