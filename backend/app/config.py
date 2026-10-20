@@ -1,11 +1,23 @@
-"""Application settings, loaded from environment variables and backend/.env."""
+"""Application settings.
 
+Sources, highest priority first: constructor arguments, environment variables,
+backend/.env, then backend/config.yaml (scoring weights and thresholds).
+"""
+
+import os
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+    YamlConfigSettingsSource,
+)
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
+# Set VERITRACE_CONFIG to another YAML file, or to an empty string to use code defaults only.
+DEFAULT_CONFIG_YAML = BACKEND_DIR / "config.yaml"
 
 
 class Settings(BaseSettings):
@@ -39,14 +51,47 @@ class Settings(BaseSettings):
     nli_window_sentences: int = 3  # claims are checked against short sentence windows
     nli_windows_per_claim: int = 4  # best-matching windows sent to NLI per claim
 
-    # Phase 2 labels come from the NLI verdict alone. Phase 3 replaces these with
-    # the weighted score (entailment, consistency, retrieval, self-label).
-    high_threshold: float = 0.75  # entailment at or above this -> high confidence
-    inferred_threshold: float = 0.45  # entailment at or above this -> inferred
+    # Extra signals
+    consistency_samples: int = 3  # resampled answers per question; 0 turns the check off
+    sample_temperature: float = 0.8
+    judge_enabled: bool = True  # LLM inference judge for claims NLI could not confirm
+
+    # Confidence score = weighted average of the available signals (see config.yaml)
+    weight_entailment: float = 0.65
+    weight_consistency: float = 0.15
+    weight_retrieval: float = 0.10
+    weight_self_label: float = 0.10
+    # Claim-to-evidence cosine similarity is mapped linearly from this range onto 0..1
+    relevance_floor: float = 0.5
+    relevance_ceiling: float = 0.9
+
+    # Labels
+    high_threshold: float = 0.75  # score at or above this -> high confidence
+    inferred_threshold: float = 0.45  # score (and entailment) at or above this -> inferred
     contradiction_threshold: float = 0.7  # contradiction at or above this -> hallucinated
+    strong_entailment: float = 0.85  # with consistent samples, always high confidence
+    strong_consistency: float = 0.67
+    # A claim with a number, or at least this share of words, missing from its supporting
+    # passage is a deduction: inferred, not high (see verification/novelty.py).
+    novelty_threshold: float = 0.2
 
     # API
     cors_origins: list[str] = ["http://localhost:3000"]
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        sources = [init_settings, env_settings, dotenv_settings]
+        yaml_path = os.environ.get("VERITRACE_CONFIG", str(DEFAULT_CONFIG_YAML))
+        if yaml_path:
+            sources.append(YamlConfigSettingsSource(settings_cls, yaml_file=yaml_path))
+        return (*sources, file_secret_settings)
 
     @property
     def uploads_dir(self) -> Path:

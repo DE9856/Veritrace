@@ -96,7 +96,15 @@ def test_chat_labels_supported_and_invented_claims(client, provider):
     assert body["counts"] == {"high": 1, "inferred": 0, "hallucinated": 1}
     assert 0 < body["answer_confidence"] < 1
     assert body["extraction_fallback"] is False
-    assert set(body["timings_ms"]) == {"retrieve", "generate", "extract", "verify"}
+    assert set(body["timings_ms"]) == {
+        "retrieve",
+        "generate",
+        "extract",
+        "sample",
+        "verify",
+        "consistency",
+        "judge",
+    }
 
 
 def test_chat_flags_contradicted_claim(client, provider, nli):
@@ -121,3 +129,41 @@ def test_failed_extraction_falls_back_to_whole_sentences(client, provider):
     body = ask(client)
     assert body["extraction_fallback"] is True
     assert body["sentences"][0]["claims"][0]["text"] == "Vikram landed on 23 August 2023."
+
+
+def test_self_label_tags_are_hidden_but_reported(client, provider):
+    upload(client)
+    provider.reply = "Vikram landed on 23 August 2023 [S1] {HIGH}."
+    body = ask(client)
+    assert "{HIGH}" not in body["answer"]
+    assert body["sentences"][0]["text"] == "Vikram landed on 23 August 2023 [S1]."
+    signals = body["sentences"][0]["claims"][0]["signals"]
+    assert signals["self_label"] == "HIGH"
+    assert signals["consistency"] is not None
+
+
+def test_judge_sees_only_unsupported_claims_and_can_rescue_them(client, provider):
+    upload(client)
+    provider.reply = "Vikram touched down on 23 August 2023 [S1]. The mission was a success [S1]."
+    provider.extraction = {
+        "sentences": [
+            {"index": 0, "claims": ["Vikram touched down on 23 August 2023."]},
+            {"index": 1, "claims": ["The mission was a success."]},
+        ]
+    }
+    provider.derivable = {"The mission was a success."}
+    body = ask(client)
+    assert provider.judged == ["The mission was a success."]
+    claim = body["sentences"][1]["claims"][0]
+    assert (claim["label"], claim["signals"]["judge"]) == ("inferred", "derivable")
+
+
+def test_sampling_failure_leaves_consistency_out(client, provider):
+    upload(client)
+    provider.samples = None
+    provider.extraction = {
+        "sentences": [{"index": 0, "claims": ["The Vikram lander touched down on 23 August 2023."]}]
+    }
+    claim = ask(client)["sentences"][0]["claims"][0]
+    assert claim["signals"]["consistency"] is None
+    assert claim["label"] == "high"

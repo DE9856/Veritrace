@@ -1,0 +1,31 @@
+# Veritrace confidence scoring.
+# Environment variables and backend/.env override anything set here.
+
+# --- Extra signals ---
+consistency_samples: 3      # answers resampled per question (use 2 on the Gemini free tier)
+sample_temperature: 0.8
+judge_enabled: true
+
+# --- Weighted score ---
+# Tuned with calibration/tune.py on 39 hand-labelled claims (calibration/dev_claims.yaml).
+# The thresholds below came out unchanged; consistency was lowered from 0.20 to 0.15
+# because resampled answers that state only part of a long claim do not entail it.
+# score = weighted average of the signals that are available for a claim:
+#   entailment   best NLI entailment against the source passages
+#   consistency  share of resampled answers that also state the claim
+#   retrieval    how closely the supporting passage matches the claim
+#   self_label   the generator's own tag: HIGH 1.0, INFERRED 0.5, UNSURE 0.2
+weight_entailment: 0.65
+weight_consistency: 0.15
+weight_retrieval: 0.1
+weight_self_label: 0.1
+relevance_floor: 0.5
+relevance_ceiling: 0.9
+
+# --- Labels ---
+high_threshold: 0.75
+inferred_threshold: 0.45
+contradiction_threshold: 0.7
+strong_entailment: 0.85
+strong_consistency: 0.67
+novelty_threshold: 0.2      # share of claim words missing from the passage -> inferred

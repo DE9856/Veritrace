@@ -6,7 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Planned
-- Phase 3: full confidence scoring. Generator self-labels, self-consistency sampling, the inference judge for neutral claims, the weighted score, override rules, and threshold tuning.
+- Phase 4: move the pipeline into a LangGraph state graph with the retrieval retry loop and the optional revise node, and stream each step to the client over SSE.
+
+## [0.3.0] - 2026-10-20
+
+Phase 3: full confidence scoring. Each claim's label now combines NLI with four more signals, and the weights and thresholds are tuned on hand-labelled claims.
+
+### Added
+- Self-labels: the generator tags every sentence `{HIGH}`, `{INFERRED}` or `{UNSURE}`. Tags are read per sentence and removed from the displayed answer.
+- Consistency node (`agent/nodes/consistency.py`): resamples the answer 3 times at temperature 0.8 and scores each claim by how strongly the samples entail it (the SelfCheckGPT idea). A sampling failure leaves the signal out instead of failing the request.
+- Judge node (`agent/nodes/judge.py`): one LLM call reviews every claim NLI did not cleanly confirm (entailment below the high threshold, or a strong contradiction) and answers derivable, contradicted or unsupported with a short reason. The reason length is capped in the JSON schema sent to the model.
+- Novelty check (`verification/novelty.py`): claim words and numbers missing from the supporting passage. NLI entails deductions ("about three weeks after launch") as strongly as statements; a new number or a large share of new words marks the claim inferred, and the reason lists the new words.
+- Weighted score of entailment, consistency, retrieval relevance (claim-to-passage similarity) and self-label, with missing signals dropped and weights renormalised. Labels follow ordered rules: judge contradiction; judge rescue of an unconfirmed claim to inferred; NLI contradiction; unsupported; then strong entailment or the score, with novelty able to demote high to inferred.
+- `backend/config.yaml` holds the weights and thresholds, loaded below environment variables and `.env`.
+- Calibration (`backend/calibration/`): 39 hand-labelled claims over two documents, a script that collects every signal once with the real models (`signals.json`), and a script that grid-searches thresholds and weights, reports confusion matrices, and checks the result by tuning on one document and testing on the other.
+- Second sample document, `samples/james-webb-space-telescope.md`.
+- Response fields: `consistency`, `retrieval`, `self_label`, `judge` and `new_terms` per claim; timings for `sample`, `consistency` and `judge`.
+- 36 new tests, 73 in total.
+
+### Changed
+- NLI reads each window twice, with and without the document title, when the first reading is not decisive. Support counts if either reading shows it; a contradiction counts only if both agree. The title helps link "Chandrayaan-3" to "the Vikram lander" but blurred "India became the first to land near the south pole" (entailment 0.52 with the title, 0.85 without).
+- The pipeline overlaps GPU and CPU work: NLI verification runs while answers are being resampled, and the consistency check runs while the judge works. Questions take 23 to 30 seconds locally, down from 30 to 39.
+- Score weights tuned from 0.55 / 0.20 / 0.15 / 0.10 to 0.65 / 0.15 / 0.10 / 0.10 (entailment / consistency / retrieval / self-label). The thresholds came out unchanged. On the 39 labelled claims: 72% accuracy before the novelty check and wider judging, 92% after, 97% (macro-F1 0.97) with the tuned weights. Tuning on either document alone finds no better settings than these, which score 100% on the JWST claims and 95% on the Chandrayaan-3 claims. Lowering the consistency weight also matches an observed weakness: resampled answers that state only part of a long claim do not entail it.
+- Ruff's SIM905 rule is disabled, so word lists can stay readable as a split string.
+
+### Fixed
+- Garbled names in extracted claims ("Praginois", "Prag่าน", "Chandray-2" for Pragyan and Chandrayaan-2). This is the 4B model at temperature 0, with or without JSON mode. A capitalised word missing from the answer that starts like, and closely matches, a name in it is repaired.
+- A citation used as the subject of a sentence ("[S1] mentions ...") was moved to the previous sentence; a lone "." after a refusal became its own sentence; "No source addresses ..." was not recognised as a statement about the sources.
 
 ## [0.2.0] - 2026-10-20
 

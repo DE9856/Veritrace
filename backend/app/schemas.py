@@ -53,6 +53,22 @@ class ClaimSignals(BaseModel):
     entailment: float = Field(description="Highest entailment probability across sources.")
     neutral: float = Field(description="Neutral probability for the best-supporting source.")
     contradiction: float = Field(description="Highest contradiction probability across sources.")
+    consistency: float | None = Field(
+        default=None, description="Share of resampled answers that state the claim."
+    )
+    retrieval: float = Field(
+        default=0.0, description="How closely the supporting passage matches the claim (0-1)."
+    )
+    self_label: Literal["HIGH", "INFERRED", "UNSURE"] | None = Field(
+        default=None, description="The generator's own tag for the sentence."
+    )
+    judge: Literal["derivable", "contradicted", "unsupported"] | None = Field(
+        default=None, description="Inference judge verdict, for claims NLI could not confirm."
+    )
+    new_terms: list[str] = Field(
+        default_factory=list,
+        description="Claim words missing from the supporting passage (a sign of deduction).",
+    )
 
 
 class ClaimResult(BaseModel):

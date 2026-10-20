@@ -3,7 +3,11 @@ so tests need no downloaded models and no Ollama."""
 
 import hashlib
 import math
+import os
 import re
+
+# Use the code defaults, not backend/config.yaml, so tuning the YAML never breaks tests.
+os.environ["VERITRACE_CONFIG"] = ""
 
 import pytest
 from fastapi.testclient import TestClient
@@ -75,6 +79,11 @@ class FakeProvider:
         self.extraction: dict | None = {
             "sentences": [{"index": 0, "claims": ["Vikram landed on 23 August 2023."]}]
         }
+        # Claims the judge rules derivable; every other judged claim is unsupported.
+        self.derivable: set[str] = set()
+        self.judged: list[str] = []
+        # Resampled answers; None simulates a sampling failure. Defaults to the reply.
+        self.samples: list[str] | None = []
         self.prompts: list[str] = []
 
     async def generate(self, prompt, *, system=None, temperature=None):
@@ -82,12 +91,29 @@ class FakeProvider:
         return self.reply
 
     async def generate_json(self, prompt, schema, *, system=None):
+        if schema.__name__ == "_Judgement":
+            claims = re.findall(r"^(\d+): (.+)$", prompt.split("Claims:")[1], re.MULTILINE)
+            self.judged.extend(text for _, text in claims)
+            return schema.model_validate(
+                {
+                    "claims": [
+                        {
+                            "id": int(i),
+                            "verdict": "derivable" if text in self.derivable else "unsupported",
+                            "reason": "scripted",
+                        }
+                        for i, text in claims
+                    ]
+                }
+            )
         if self.extraction is None:
             raise LLMError("scripted failure")
         return schema.model_validate(self.extraction)
 
     async def sample(self, prompt, n, *, system=None, temperature=0.8):
-        return [self.reply] * n
+        if self.samples is None:
+            raise LLMError("scripted failure")
+        return (self.samples or [self.reply] * n)[:n]
 
     async def health(self):
         return ProviderHealth(

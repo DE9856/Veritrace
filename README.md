@@ -6,7 +6,7 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-Phases 1 and 2 are complete. The backend ingests documents, answers questions with citations on a local Ollama model, splits each answer into atomic claims, checks every claim against the sources with a DeBERTa NLI model, and labels claims and sentences as high confidence, inferred, or potentially hallucinated. Phase 3 adds self-consistency sampling, the inference judge and the weighted confidence score.
+Phases 1 to 3 are complete. The backend ingests documents, answers questions with citations on a local Ollama model, splits each answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. Each label combines NLI against the sources, self-consistency across resampled answers, the generator's own confidence tag, an LLM judge for claims NLI cannot settle, and a check for words the source does not contain. Weights and thresholds are in `backend/config.yaml`, tuned on hand-labelled claims in `backend/calibration/`.
 
 ## Run the backend
 
@@ -38,6 +38,15 @@ curl localhost:8000/api/chat -H 'content-type: application/json' \
 
 # Check the model and index
 curl localhost:8000/api/health
+```
+
+## Calibration
+
+```bash
+cd backend
+python -m calibration.collect_signals   # about 7 minutes: runs the real models on 39 labelled claims
+python -m calibration.tune              # instant: re-scores them under a grid of settings
+python -m calibration.tune --write      # also writes the best values into config.yaml
 ```
 
 ## Tests

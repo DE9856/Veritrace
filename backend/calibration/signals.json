@@ -1,0 +1,750 @@
+{
+  "model": "qwen3:4b-instruct",
+  "nli_model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+  "consistency_samples": 3,
+  "claims": [
+    {
+      "question": "When was Chandrayaan-3 launched?",
+      "claim": "Chandrayaan-3 was launched on 14 July 2023.",
+      "label": "high",
+      "entailment": 0.9986611604690552,
+      "neutral": 0.0008014540071599185,
+      "contradiction": 0.9837192893028259,
+      "support_similarity": 0.9116914487946081,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9973759651184082,
+      "judge": "derivable",
+      "judge_reason": "S1 states launch on 14 July 2023."
+    },
+    {
+      "question": "Which rocket launched Chandrayaan-3?",
+      "claim": "Chandrayaan-3 was launched aboard an LVM3 rocket.",
+      "label": "high",
+      "entailment": 0.998696506023407,
+      "neutral": 0.000798230932559818,
+      "contradiction": 0.00516994995996356,
+      "support_similarity": 0.8585686295832721,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9947372078895569,
+      "judge": "derivable",
+      "judge_reason": "Directly stated in S1: launched on 14 July 2023 aboard an LVM3 rocket."
+    },
+    {
+      "question": "When did the Vikram lander land?",
+      "claim": "The Vikram lander touched down near the lunar south pole on 23 August 2023.",
+      "label": "high",
+      "entailment": 0.9977694749832153,
+      "neutral": 0.0011552195064723492,
+      "contradiction": 0.07835611701011658,
+      "support_similarity": 0.8611495004179265,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.003995093051344156,
+      "judge": "derivable",
+      "judge_reason": "Derivable: S1 states Vikram landed near lunar south pole on 23 August 2023."
+    },
+    {
+      "question": "What did the Pragyan rover find?",
+      "claim": "The LIBS instrument on the Pragyan rover confirmed sulphur near the lunar south pole.",
+      "label": "high",
+      "entailment": 0.9980301260948181,
+      "neutral": 0.0013676747912541032,
+      "contradiction": 0.0007861609337851405,
+      "support_similarity": 0.8654428218762207,
+      "new_words": [
+        "instrument"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.1,
+      "consistency": 0.9930769602457682,
+      "judge": "derivable",
+      "judge_reason": "Derivable: S1 states LIBS confirmed sulphur near lunar south pole."
+    },
+    {
+      "question": "How far did the Pragyan rover travel?",
+      "claim": "The Pragyan rover travelled about 100 metres across the surface.",
+      "label": "high",
+      "entailment": 0.9987658262252808,
+      "neutral": 0.000689901877194643,
+      "contradiction": 0.04449203237891197,
+      "support_similarity": 0.7359672918433294,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9974299073219299,
+      "judge": "derivable",
+      "judge_reason": "Directly stated in S2: Pragyan rover travelled about 100 metres."
+    },
+    {
+      "question": "How long were the lander and rover designed to work?",
+      "claim": "The lander and rover were designed to operate for about one lunar day.",
+      "label": "high",
+      "entailment": 0.997920572757721,
+      "neutral": 0.001376267638988793,
+      "contradiction": 0.0011931667104363441,
+      "support_similarity": 0.8481348410227851,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9962304433186849,
+      "judge": "derivable",
+      "judge_reason": "Directly stated in both S1 and S2."
+    },
+    {
+      "question": "What was the landing site named?",
+      "claim": "The landing site was named the Shiv Shakti point.",
+      "label": "high",
+      "entailment": 0.9820292592048645,
+      "neutral": 0.010137646459043026,
+      "contradiction": 0.012615175917744637,
+      "support_similarity": 0.7436763688662705,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9922061562538147,
+      "judge": "derivable",
+      "judge_reason": "Derivable: Passage S1 states the landing site was named Shiv Shakti point."
+    },
+    {
+      "question": "How long did Chandrayaan-3 take to reach the Moon?",
+      "claim": "Chandrayaan-3 reached lunar orbit about three weeks after launch.",
+      "label": "inferred",
+      "entailment": 0.9764333367347717,
+      "neutral": 0.00459243031218648,
+      "contradiction": 0.02666212059557438,
+      "support_similarity": 0.8985705501487341,
+      "new_words": [
+        "reached",
+        "three",
+        "weeks",
+        "after"
+      ],
+      "new_numbers": [
+        "three"
+      ],
+      "novelty_share": 0.4444444444444444,
+      "consistency": 0.0009439578279852867,
+      "judge": "derivable",
+      "judge_reason": "Launch on 14 July 2023; entered orbit on 5 August 2023 \u2014 22 days, not three weeks (21 days). Derivable only if 'three' \u2248"
+    },
+    {
+      "question": "How long did the Pragyan rover work on the Moon?",
+      "claim": "The Pragyan rover worked on the Moon for roughly two weeks.",
+      "label": "inferred",
+      "entailment": 0.008722353726625443,
+      "neutral": 0.33397266268730164,
+      "contradiction": 0.9859904050827026,
+      "support_similarity": 0.7242645830369365,
+      "new_words": [
+        "pragyan",
+        "worked",
+        "moon",
+        "two",
+        "weeks"
+      ],
+      "new_numbers": [
+        "two"
+      ],
+      "novelty_share": 0.7142857142857143,
+      "consistency": 0.019214188136781257,
+      "judge": "derivable",
+      "judge_reason": "Derivable: The rover operated for about one lunar day, roughly 14 Earth days."
+    },
+    {
+      "question": "Why did the Chandrayaan-3 surface mission end?",
+      "claim": "The lander and rover stopped working because they did not survive the lunar night.",
+      "label": "inferred",
+      "entailment": 0.03294798359274864,
+      "neutral": 0.9487200975418091,
+      "contradiction": 0.025375571101903915,
+      "support_similarity": 0.6509408929222111,
+      "new_words": [
+        "lander",
+        "rover",
+        "stopped",
+        "working",
+        "because",
+        "survive"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.6666666666666666,
+      "consistency": 0.08120870652298133,
+      "judge": "derivable",
+      "judge_reason": "derivable: Passages state they went into sleep mode and did not respond to wake-up attempts during lunar night."
+    },
+    {
+      "question": "How did Chandrayaan-3 compare with Chandrayaan-2?",
+      "claim": "Chandrayaan-3's landing was more successful than Chandrayaan-2's landing.",
+      "label": "inferred",
+      "entailment": 0.017167523503303528,
+      "neutral": 0.9812467694282532,
+      "contradiction": 0.0015856610843911767,
+      "support_similarity": 0.7296832114960407,
+      "new_words": [
+        "s",
+        "more",
+        "successful"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.42857142857142855,
+      "consistency": 0.5811386704444885,
+      "judge": "unsupported",
+      "judge_reason": "No comparison of success made; both landings are described without evaluation."
+    },
+    {
+      "question": "When did the hop experiment happen?",
+      "claim": "The hop experiment took place 11 days after the landing.",
+      "label": "inferred",
+      "entailment": 0.8528101444244385,
+      "neutral": 0.023742234334349632,
+      "contradiction": 0.7608343958854675,
+      "support_similarity": 0.6083442096688151,
+      "new_words": [
+        "took",
+        "place",
+        "11",
+        "days",
+        "after"
+      ],
+      "new_numbers": [
+        "11"
+      ],
+      "novelty_share": 0.625,
+      "consistency": 0.04883139580488205,
+      "judge": "derivable",
+      "judge_reason": "Landing on 23 Aug 2023; hop on 3 Sep 2023 \u2014 11 days later. Derivable."
+    },
+    {
+      "question": "How long was Chandrayaan-3 in lunar orbit before the lander separated?",
+      "claim": "Chandrayaan-3 spent about 12 days in lunar orbit before the lander separated.",
+      "label": "inferred",
+      "entailment": 0.9660465121269226,
+      "neutral": 0.01820695772767067,
+      "contradiction": 0.01574653945863247,
+      "support_similarity": 0.7916132650093998,
+      "new_words": [
+        "spent",
+        "12",
+        "days",
+        "before"
+      ],
+      "new_numbers": [
+        "12"
+      ],
+      "novelty_share": 0.4,
+      "consistency": 0.9863017598787943,
+      "judge": "derivable",
+      "judge_reason": "Derivable: orbit entry was 5 August, separation was 17 August; 12 days between dates."
+    },
+    {
+      "question": "When was Chandrayaan-3 launched?",
+      "claim": "Chandrayaan-3 was launched on 14 August 2023.",
+      "label": "hallucinated",
+      "entailment": 0.0013593450421467423,
+      "neutral": 0.000881501822732389,
+      "contradiction": 0.9992092251777649,
+      "support_similarity": 0.9086077075620418,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.0006274221814237535,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 states launch on 14 July 2023, not August."
+    },
+    {
+      "question": "Which rocket launched Chandrayaan-3?",
+      "claim": "Chandrayaan-3 was launched aboard a PSLV rocket.",
+      "label": "hallucinated",
+      "entailment": 0.0010700317798182368,
+      "neutral": 0.0012437747791409492,
+      "contradiction": 0.9985113739967346,
+      "support_similarity": 0.8099895463743002,
+      "new_words": [
+        "pslv"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.16666666666666666,
+      "consistency": 0.00787352491170168,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 states LVM3, not PSLV."
+    },
+    {
+      "question": "What did the Pragyan rover find?",
+      "claim": "The Pragyan rover detected water ice inside a nearby crater.",
+      "label": "hallucinated",
+      "entailment": 0.00078099116217345,
+      "neutral": 0.9003486037254333,
+      "contradiction": 0.07211313396692276,
+      "support_similarity": 0.7556057740568484,
+      "new_words": [
+        "water",
+        "ice",
+        "inside",
+        "nearby",
+        "crater"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.625,
+      "consistency": 0.0008410120693345865,
+      "judge": "unsupported",
+      "judge_reason": "Unsupported: No mention of water ice or nearby crater."
+    },
+    {
+      "question": "How far did the Pragyan rover travel?",
+      "claim": "The Pragyan rover travelled about 500 metres across the surface.",
+      "label": "hallucinated",
+      "entailment": 0.014031406491994858,
+      "neutral": 0.8841872215270996,
+      "contradiction": 0.9988704323768616,
+      "support_similarity": 0.630592139762329,
+      "new_words": [
+        "pragyan",
+        "travelled",
+        "500",
+        "metres",
+        "across"
+      ],
+      "new_numbers": [
+        "500"
+      ],
+      "novelty_share": 0.7142857142857143,
+      "consistency": 0.0006030661752447486,
+      "judge": "contradicted",
+      "judge_reason": "Passage states rover travelled about 100 metres, not 500."
+    },
+    {
+      "question": "What did Chandrayaan-3 carry?",
+      "claim": "Chandrayaan-3 carried an orbiter, a lander and a rover.",
+      "label": "hallucinated",
+      "entailment": 0.9801027178764343,
+      "neutral": 0.014380590990185738,
+      "contradiction": 0.9969569444656372,
+      "support_similarity": 0.7925934147346153,
+      "new_words": [
+        "orbiter"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.16666666666666666,
+      "consistency": 0.0019676588126458228,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 states no orbiter, only lander and rover."
+    },
+    {
+      "question": "What happened after the lunar night?",
+      "claim": "The lander and rover woke up successfully after the lunar night.",
+      "label": "hallucinated",
+      "entailment": 0.7000393867492676,
+      "neutral": 0.28002506494522095,
+      "contradiction": 0.4093293249607086,
+      "support_similarity": 0.6600680711685338,
+      "new_words": [
+        "woke",
+        "up",
+        "successfully",
+        "night"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.5,
+      "consistency": 0.0001871564503138264,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted by passages stating they did not respond to wake-up attempts."
+    },
+    {
+      "question": "What comes after Chandrayaan-3?",
+      "claim": "ISRO plans to launch Chandrayaan-4 to collect lunar samples.",
+      "label": "hallucinated",
+      "entailment": 0.000962813210207969,
+      "neutral": 0.9988214373588562,
+      "contradiction": 0.0012693020980805159,
+      "support_similarity": 0.6937887820061345,
+      "new_words": [
+        "isro",
+        "plans",
+        "4",
+        "collect",
+        "samples"
+      ],
+      "new_numbers": [
+        "4"
+      ],
+      "novelty_share": 0.625,
+      "consistency": 0.005213345866650343,
+      "judge": "unsupported",
+      "judge_reason": "Unsupported: No mention of Chandrayaan-4 or sample collection in passages."
+    },
+    {
+      "question": "What does the rover's finding mean?",
+      "claim": "The south polar soil has a different composition from regions studied before.",
+      "label": "hallucinated",
+      "entailment": 0.014443074353039265,
+      "neutral": 0.9842617511749268,
+      "contradiction": 0.0012415446108207107,
+      "support_similarity": 0.6564587016306529,
+      "new_words": [
+        "polar",
+        "soil",
+        "different",
+        "composition",
+        "regions",
+        "studied",
+        "before"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.875,
+      "consistency": 0.37332914024591446,
+      "judge": "unsupported",
+      "judge_reason": "Passages mention sulphur and other elements but do not compare soil composition to prior regions."
+    },
+    {
+      "question": "When was JWST launched?",
+      "claim": "JWST was launched on 25 December 2021.",
+      "label": "high",
+      "entailment": 0.9990248680114746,
+      "neutral": 0.0005607568309642375,
+      "contradiction": 0.9326553344726562,
+      "support_similarity": 0.8094192521649437,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9962381919225057,
+      "judge": "derivable",
+      "judge_reason": "S1 states launch date as 25 December 2021."
+    },
+    {
+      "question": "Which rocket launched JWST?",
+      "claim": "JWST was launched on an Ariane 5 rocket.",
+      "label": "high",
+      "entailment": 0.9990058541297913,
+      "neutral": 0.0005762796499766409,
+      "contradiction": 0.006834987550973892,
+      "support_similarity": 0.8191189859728263,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.9973211884498596,
+      "judge": "derivable",
+      "judge_reason": "S1 states JWST launched on Ariane 5 rocket from Kourou."
+    },
+    {
+      "question": "How big is JWST's mirror?",
+      "claim": "JWST's primary mirror is 6.5 metres across.",
+      "label": "high",
+      "entailment": 0.9988027811050415,
+      "neutral": 0.0007554912008345127,
+      "contradiction": 0.0010813652770593762,
+      "support_similarity": 0.7322767851926586,
+      "new_words": [
+        "jwst"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.125,
+      "consistency": 0.9967346986134847,
+      "judge": "derivable",
+      "judge_reason": "Directly stated in S1: mirror is 6.5 metres across."
+    },
+    {
+      "question": "What is JWST's mirror made of?",
+      "claim": "JWST's primary mirror is made of 18 hexagonal segments.",
+      "label": "high",
+      "entailment": 0.9986767172813416,
+      "neutral": 0.0008102552383206785,
+      "contradiction": 0.0015300961676985025,
+      "support_similarity": 0.7475790815614722,
+      "new_words": [
+        "jwst"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.125,
+      "consistency": 0.11779645830392838,
+      "judge": "derivable",
+      "judge_reason": "Directly stated in S1: mirror made of 18 hexagonal segments."
+    },
+    {
+      "question": "Who built JWST?",
+      "claim": "JWST was developed by NASA with ESA and the Canadian Space Agency.",
+      "label": "high",
+      "entailment": 0.9955150485038757,
+      "neutral": 0.0016232592752203345,
+      "contradiction": 0.0029298425652086735,
+      "support_similarity": 0.8456343521621413,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.994236171245575,
+      "judge": "derivable",
+      "judge_reason": "Directly stated in S1: developed by NASA, ESA, and CSA."
+    },
+    {
+      "question": "How cold is MIRI kept?",
+      "claim": "A cryocooler keeps MIRI below 7 kelvin.",
+      "label": "high",
+      "entailment": 0.9979134202003479,
+      "neutral": 0.0015709332656115294,
+      "contradiction": 0.0010645975125953555,
+      "support_similarity": 0.7804481657742676,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.0004505128017626703,
+      "judge": "derivable",
+      "judge_reason": "Derivable: S2 states MIRI requires cooling below 7 kelvin via cryocooler."
+    },
+    {
+      "question": "How long did JWST take to reach its orbit?",
+      "claim": "JWST reached its orbit about a month after launch.",
+      "label": "inferred",
+      "entailment": 0.9339786767959595,
+      "neutral": 0.0231484342366457,
+      "contradiction": 0.053989458829164505,
+      "support_similarity": 0.8086574142310184,
+      "new_words": [
+        "reached",
+        "month"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.3333333333333333,
+      "consistency": 0.8607020378112793,
+      "judge": "contradicted",
+      "judge_reason": "Launch 25 Dec 2021, orbit 24 Jan 2022: 30 days after, not a month."
+    },
+    {
+      "question": "How long did James E. Webb lead NASA?",
+      "claim": "James E. Webb led NASA for about seven years.",
+      "label": "inferred",
+      "entailment": 0.9671428203582764,
+      "neutral": 0.004263839218765497,
+      "contradiction": 0.033908043056726456,
+      "support_similarity": 0.753824827177153,
+      "new_words": [
+        "seven",
+        "years"
+      ],
+      "new_numbers": [
+        "seven"
+      ],
+      "novelty_share": 0.2857142857142857,
+      "consistency": 0.9881321787834167,
+      "judge": "derivable",
+      "judge_reason": "S1 states Webb led NASA from 1961 to 1968: 1968 - 1961 = 7 years."
+    },
+    {
+      "question": "When were JWST's first images released?",
+      "claim": "JWST's first full-colour images were released more than six months after launch.",
+      "label": "inferred",
+      "entailment": 0.9777396321296692,
+      "neutral": 0.007101047318428755,
+      "contradiction": 0.015159348957240582,
+      "support_similarity": 0.6655057667010337,
+      "new_words": [
+        "jwst",
+        "more",
+        "six",
+        "months",
+        "after",
+        "launch"
+      ],
+      "new_numbers": [
+        "six"
+      ],
+      "novelty_share": 0.5,
+      "consistency": 0.9517284631729126,
+      "judge": "contradicted",
+      "judge_reason": "Launch was 25 Dec 2021; first images 12 July 2022; less than 6 months."
+    },
+    {
+      "question": "Who built JWST?",
+      "claim": "JWST is a collaboration between space agencies from North America and Europe.",
+      "label": "inferred",
+      "entailment": 0.9976300001144409,
+      "neutral": 0.0015629155095666647,
+      "contradiction": 0.0019040328916162252,
+      "support_similarity": 0.7807635080760921,
+      "new_words": [
+        "collaboration",
+        "between",
+        "north",
+        "america",
+        "europe"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.625,
+      "consistency": 0.9890549977620443,
+      "judge": "derivable",
+      "judge_reason": "NASA (North America), ESA (Europe), and CSA (Canada) confirm collaboration between North America and Europe."
+    },
+    {
+      "question": "When was JWST launched?",
+      "claim": "JWST was launched on 25 December 2022.",
+      "label": "hallucinated",
+      "entailment": 0.0005257554003037512,
+      "neutral": 0.0006133162532933056,
+      "contradiction": 0.9993776679039001,
+      "support_similarity": 0.7865638788034032,
+      "new_words": [],
+      "new_numbers": [],
+      "novelty_share": 0.0,
+      "consistency": 0.0005066772185576459,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 states launch on 25 December 2021."
+    },
+    {
+      "question": "Which rocket launched JWST?",
+      "claim": "JWST was launched on a Falcon Heavy rocket.",
+      "label": "hallucinated",
+      "entailment": 0.0004727141931653023,
+      "neutral": 0.9975125789642334,
+      "contradiction": 0.9995597004890442,
+      "support_similarity": 0.7268072414526197,
+      "new_words": [
+        "launched",
+        "falcon",
+        "heavy",
+        "rocket"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.8,
+      "consistency": 0.00010384775669081137,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 states JWST launched on Ariane 5, not Falcon Heavy."
+    },
+    {
+      "question": "What is JWST's mirror made of?",
+      "claim": "JWST's primary mirror is made of 12 hexagonal segments.",
+      "label": "hallucinated",
+      "entailment": 0.011767473071813583,
+      "neutral": 0.9854555726051331,
+      "contradiction": 0.9987199306488037,
+      "support_similarity": 0.6785864827768979,
+      "new_words": [
+        "s",
+        "primary",
+        "made",
+        "12",
+        "hexagonal",
+        "segments"
+      ],
+      "new_numbers": [
+        "12"
+      ],
+      "novelty_share": 0.75,
+      "consistency": 0.0008925776928663254,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 states 18 segments, not 12."
+    },
+    {
+      "question": "Where does JWST orbit?",
+      "claim": "JWST orbits the Earth at an altitude of 540 kilometres.",
+      "label": "hallucinated",
+      "entailment": 0.015726760029792786,
+      "neutral": 0.9636551141738892,
+      "contradiction": 0.9972977042198181,
+      "support_similarity": 0.6959520608229245,
+      "new_words": [
+        "orbits",
+        "earth",
+        "altitude",
+        "540",
+        "kilometres"
+      ],
+      "new_numbers": [
+        "540"
+      ],
+      "novelty_share": 0.8333333333333334,
+      "consistency": 0.000459223131959637,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: JWST orbits at L2, ~1.5 million km, not 540 km."
+    },
+    {
+      "question": "What protects JWST from heat?",
+      "claim": "JWST's sunshield has three layers.",
+      "label": "hallucinated",
+      "entailment": 0.002304611261934042,
+      "neutral": 0.99649977684021,
+      "contradiction": 0.9985731840133667,
+      "support_similarity": 0.7039952698565054,
+      "new_words": [
+        "s",
+        "three",
+        "layers"
+      ],
+      "new_numbers": [
+        "three"
+      ],
+      "novelty_share": 0.6,
+      "consistency": 0.0006306458963081241,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: Passage states five-layer sunshield."
+    },
+    {
+      "question": "What has JWST discovered?",
+      "claim": "JWST discovered liquid water on an exoplanet.",
+      "label": "hallucinated",
+      "entailment": 0.00040886193164624274,
+      "neutral": 0.9984548091888428,
+      "contradiction": 0.0011607400374487042,
+      "support_similarity": 0.6757805302439537,
+      "new_words": [
+        "discovered",
+        "liquid",
+        "water",
+        "exoplanet"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.8,
+      "consistency": 0.005986521098141869,
+      "judge": "unsupported",
+      "judge_reason": "Unsupported: No mention of exoplanet or liquid water in passages."
+    },
+    {
+      "question": "How cold is NIRCam kept?",
+      "claim": "NIRCam is cooled to below 1 kelvin.",
+      "label": "hallucinated",
+      "entailment": 0.002592163160443306,
+      "neutral": 0.9964336156845093,
+      "contradiction": 0.996030867099762,
+      "support_similarity": 0.5949997644140917,
+      "new_words": [
+        "cooled",
+        "below",
+        "1",
+        "kelvin"
+      ],
+      "new_numbers": [
+        "1"
+      ],
+      "novelty_share": 0.8,
+      "consistency": 0.005474615376442671,
+      "judge": "contradicted",
+      "judge_reason": "MIRI requires cooling below 7K; NIRCam does not, and no cooling stated."
+    },
+    {
+      "question": "When were JWST's first images released?",
+      "claim": "JWST's first full-colour images were released on 12 July 2023.",
+      "label": "hallucinated",
+      "entailment": 0.008010451681911945,
+      "neutral": 0.9870108366012573,
+      "contradiction": 0.998599112033844,
+      "support_similarity": 0.6536649818121014,
+      "new_words": [
+        "full",
+        "colour",
+        "released",
+        "12",
+        "2023"
+      ],
+      "new_numbers": [
+        "12",
+        "2023"
+      ],
+      "novelty_share": 0.5,
+      "consistency": 0.00032037077471613884,
+      "judge": "contradicted",
+      "judge_reason": "Contradicted: S1 says 12 July 2022, not 2023."
+    }
+  ]
+}

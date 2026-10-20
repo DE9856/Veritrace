@@ -375,7 +375,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <li><div><h3>Generate answer <span class="pill n">LLM</span></h3><p>Writes the answer using only the numbered evidence, cites chunks inline, and tags each sentence with its own confidence (<code>HIGH</code>, <code>INFERRED</code>, <code>UNSURE</code>). That self-label is one of the scoring signals.</p></div></li>
         <li><div><h3>Extract claims <span class="pill n">LLM · JSON</span></h3><p>Breaks each sentence into atomic, standalone claims and returns structured JSON that maps each claim to its sentence index.</p></div></li>
         <li><div><h3>Verify with NLI <span class="pill n">DeBERTa</span></h3><p>Sources are split into short 3-sentence windows, and each claim is checked against its 4 best-matching windows (ranked by embedding similarity plus shared words, so dates and names count) and the best window of every source it cited. The claim is the hypothesis; the window, prefixed with its document title, is the premise. The model returns entailment, neutral and contradiction probabilities. Clear support outranks a contradiction from a passage about something else.</p></div></li>
-        <li><div><h3>Judge inference <span class="pill n">LLM</span></h3><p>Only for claims that came back neutral. A judge prompt is given all the evidence together and asked whether the claim is a reasonable deduction from it. This step separates inferred claims from unsupported ones.</p></div></li>
+        <li><div><h3>Judge inference <span class="pill n">LLM</span></h3><p>For claims NLI could not confirm: unsupported ones, and ones NLI reads as contradicted, since NLI often mistakes a correct deduction ("about two weeks" from two dates) for a conflict. The judge sees all the evidence at once and answers derivable, contradicted or unsupported, with a short reason. All such claims go in one LLM call.</p></div></li>
         <li><div><h3>Consistency check <span class="pill n">LLM + NLI</span></h3><p>Samples N more answers at a higher temperature (N = 3 locally, 2 on Gemini because of free-tier limits). For each claim, it measures the fraction of samples that entail it, following the SelfCheckGPT approach.</p></div></li>
         <li><div><h3>Score and label <span class="pill n">Deterministic</span></h3><p>Combines the signals into a score per claim, applies the override rules, assigns labels, and rolls the results up to sentences and to the whole answer.</p></div></li>
         <li><div><h3>Revise <span class="pill n">LLM · optional</span></h3><p>If the user turns on safe mode and any claim is flagged, this step rewrites the answer to remove or hedge flagged claims. Both versions are returned.</p></div></li>
@@ -386,22 +386,25 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
       <h2>Confidence scoring</h2>
       <p>The score combines several independent signals, so the model's opinion of its own answer is never the only input. Claim verification against evidence carries the most weight.</p>
       <div class="formula">
-        <span class="big">score = 0.55·E + 0.20·C + 0.15·R + 0.10·L</span>
+        <span class="big">score = 0.65·E + 0.15·C + 0.10·R + 0.10·L</span>
         <ul>
-          <li>E: highest NLI entailment probability across evidence chunks</li>
+          <li>E: highest NLI entailment probability across evidence windows</li>
           <li>C: self-consistency, the fraction of resampled answers that support the claim</li>
-          <li>R: retrieval relevance of the best supporting chunk (cosine similarity, normalised)</li>
+          <li>R: how closely the supporting passage matches the claim (cosine similarity, normalised)</li>
           <li>L: the generator's own label (HIGH = 1.0, INFERRED = 0.5, UNSURE = 0.2)</li>
+          <li>A signal that is missing (sampling off, no tag) drops out and the other weights are renormalised.</li>
         </ul>
       </div>
       <h3>Override rules</h3>
       <ul>
-        <li>Contradiction probability above 0.7 sets the label to <span class="pill hal">hallucinated</span>, whatever the score.</li>
-        <li>A neutral NLI verdict that the inference judge rules derivable is raised to at least <span class="pill inf">inferred</span>.</li>
-        <li>An entailment above 0.85 with consistency of at least 0.67 is <span class="pill high">high</span>.</li>
+        <li>A claim NLI could not confirm that the judge finds derivable is <span class="pill inf">inferred</span>, never high, because no passage states it.</li>
+        <li>A contradiction from NLI (when no passage clearly states the claim) or from the judge makes it <span class="pill hal">hallucinated</span>.</li>
+        <li>Entailment below the inferred threshold makes it <span class="pill hal">hallucinated</span>. Consistency and a confident self-label cannot rescue an unsupported claim, because a model can be consistently wrong.</li>
+        <li>Entailment above 0.85 with consistency of at least 0.67 is <span class="pill high">high</span>. Otherwise the weighted score decides.</li>
+        <li>A high claim that brings a number, or 20% or more of its words, that its passage does not contain is a deduction and becomes <span class="pill inf">inferred</span>. NLI entails "about three weeks after launch" from two dates as strongly as a stated fact; the new words show it was worked out.</li>
       </ul>
       <h3>Roll-up</h3>
-      <p>A sentence takes the label of its weakest claim. The answer's confidence is the average of its claim scores, weighted by claim length, and is shown next to a count of claims in each tier. The weights and thresholds live in <code>config.yaml</code> and are tuned against a small hand-labelled set of question and answer pairs.</p>
+      <p>A sentence takes the label of its weakest claim. The answer's confidence is the average of its claim scores, weighted by claim length, and is shown next to a count of claims in each tier. The weights and thresholds live in <code>config.yaml</code>. They are tuned on 40 hand-labelled claims across two documents: the signals for each claim are collected once with the real models, then re-scored under a grid of settings, and the result is checked by tuning on one document and testing on the other.</p>
     </section>
 
     <section id="stack">

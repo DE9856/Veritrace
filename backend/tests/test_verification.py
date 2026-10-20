@@ -46,7 +46,7 @@ def test_entailed_claim_is_high_confidence():
 def test_partly_supported_claim_is_inferred():
     result = score_claim(evidence(0.6), SETTINGS)
     assert result.label == "inferred"
-    assert result.score == 0.6
+    assert SETTINGS.inferred_threshold <= result.score < SETTINGS.high_threshold
 
 
 def test_unsupported_claim_is_hallucinated():
@@ -80,8 +80,8 @@ def test_sentence_takes_weakest_claim_and_answer_is_length_weighted():
 
     confidence, counts = roll_up([sentence, build_sentence(1, "No claims.", [])])
     assert (counts.high, counts.inferred, counts.hallucinated) == (1, 0, 1)
-    # "A claim." (8 chars, score 1) and "A much longer claim." (20 chars, score 0)
-    assert confidence == round(8 / 28, 4)
+    # Weighted by length: "A claim." is 8 characters, "A much longer claim." is 20.
+    assert confidence == round((high.score * 8 + weak.score * 20) / 28, 4)
 
 
 def test_answer_without_claims_has_no_confidence():
@@ -114,7 +114,7 @@ def test_cited_source_is_always_checked_even_if_not_closest():
     windows = build_windows([source("S1", "Close."), source("S2", "Far.")], size=3)
     claims = [ExtractedClaim(0, "claim")]
     sentences = split_answer("Claim [S2].")
-    selected = select_windows([[1.0, 0.0]], [[1.0, 0.0], [0.0, 1.0]], windows, claims, sentences, 1)
+    selected = select_windows([[1.0, 0.0]], windows, claims, sentences, 1)
     assert selected == [[0, 1]]
 
 
@@ -164,7 +164,5 @@ def test_word_overlap_lifts_the_window_with_the_matching_date():
     )
     claims = [ExtractedClaim(0, "It landed on 23 August 2023.")]
     # Embeddings slightly prefer the wrong window; shared words decide it.
-    selected = select_windows(
-        [[1.0, 0.0]], [[0.9, 0.1], [0.8, 0.2]], windows, claims, split_answer("x"), 1
-    )
+    selected = select_windows([[0.9, 0.8]], windows, claims, split_answer("x"), 1)
     assert selected == [[1]]
