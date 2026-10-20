@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veritrace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: technical design doc. Sticky contents rail on wide screens, single reading column, wide blocks for diagrams and tables. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --fg: #1b2230;
+  --muted: #5b6577;
+  --line: #dde1e8;
+  --accent: #1d5c86;
+  --accent-soft: #e3eef6;
+  --high: #1f7a4d;   --high-bg: #dff2e7;
+  --inf: #9a6400;    --inf-bg: #fbedcc;
+  --hal: #b3261e;    --hal-bg: #fbe0dd;
+  --code-bg: #eef1f5;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151c; --surface: #181d26; --fg: #e4e8ef; --muted: #98a2b3; --line: #2a313d;
+    --accent: #6fb2e0; --accent-soft: #1b2b3a;
+    --high: #5fcf94; --high-bg: #16301f;
+    --inf: #e9b44c; --inf-bg: #33280f;
+    --hal: #f08a80; --hal-bg: #3a1a18;
+    --code-bg: #1e2430;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151c; --surface: #181d26; --fg: #e4e8ef; --muted: #98a2b3; --line: #2a313d;
+  --accent: #6fb2e0; --accent-soft: #1b2b3a;
+  --high: #5fcf94; --high-bg: #16301f;
+  --inf: #e9b44c; --inf-bg: #33280f;
+  --hal: #f08a80; --hal-bg: #3a1a18;
+  --code-bg: #1e2430;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-inline: 16px;
+}
+.page {
+  max-width: 1180px; margin: 0 auto; padding-block: 40px 80px;
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 56px;
+}
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0,1fr); gap: 24px; } .toc { display: none; } }
+
+.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+.toc p { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a:focus-visible { color: var(--accent); }
+
+main { min-width: 0; }
+section { padding-block: 28px; border-top: 1px solid var(--line); }
+section:first-of-type { border-top: 0; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.65rem; font-weight: 700; margin-bottom: 14px; }
+h3 { font-size: 1.15rem; font-weight: 500; margin: 22px 0 8px; }
+p, li { max-width: 68ch; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, .s:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.subtitle { font-family: var(--font-display); font-size: clamp(1.2rem, 2.4vw, 1.5rem); font-weight: 500; color: var(--accent); margin: 6px 0 0; }
+.lede { font-size: 1.2rem; color: var(--muted); max-width: 62ch; margin-top: 14px; }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+.muted { color: var(--muted); }
+
+/* Hero answer mock */
+.mock { margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.mock-head { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.mock-q { font-weight: 600; }
+.overall { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.mock-body { padding: 18px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 700px) { .mock-body { grid-template-columns: minmax(0,1fr); } }
+.answer { line-height: 1.85; }
+.s { border-radius: 3px; padding: 1px 2px; cursor: pointer; border-bottom: 2px solid transparent; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.s.high { background: var(--high-bg); border-color: var(--high); }
+.s.inf  { background: var(--inf-bg);  border-color: var(--inf); }
+.s.hal  { background: var(--hal-bg);  border-color: var(--hal); }
+.s[aria-pressed="true"] { outline: 2px solid var(--fg); outline-offset: 1px; }
+.cite { font-family: var(--font-mono); font-size: 11px; color: var(--accent); vertical-align: super; }
+.detail { border-left: 1px solid var(--line); padding-left: 18px; font-size: 15px; }
+@media (max-width: 700px) { .detail { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 14px; } }
+.detail h4 { margin: 0 0 6px; font-family: var(--font-display); font-weight: 500; font-size: 1rem; }
+.detail dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 10px 0; font-size: 14px; }
+.detail dt { color: var(--muted); }
+.detail dd { margin: 0; font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.evidence { background: var(--code-bg); border-radius: 6px; padding: 8px 10px; font-size: 14px; margin-top: 8px; }
+
+.pill { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; font-weight: 500; white-space: nowrap; }
+.pill.high { background: var(--high-bg); color: var(--high); }
+.pill.inf  { background: var(--inf-bg);  color: var(--inf); }
+.pill.hal  { background: var(--hal-bg);  color: var(--hal); }
+.pill.n { background: var(--accent-soft); color: var(--accent); }
+
+/* Taxonomy */
+.tiers { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin-top: 16px; }
+@media (max-width: 760px) { .tiers { grid-template-columns: minmax(0,1fr); } }
+.tier { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.tier.high { --c: var(--high); } .tier.inf { --c: var(--inf); } .tier.hal { --c: var(--hal); }
+.tier h3 { margin: 0; color: var(--c); }
+.tier .range { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
+.tier p { font-size: 15px; margin: 0; }
+.tier .rule { font-size: 14px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; margin-top: auto; }
+
+/* Feature grid */
+.features { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px 32px; margin: 0; padding: 0; list-style: none; }
+@media (max-width: 700px) { .features { grid-template-columns: minmax(0,1fr); } }
+.features li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.features strong { display: block; font-weight: 600; }
+.features span { color: var(--muted); font-size: 15px; }
+
+/* Diagram */
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-top: 12px; }
+.diagram svg { display: block; min-width: 820px; width: 100%; height: auto; }
+.d-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.d-box.em { stroke: var(--accent); }
+.d-node { fill: var(--accent-soft); stroke: none; }
+.d-title { fill: var(--fg); font: 600 14px var(--font-body); }
+.d-text { fill: var(--muted); font: 12px var(--font-body); }
+.d-mono { fill: var(--muted); font: 11px var(--font-mono); }
+.d-node-t { fill: var(--fg); font: 13px var(--font-body); }
+.d-tag { fill: var(--accent); font: 10px var(--font-mono); }
+.d-arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.d-loop { stroke: var(--inf); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+.d-loop-t { fill: var(--inf); font: 10px var(--font-mono); }
+.d-head { fill: var(--muted); }
+.d-head-loop { fill: var(--inf); }
+
+/* Pipeline steps */
+.steps { list-style: none; counter-reset: step; margin: 16px 0 0; padding: 0; display: grid; gap: 0; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); max-width: none; }
+.steps li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); font-size: 13px; color: var(--accent); padding-top: 3px; }
+.steps h3 { margin: 0 0 4px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.steps p { margin: 0; font-size: 15.5px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; background: var(--code-bg); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+
+pre { background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.55; margin: 12px 0; }
+.formula { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin: 12px 0; font-family: var(--font-mono); font-size: 14px; overflow-x: auto; }
+.formula .big { font-size: 16px; color: var(--fg); display: block; margin-bottom: 10px; }
+.formula ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 2px; }
+
+.two { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 20px; }
+@media (max-width: 760px) { .two { grid-template-columns: minmax(0,1fr); } }
+.two > div { min-width: 0; }
+
+.phases { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.phases li { display: grid; grid-template-columns: 92px minmax(0,1fr); gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; max-width: none; }
+.phases .ph { font-family: var(--font-mono); font-size: 12px; color: var(--accent); padding-top: 3px; }
+.phases strong { display: block; }
+.phases span { font-size: 15px; color: var(--muted); }
+
+footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+
+<div class="page">
+  <nav class="toc" aria-label="Contents">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#taxonomy">Confidence labels</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#pipeline">Agent pipeline</a></li>
+      <li><a href="#scoring">Confidence scoring</a></li>
+      <li><a href="#stack">Tech stack</a></li>
+      <li><a href="#flow">How it connects</a></li>
+      <li><a href="#api">API contract</a></li>
+      <li><a href="#models">Model strategy</a></li>
+      <li><a href="#structure">Project structure</a></li>
+      <li><a href="#deploy">Deployment</a></li>
+      <li><a href="#roadmap">Build roadmap</a></li>
+      <li><a href="#decisions">Design decisions</a></li>
+      <li><a href="#limits">Limitations</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="overview">
+      <div class="eyebrow">M1-P5 · Agentic AI · Project overview</div>
+      <h1>Veritrace</h1>
+      <p class="subtitle">Hallucination-Aware Information Assistant</p>
+      <p class="lede">An agentic assistant that answers questions from a document knowledge base and labels every claim in its answer as high-confidence, inferred, or potentially hallucinated, with a score and the evidence behind it.</p>
+
+      <div class="mock" aria-label="Example answer as the user sees it">
+        <div class="mock-head">
+          <span class="mock-q">Q: When did Chandrayaan-3 land, and what did the rover find?</span>
+          <span class="overall">answer confidence 0.66 · 2 high · 1 inferred · 1 flagged</span>
+        </div>
+        <div class="mock-body">
+          <p class="answer" id="answer">
+            <span class="s high" tabindex="0" role="button" aria-pressed="true" data-i="0">The Vikram lander touched down near the lunar south pole on 23 August 2023.<span class="cite">[S1]</span></span>
+            <span class="s high" tabindex="0" role="button" aria-pressed="false" data-i="1">The Pragyan rover confirmed sulphur in the surface near the landing site.<span class="cite">[S2]</span></span>
+            <span class="s inf" tabindex="0" role="button" aria-pressed="false" data-i="2">This suggests the south polar surface chemistry differs from the equatorial sites sampled by earlier missions.</span>
+            <span class="s hal" tabindex="0" role="button" aria-pressed="false" data-i="3">The rover also detected water ice inside a crater close to the landing site.</span>
+          </p>
+          <div class="detail" id="detail" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="muted" style="font-size:14px;margin-top:10px">Example output. Select a highlighted sentence to see the claim-level breakdown.</p>
+
+      <h3>Problem</h3>
+      <p>Language models write false statements in the same fluent, confident tone as true ones. The reader has no way to tell which parts of an answer are backed by evidence, which are reasonable deductions, and which are made up.</p>
+      <h3>Goal</h3>
+      <p>Build an assistant that checks its own answers before showing them. It breaks each answer into individual factual claims, verifies each claim against retrieved source passages and against its own repeated samples, and returns the answer with a visible confidence level for every sentence.</p>
+      <h3>Scope</h3>
+      <p>Questions are answered over a knowledge base of documents the user uploads (PDF, TXT, Markdown). Anything the knowledge base cannot support is labelled as unsupported rather than silently trusted. The system runs on free local models during development and switches to the Gemini API for the final version.</p>
+    </section>
+
+    <section id="taxonomy">
+      <h2>Confidence labels</h2>
+      <p>Each atomic claim gets a score from 0 to 1 and one of three labels. A sentence takes the label of its weakest claim, and the answer as a whole gets a weighted average.</p>
+      <div class="tiers">
+        <div class="tier high">
+          <h3>High confidence</h3>
+          <div class="range">score ≥ 0.75</div>
+          <p>The claim is directly stated in at least one retrieved source passage and the model gives the same claim consistently across samples.</p>
+          <div class="rule">NLI verdict: entailment. Shown with a citation to the source chunk.</div>
+        </div>
+        <div class="tier inf">
+          <h3>Inferred</h3>
+          <div class="range">0.45 – 0.75</div>
+          <p>No single passage states the claim, but it follows logically from several supported facts taken together. Reasoning, summaries and comparisons usually land here.</p>
+          <div class="rule">NLI verdict: neutral, and the inference judge rules it derivable from the evidence.</div>
+        </div>
+        <div class="tier hal">
+          <h3>Potentially hallucinated</h3>
+          <div class="range">score &lt; 0.45, or contradicted</div>
+          <p>The sources contradict the claim, or nothing in the knowledge base supports it and the model's own samples disagree about it.</p>
+          <div class="rule">NLI verdict: contradiction, or neutral with no support. Shown with a warning and the reason.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2>Features</h2>
+      <ul class="features">
+        <li><strong>Document knowledge base</strong><span>Upload PDFs and text files. They are parsed, chunked, embedded and indexed in ChromaDB.</span></li>
+        <li><strong>Grounded answers with citations</strong><span>Answers cite the source chunks they rely on, as <code>[S1]</code> style markers that open the original passage.</span></li>
+        <li><strong>Claim-level verification</strong><span>Every answer is split into atomic claims, and each claim is checked separately against the evidence.</span></li>
+        <li><strong>Three-tier highlighting</strong><span>Green, amber and red highlights per sentence, with a 0–100 score and an overall answer confidence.</span></li>
+        <li><strong>Evidence inspector</strong><span>Click a sentence to see its claims, the NLI verdict, the consistency score, and the passage used to check it.</span></li>
+        <li><strong>Self-consistency check</strong><span>The model answers the same question several more times, and claims that change between samples lose confidence.</span></li>
+        <li><strong>Agentic re-retrieval</strong><span>If the first retrieval finds weak evidence, the agent rewrites the query and searches again before answering.</span></li>
+        <li><strong>Safer answer rewrite</strong><span>An optional mode that rewrites the answer to remove or hedge flagged claims, shown next to the original.</span></li>
+        <li><strong>Live progress</strong><span>The UI streams each agent step (retrieving, verifying, scoring) as it happens over Server-Sent Events.</span></li>
+        <li><strong>Swappable model backend</strong><span>One setting switches between local Ollama models and the Gemini API without code changes.</span></li>
+      </ul>
+    </section>
+
+    <section id="architecture">
+      <h2>System architecture</h2>
+      <p>Three layers: a Next.js frontend, a FastAPI backend that hosts the LangGraph agent, and the model and data services the agent calls. Ingestion runs as a separate path that fills the vector store.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 960 545" role="img" aria-label="Architecture: Next.js UI talks to FastAPI, which runs a LangGraph agent of ten nodes that call an LLM provider, an NLI model and ChromaDB. An ingestion path writes documents into ChromaDB.">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-head"/></marker>
+            <marker id="ahl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="d-head-loop"/></marker>
+          </defs>
+
+          <!-- Frontend -->
+          <rect class="d-box" x="20" y="195" width="170" height="100" rx="8"/>
+          <text class="d-title" x="34" y="222">Next.js UI</text>
+          <text class="d-text" x="34" y="242">chat + highlights</text>
+          <text class="d-text" x="34" y="259">evidence inspector</text>
+          <text class="d-text" x="34" y="276">document upload</text>
+
+          <!-- FastAPI -->
+          <rect class="d-box em" x="250" y="175" width="180" height="140" rx="8"/>
+          <text class="d-title" x="264" y="202">FastAPI backend</text>
+          <text class="d-mono" x="264" y="224">POST /api/chat (SSE)</text>
+          <text class="d-mono" x="264" y="242">POST /api/documents</text>
+          <text class="d-mono" x="264" y="260">GET  /api/documents</text>
+          <text class="d-mono" x="264" y="278">GET  /api/health</text>
+          <text class="d-text" x="264" y="300">Pydantic schemas</text>
+
+          <!-- Ingestion -->
+          <rect class="d-box" x="250" y="365" width="180" height="115" rx="8"/>
+          <text class="d-title" x="264" y="392">Ingestion</text>
+          <text class="d-text" x="264" y="413">PyMuPDF parse</text>
+          <text class="d-text" x="264" y="431">sentence-aware chunking</text>
+          <text class="d-text" x="264" y="449">bge-small embeddings</text>
+          <text class="d-text" x="264" y="467">write to ChromaDB</text>
+
+          <!-- Agent -->
+          <rect class="d-box em" x="490" y="30" width="230" height="460" rx="10"/>
+          <text class="d-title" x="506" y="58">LangGraph agent</text>
+          <g>
+            <rect class="d-node" x="515" y="72" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="92">Analyze query</text><text class="d-tag" x="697" y="91" text-anchor="end">LLM</text>
+            <rect class="d-node" x="515" y="112" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="132">Retrieve evidence</text><text class="d-tag" x="697" y="131" text-anchor="end">DB</text>
+            <rect class="d-node" x="515" y="152" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="172">Evidence sufficient?</text><text class="d-tag" x="697" y="171" text-anchor="end">RULE</text>
+            <rect class="d-node" x="515" y="192" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="212">Generate answer</text><text class="d-tag" x="697" y="211" text-anchor="end">LLM</text>
+            <rect class="d-node" x="515" y="232" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="252">Extract claims</text><text class="d-tag" x="697" y="251" text-anchor="end">LLM</text>
+            <rect class="d-node" x="515" y="272" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="292">Verify (NLI)</text><text class="d-tag" x="697" y="291" text-anchor="end">NLI</text>
+            <rect class="d-node" x="515" y="312" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="332">Judge inference</text><text class="d-tag" x="697" y="331" text-anchor="end">LLM</text>
+            <rect class="d-node" x="515" y="352" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="372">Consistency check</text><text class="d-tag" x="697" y="371" text-anchor="end">LLM+NLI</text>
+            <rect class="d-node" x="515" y="392" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="412">Score + label</text><text class="d-tag" x="697" y="411" text-anchor="end">RULE</text>
+            <rect class="d-node" x="515" y="432" width="190" height="30" rx="5"/><text class="d-node-t" x="525" y="452">Revise (optional)</text><text class="d-tag" x="697" y="451" text-anchor="end">LLM</text>
+          </g>
+          <!-- retry loop -->
+          <path class="d-loop" d="M515 167 H502 V87 H511" marker-end="url(#ahl)"/>
+          <text class="d-loop-t" x="498" y="130" text-anchor="end">retry</text>
+          <text class="d-loop-t" x="498" y="142" text-anchor="end">≤ 2</text>
+
+          <!-- Services -->
+          <rect class="d-box" x="780" y="60" width="165" height="115" rx="8"/>
+          <text class="d-title" x="794" y="86">LLM provider</text>
+          <text class="d-text" x="794" y="107">dev: Ollama</text>
+          <text class="d-text" x="794" y="124">  qwen3:4b (thinking off)</text>
+          <text class="d-text" x="794" y="145">final: Gemini API</text>
+          <text class="d-text" x="794" y="162">fallback: Sarvam / Groq</text>
+
+          <rect class="d-box" x="780" y="220" width="165" height="100" rx="8"/>
+          <text class="d-title" x="794" y="246">NLI verifier</text>
+          <text class="d-text" x="794" y="267">DeBERTa-v3-base</text>
+          <text class="d-text" x="794" y="284">mnli-fever-anli</text>
+          <text class="d-text" x="794" y="305">local, CPU</text>
+
+          <rect class="d-box" x="780" y="380" width="165" height="100" rx="8"/>
+          <text class="d-title" x="794" y="406">ChromaDB</text>
+          <text class="d-text" x="794" y="427">chunks + metadata</text>
+          <text class="d-text" x="794" y="444">bge-small-en-v1.5</text>
+          <text class="d-text" x="794" y="465">persistent, local</text>
+
+          <!-- arrows -->
+          <path class="d-arrow" d="M192 245 H248" marker-end="url(#ah)" marker-start="url(#ah)"/>
+          <text class="d-mono" x="220" y="236" text-anchor="middle">REST</text>
+          <text class="d-mono" x="220" y="264" text-anchor="middle">SSE</text>
+          <path class="d-arrow" d="M432 245 H488" marker-end="url(#ah)"/>
+          <path class="d-arrow" d="M340 315 V363" marker-end="url(#ah)"/>
+          <path class="d-arrow" d="M722 117 H778" marker-end="url(#ah)"/>
+          <path class="d-arrow" d="M722 270 H778" marker-end="url(#ah)"/>
+          <path class="d-arrow" d="M722 430 H778" marker-end="url(#ah)"/>
+          <path class="d-arrow" d="M340 480 V525 H862 V483" marker-end="url(#ah)"/>
+          <text class="d-mono" x="600" y="518" text-anchor="middle">embeddings + chunks</text>
+        </svg>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <h2>Agent pipeline</h2>
+      <p>The agent is a LangGraph <code>StateGraph</code>. Each node reads and updates one shared state object (query, evidence, draft answer, claims, scores). Conditional edges handle the retry loop and the optional revision step, and this is what makes the system agentic rather than a fixed chain.</p>
+      <ol class="steps">
+        <li><div><h3>Analyze query <span class="pill n">LLM</span></h3><p>Classifies the question (factual, comparison, open-ended) and rewrites it into one to three search queries suited to the knowledge base.</p></div></li>
+        <li><div><h3>Retrieve evidence <span class="pill n">ChromaDB</span></h3><p>Runs a vector search for each query, merges the results, removes duplicates and keeps the top-k chunks (k = 6), labelled S1…S6.</p></div></li>
+        <li><div><h3>Evidence sufficient? <span class="pill n">Conditional edge</span></h3><p>If the best similarity score is below a threshold, the agent loops back and rewrites the query, at most twice. If evidence is still weak, it continues but marks the answer as low-coverage so most claims will be flagged.</p></div></li>
+        <li><div><h3>Generate answer <span class="pill n">LLM</span></h3><p>Writes the answer using only the numbered evidence, cites chunks inline, and tags each sentence with its own confidence (<code>HIGH</code>, <code>INFERRED</code>, <code>UNSURE</code>). That self-label is one of the scoring signals.</p></div></li>
+        <li><div><h3>Extract claims <span class="pill n">LLM · JSON</span></h3><p>Breaks each sentence into atomic, standalone claims and returns structured JSON that maps each claim to its sentence index.</p></div></li>
+        <li><div><h3>Verify with NLI <span class="pill n">DeBERTa</span></h3><p>Each claim is the hypothesis and each evidence chunk is the premise. The model returns entailment, neutral and contradiction probabilities. The strongest entailment and contradiction across chunks are kept, along with the chunk that produced them.</p></div></li>
+        <li><div><h3>Judge inference <span class="pill n">LLM</span></h3><p>Only for claims that came back neutral. A judge prompt is given all the evidence together and asked whether the claim is a reasonable deduction from it. This step separates inferred claims from unsupported ones.</p></div></li>
+        <li><div><h3>Consistency check <span class="pill n">LLM + NLI</span></h3><p>Samples N more answers at a higher temperature (N = 3 locally, 2 on Gemini because of free-tier limits). For each claim, it measures the fraction of samples that entail it, following the SelfCheckGPT approach.</p></div></li>
+        <li><div><h3>Score and label <span class="pill n">Deterministic</span></h3><p>Combines the signals into a score per claim, applies the override rules, assigns labels, and rolls the results up to sentences and to the whole answer.</p></div></li>
+        <li><div><h3>Revise <span class="pill n">LLM · optional</span></h3><p>If the user turns on safe mode and any claim is flagged, this step rewrites the answer to remove or hedge flagged claims. Both versions are returned.</p></div></li>
+      </ol>
+    </section>
+
+    <section id="scoring">
+      <h2>Confidence scoring</h2>
+      <p>The score combines several independent signals, so the model's opinion of its own answer is never the only input. Claim verification against evidence carries the most weight.</p>
+      <div class="formula">
+        <span class="big">score = 0.55·E + 0.20·C + 0.15·R + 0.10·L</span>
+        <ul>
+          <li>E: highest NLI entailment probability across evidence chunks</li>
+          <li>C: self-consistency, the fraction of resampled answers that support the claim</li>
+          <li>R: retrieval relevance of the best supporting chunk (cosine similarity, normalised)</li>
+          <li>L: the generator's own label (HIGH = 1.0, INFERRED = 0.5, UNSURE = 0.2)</li>
+        </ul>
+      </div>
+      <h3>Override rules</h3>
+      <ul>
+        <li>Contradiction probability above 0.7 sets the label to <span class="pill hal">hallucinated</span>, whatever the score.</li>
+        <li>A neutral NLI verdict that the inference judge rules derivable is raised to at least <span class="pill inf">inferred</span>.</li>
+        <li>An entailment above 0.85 with consistency of at least 0.67 is <span class="pill high">high</span>.</li>
+      </ul>
+      <h3>Roll-up</h3>
+      <p>A sentence takes the label of its weakest claim. The answer's confidence is the average of its claim scores, weighted by claim length, and is shown next to a count of claims in each tier. The weights and thresholds live in <code>config.yaml</code> and are tuned against a small hand-labelled set of question and answer pairs.</p>
+    </section>
+
+    <section id="stack">
+      <h2>Tech stack</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>LLM (development)</td><td>Ollama with <code>qwen3:4b</code> (Q4, thinking mode off)</td><td>Free and offline. At about 2.5 GB it fits entirely in a 4 GB laptop GPU, so the roughly seven LLM calls per question stay fast. It is close to Qwen2.5-7B in quality and supports a JSON output mode.</td></tr>
+            <tr><td>LLM (final)</td><td>Google Gemini API, Flash model, free tier, <code>google-genai</code> SDK</td><td>Much better at claim extraction and judging; supports structured output with a response schema; fits the $0 budget.</td></tr>
+            <tr><td>LLM (fallback)</td><td>Sarvam or Groq free tier</td><td>Used when Gemini hits its rate limit. Plugs into the same provider interface.</td></tr>
+            <tr><td>Agent orchestration</td><td>LangGraph</td><td>Explicit state graph with conditional edges and loops. The agent design is visible and easy to explain in the viva.</td></tr>
+            <tr><td>Backend API</td><td>FastAPI, Pydantic v2, Uvicorn, sse-starlette</td><td>Async Python, typed request and response models, automatic OpenAPI docs, and streaming over SSE.</td></tr>
+            <tr><td>Document parsing</td><td>PyMuPDF, pysbd</td><td>Fast PDF text extraction; pysbd splits sentences reliably for chunking and highlighting.</td></tr>
+            <tr><td>Embeddings</td><td><code>BAAI/bge-small-en-v1.5</code> via sentence-transformers</td><td>Small (about 130 MB), strong retrieval quality, and runs on CPU.</td></tr>
+            <tr><td>Vector store</td><td>ChromaDB (persistent client)</td><td>Embedded in the backend, needs no server, and stores metadata (document, page, chunk id) for citations.</td></tr>
+            <tr><td>NLI verifier</td><td><code>MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli</code></td><td>Trained on fact-verification data (FEVER) and runs locally. It is a different model from the generator, so the check is independent.</td></tr>
+            <tr><td>Frontend</td><td>Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui</td><td>Component-based UI for highlighted spans, hover cards and side panels. Streams through <code>@microsoft/fetch-event-source</code>.</td></tr>
+            <tr><td>Persistence</td><td>SQLite via SQLModel</td><td>Stores chat history and document records with no extra service.</td></tr>
+            <tr><td>Tooling</td><td>uv, Docker, Ruff, pytest, pnpm</td><td>Reproducible environments and one Dockerfile for deployment.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>How everything connects</h2>
+      <div class="two">
+        <div>
+          <h3>Ingestion flow</h3>
+          <ol>
+            <li>The user drops a PDF into the upload panel in the UI.</li>
+            <li>Next.js sends it to <code>POST /api/documents</code> as multipart form data.</li>
+            <li>FastAPI saves the file, PyMuPDF extracts text page by page, and pysbd splits it into sentences.</li>
+            <li>Sentences are grouped into chunks of about 400 tokens with a 60-token overlap, each tagged with document id, page and chunk index.</li>
+            <li>bge-small embeds the chunks, which are stored in a ChromaDB collection.</li>
+            <li>The document record is saved to SQLite and the UI list refreshes.</li>
+          </ol>
+        </div>
+        <div>
+          <h3>Question flow</h3>
+          <ol>
+            <li>The user asks a question. Next.js opens an SSE stream to <code>POST /api/chat</code>.</li>
+            <li>FastAPI creates the initial agent state and runs the LangGraph graph.</li>
+            <li>As each node finishes, the backend sends a <code>status</code> event and the UI shows the current step.</li>
+            <li>The draft answer streams in as <code>token</code> events, displayed without highlights at first.</li>
+            <li>After scoring, a <code>verdict</code> event carries every sentence, claim, score and evidence reference.</li>
+            <li>The UI applies the highlights. Clicking a sentence opens the evidence inspector, and clicking a citation opens the source chunk.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section id="api">
+      <h2>API contract</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">POST /api/documents</td><td>Upload and ingest a file. Returns the document id and chunk count.</td></tr>
+            <tr><td class="mono">GET /api/documents</td><td>List indexed documents.</td></tr>
+            <tr><td class="mono">DELETE /api/documents/{id}</td><td>Remove a document and its chunks from ChromaDB.</td></tr>
+            <tr><td class="mono">POST /api/chat</td><td>Ask a question. Streams <code>status</code>, <code>token</code> and <code>verdict</code> events. Body: <code>{ question, safe_mode, session_id }</code>.</td></tr>
+            <tr><td class="mono">GET /api/chunks/{id}</td><td>Fetch a source chunk for the citation viewer.</td></tr>
+            <tr><td class="mono">GET /api/health</td><td>Reports the active LLM provider and whether the models are loaded.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>The verdict event payload</h3>
+<pre>{
+  "answer_confidence": 0.66,
+  "counts": { "high": 2, "inferred": 1, "hallucinated": 1 },
+  "sentences": [
+    {
+      "index": 3,
+      "text": "The rover also detected water ice inside a crater...",
+      "label": "hallucinated",
+      "claims": [
+        {
+          "text": "Pragyan detected water ice in a nearby crater.",
+          "score": 0.18,
+          "label": "hallucinated",
+          "signals": { "entailment": 0.04, "contradiction": 0.21,
+                       "consistency": 0.33, "retrieval": 0.41, "self_label": "UNSURE" },
+          "evidence_id": "doc2_p4_c11",
+          "reason": "No source passage supports this claim and the samples disagree."
+        }
+      ]
+    }
+  ],
+  "revised_answer": null
+}</pre>
+    </section>
+
+    <section id="models">
+      <h2>Model strategy: local first, Gemini at the end</h2>
+      <p>All LLM calls go through one small interface, so moving from Ollama to Gemini only changes an environment variable.</p>
+<pre>class LLMProvider(Protocol):
+    async def generate(self, prompt: str, *, temperature: float = 0.2) -&gt; str: ...
+    async def generate_json(self, prompt: str, schema: type[BaseModel]) -&gt; BaseModel: ...
+    async def sample(self, prompt: str, n: int, temperature: float = 0.8) -&gt; list[str]: ...
+
+# providers/ollama.py   -&gt; uses format="json" for structured output
+# providers/gemini.py   -&gt; uses response_schema for structured output
+# providers/factory.py  -&gt; picks one from LLM_PROVIDER=ollama|gemini|groq</pre>
+      <h3>Staying inside the free tier</h3>
+      <ul>
+        <li>Extract claims for the whole answer in one call, and run the inference judge on a batch of claims at once, rather than one call per claim.</li>
+        <li>NLI runs locally on DeBERTa, so the most frequent check costs no API calls.</li>
+        <li>Make the number of consistency samples configurable (3 locally, 2 on Gemini), and add a retry with backoff for rate-limit errors.</li>
+        <li>Cache results by question and document set, so repeated questions during development don't use up quota.</li>
+        <li>If Gemini returns a rate-limit error, the factory switches to the fallback provider.</li>
+      </ul>
+      <p>Prompts live in versioned files under <code>prompts/</code>. When the backend switches to Gemini, only the prompts that need adjusting change; the graph code stays the same.</p>
+    </section>
+
+    <section id="structure">
+      <h2>Project structure</h2>
+<pre>hallucination-aware-assistant/
+├── backend/
+│   ├── app/
+│   │   ├── main.py              # FastAPI app, routes, SSE
+│   │   ├── config.py            # settings + config.yaml (weights, thresholds)
+│   │   ├── schemas.py           # Pydantic models: Claim, Sentence, Verdict
+│   │   ├── agent/
+│   │   │   ├── graph.py         # LangGraph StateGraph wiring
+│   │   │   ├── state.py         # AgentState
+│   │   │   └── nodes/           # analyze, retrieve, generate, extract,
+│   │   │                        # verify, judge, consistency, score, revise
+│   │   ├── providers/           # ollama.py, gemini.py, groq.py, factory.py
+│   │   ├── verification/        # nli.py (DeBERTa), scoring.py
+│   │   ├── ingestion/           # parser.py, chunker.py, embedder.py
+│   │   ├── store/               # chroma.py, sqlite.py
+│   │   └── prompts/             # *.md prompt templates
+│   ├── tests/
+│   ├── pyproject.toml
+│   └── Dockerfile
+├── frontend/
+│   ├── app/                     # page.tsx, layout.tsx
+│   ├── components/              # ChatPanel, HighlightedAnswer,
+│   │                            # EvidenceInspector, UploadPanel, AgentSteps
+│   ├── lib/                     # api.ts, sse.ts, types.ts
+│   └── package.json
+├── docs/
+│   └── project-overview.html
+└── README.md</pre>
+    </section>
+
+    <section id="deploy">
+      <h2>Deployment</h2>
+      <p>Deployment happens after the switch to Gemini, so the hosted backend doesn't need to run an LLM. It still runs the embedding model and the NLI model on CPU, which need about 1.5 GB of RAM in total.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Part</th><th>Host</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend</td><td>Vercel (free)</td><td>Next.js deploys from the Git repository. The backend URL is set through <code>NEXT_PUBLIC_API_URL</code>.</td></tr>
+            <tr><td>Backend</td><td>Hugging Face Spaces, Docker SDK (free CPU tier)</td><td>Free tier has enough RAM for DeBERTa and bge, unlike the 512 MB free tiers elsewhere. The Gemini key is stored as a Space secret.</td></tr>
+            <tr><td>Vector data</td><td>ChromaDB inside the Space</td><td>Free Space storage is reset on restart, so sample documents are bundled and re-ingested on startup. User uploads last for the session.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>For local development, <code>docker compose</code> runs the backend, frontend and Ollama together.</p>
+    </section>
+
+    <section id="roadmap">
+      <h2>Build roadmap</h2>
+      <p>Each phase leaves a working system, so there is always something to show.</p>
+      <ol class="phases">
+        <li><span class="ph">Phase 1</span><div><strong>Foundations and RAG</strong><span>FastAPI skeleton, Ollama provider, ingestion pipeline, ChromaDB, and a plain grounded answer with citations.</span></div></li>
+        <li><span class="ph">Phase 2</span><div><strong>Claim verification</strong><span>Claim extraction prompt with JSON output, DeBERTa NLI verification, and the first labels using the NLI verdict only.</span></div></li>
+        <li><span class="ph">Phase 3</span><div><strong>Full scoring</strong><span>Self-labels, consistency sampling, the inference judge, the weighted score, override rules and roll-up. Tune thresholds on a small labelled set.</span></div></li>
+        <li><span class="ph">Phase 4</span><div><strong>Agentic graph</strong><span>Move the pipeline into LangGraph with the retry loop, the sufficiency check and the optional revise node. Stream the node status over SSE.</span></div></li>
+        <li><span class="ph">Phase 5</span><div><strong>Frontend</strong><span>Chat UI, highlighted answers, evidence inspector, citation viewer, upload panel and the live agent-step indicator.</span></div></li>
+        <li><span class="ph">Phase 6</span><div><strong>Gemini and deployment</strong><span>Gemini provider and prompt adjustments, rate-limit handling and fallback, Dockerfile, then deploy to Hugging Face Spaces and Vercel.</span></div></li>
+      </ol>
+    </section>
+
+    <section id="decisions">
+      <h2>Design decisions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Decision</th><th>Chosen</th><th>Alternatives and why not</th></tr></thead>
+          <tbody>
+            <tr><td>Grounding source</td><td>Uploaded document knowledge base</td><td>Live web search needs paid APIs and is noisy. Self-checking alone cannot confirm that a claim is supported.</td></tr>
+            <tr><td>Detection method</td><td>Ensemble led by claim-level NLI, plus consistency and self-labels</td><td>Logprobs are unavailable on Gemini and poorly calibrated. Self-labels alone mean the model grades its own work.</td></tr>
+            <tr><td>Verifier model</td><td>Separate DeBERTa NLI model</td><td>Using the generator as its own judge shares its blind spots. A separate, smaller model gives an independent check at no API cost.</td></tr>
+            <tr><td>Granularity</td><td>Verify claims, display sentences</td><td>Sentence-only checking misses a false fact mixed with true ones. Showing claims only is cluttered.</td></tr>
+            <tr><td>Orchestration</td><td>LangGraph state graph</td><td>A plain function chain cannot easily loop or branch. A free-form ReAct agent is less predictable for a verification pipeline.</td></tr>
+            <tr><td>Models</td><td>Ollama during development, Gemini for the final version</td><td>Starting on Gemini would use up the free quota during development. Staying local would weaken extraction and judging quality.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="limits">
+      <h2>Limitations and future scope</h2>
+      <div class="two">
+        <div>
+          <h3>Known limitations</h3>
+          <ul>
+            <li>Claims outside the uploaded documents are labelled unsupported even when they are true.</li>
+            <li>NLI models struggle with numbers, dates and negation across long passages.</li>
+            <li>Consistency sampling adds latency and API calls.</li>
+            <li>The score weights are set by hand and only roughly calibrated.</li>
+            <li>The knowledge base is English-only.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Future scope</h3>
+          <ul>
+            <li>Web search as a second evidence source when the knowledge base has no coverage.</li>
+            <li>A learned calibration model, such as logistic regression over the signals, in place of fixed weights.</li>
+            <li>A cross-encoder reranker to improve evidence quality.</li>
+            <li>Multilingual support using Sarvam models for Indian languages.</li>
+            <li>User feedback on labels, stored to improve the thresholds over time.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>Veritrace · M1-P5 Hallucination-Aware Information Assistant · Agentic AI</footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  var data = [
+    { label: "high", name: "High confidence", score: 0.91, claim: "Vikram landed near the lunar south pole on 23 August 2023.", nli: "entailment 0.96", cons: "3 / 3", ev: "S1 · isro_ch3_mission.pdf, p.2: “…Vikram lander successfully soft-landed near the south polar region on August 23, 2023…”" },
+    { label: "high", name: "High confidence", score: 0.86, claim: "Pragyan confirmed sulphur in the surface near the landing site.", nli: "entailment 0.91", cons: "3 / 3", ev: "S2 · isro_ch3_mission.pdf, p.5: “…the LIBS instrument onboard the rover unambiguously confirmed the presence of sulphur…”" },
+    { label: "inf",  name: "Inferred", score: 0.58, claim: "South polar surface chemistry differs from earlier equatorial sites.", nli: "neutral 0.71", cons: "2 / 3", ev: "Judge: derivable from S2 and S4 together (sulphur detection, plus prior missions sampling mid-latitudes). Not stated directly." },
+    { label: "hal",  name: "Potentially hallucinated", score: 0.18, claim: "Pragyan detected water ice in a nearby crater.", nli: "neutral 0.75 · contradiction 0.21", cons: "1 / 3", ev: "No source passage mentions water ice. The judge ruled it not derivable, and 2 of 3 samples omit it." }
+  ];
+  var detail = document.getElementById("detail");
+  var spans = document.querySelectorAll("#answer .s");
+  function show(i) {
+    var d = data[i];
+    spans.forEach(function (s) { s.setAttribute("aria-pressed", s.dataset.i == i ? "true" : "false"); });
+    detail.innerHTML =
+      '<h4><span class="pill ' + d.label + '">' + d.name + '</span></h4>' +
+      '<dl><dt>Claim</dt><dd style="font-family:var(--font-body);font-size:14px">' + d.claim + '</dd>' +
+      '<dt>Score</dt><dd>' + d.score.toFixed(2) + '</dd>' +
+      '<dt>NLI</dt><dd>' + d.nli + '</dd>' +
+      '<dt>Consistency</dt><dd>' + d.cons + ' samples</dd></dl>' +
+      '<div class="evidence">' + d.ev + '</div>';
+  }
+  spans.forEach(function (s) {
+    s.addEventListener("click", function () { show(+s.dataset.i); });
+    s.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(+s.dataset.i); } });
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>
