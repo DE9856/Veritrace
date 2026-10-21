@@ -804,6 +804,125 @@
       "consistency": 0.00029079351224936545,
       "judge": "unsupported",
       "judge_reason": "Passages contain no information about water discoveries on exoplanets."
+    },
+    {
+      "question": "How cold is NIRCam kept?",
+      "claim": "NIRCam is cooled to below 1 kelvin.",
+      "label": "hallucinated",
+      "entailment": 0.0021826443262398243,
+      "neutral": 0.0020957172382622957,
+      "contradiction": 0.9957215785980225,
+      "support_similarity": 0.6053526480160952,
+      "support_passage": "James Webb Space Telescope. MIRI has to be colder than the other instruments, so a cryocooler keeps it below 7 kelvin. First results The first image, Webb's First Deep Field, was shown on 11 July 2022. It showed the galaxy cluster SMACS 0723 and thousands of distant galaxies behind it.",
+      "support_chunk": "James Webb Space Telescope The James Webb Space Telescope (JWST) is a space telescope built to observe the universe in infrared light. It was developed by NASA together with the European Space Agency (ESA) and the Canadian Space Agency (CSA). The telescope is named after James E. Webb, who led NASA from 1961 to 1968. Launch and orbit JWST was launched on 25 December 2021 on an Ariane 5 rocket from Kourou in French Guiana. It arrived at its orbit around the second Sun-Earth Lagrange point (L2), about 1.5 million kilometres from Earth, on 24 January 2022. Mirror and sunshield The primary mirror is 6.5 metres across and is made of 18 hexagonal segments of gold-coated beryllium. The gold coating improves the mirror's reflection of infrared light. A five-layer sunshield, about the size of a tennis court, protects the telescope from the heat of the Sun, the Earth and the Moon. The mirror and the sunshield were folded for launch and unfolded in space during the following weeks. Instruments JWST carries four science instruments: the Near-Infrared Camera (NIRCam), the Near-Infrared Spectrograph (NIRSpec), the Mid-Infrared Instrument (MIRI), and the Near-Infrared Imager and Slitless Spectrograph (NIRISS). MIRI has to be colder than the other instruments, so a cryocooler keeps it below 7 kelvin. First results The first image, Webb's First Deep Field, was shown on 11 July 2022. It showed the galaxy cluster SMACS 0723 and thousands of distant galaxies behind it. The rest of the first full-colour images were released on 12 July 2022.",
+      "document": "james-webb-space-telescope.md",
+      "new_words": [
+        "nircam",
+        "cooled",
+        "1"
+      ],
+      "new_numbers": [
+        "1"
+      ],
+      "novelty_share": 0.6,
+      "consistency": 0.005474615376442671,
+      "judge": "unsupported",
+      "judge_reason": "Passages give no info on NIRCam temperature.",
+      "judge_prompt": "a797e885dc81"
+    },
+    {
+      "question": "When were JWST's first images released?",
+      "claim": "JWST's first full-colour images were released on 12 July 2023.",
+      "label": "hallucinated",
+      "entailment": 0.008639448322355747,
+      "neutral": 0.9811448454856873,
+      "contradiction": 0.998524010181427,
+      "support_similarity": 0.7322840021201593,
+      "support_passage": "James Webb Space Telescope. Launch and orbit JWST was launched on 25 December 2021 on an Ariane 5 rocket from Kourou in French Guiana. It arrived at its orbit around the second Sun-Earth Lagrange point (L2), about 1.5 million kilometres from Earth, on 24 January 2022. Mirror and sunshield The primary mirror is 6.5 metres across and is made of 18 hexagonal segments of gold-coated beryllium.",
+      "support_chunk": "James Webb Space Telescope The James Webb Space Telescope (JWST) is a space telescope built to observe the universe in infrared light. It was developed by NASA together with the European Space Agency (ESA) and the Canadian Space Agency (CSA). The telescope is named after James E. Webb, who led NASA from 1961 to 1968. Launch and orbit JWST was launched on 25 December 2021 on an Ariane 5 rocket from Kourou in French Guiana. It arrived at its orbit around the second Sun-Earth Lagrange point (L2), about 1.5 million kilometres from Earth, on 24 January 2022. Mirror and sunshield The primary mirror is 6.5 metres across and is made of 18 hexagonal segments of gold-coated beryllium. The gold coating improves the mirror's reflection of infrared light. A five-layer sunshield, about the size of a tennis court, protects the telescope from the heat of the Sun, the Earth and the Moon. The mirror and the sunshield were folded for launch and unfolded in space during the following weeks. Instruments JWST carries four science instruments: the Near-Infrared Camera (NIRCam), the Near-Infrared Spectrograph (NIRSpec), the Mid-Infrared Instrument (MIRI), and the Near-Infrared Imager and Slitless Spectrograph (NIRISS). MIRI has to be colder than the other instruments, so a cryocooler keeps it below 7 kelvin. First results The first image, Webb's First Deep Field, was shown on 11 July 2022. It showed the galaxy cluster SMACS 0723 and thousands of distant galaxies behind it. The rest of the first full-colour images were released on 12 July 2022.",
+      "document": "james-webb-space-telescope.md",
+      "new_words": [
+        "first",
+        "full",
+        "colour",
+        "images",
+        "released",
+        "12",
+        "july",
+        "2023"
+      ],
+      "new_numbers": [
+        "12",
+        "2023"
+      ],
+      "novelty_share": 0.8888888888888888,
+      "consistency": 0.0003246813575970009,
+      "judge": "contradicted",
+      "judge_reason": "Passage states release date was 12 July 2022, not 2023.",
+      "judge_prompt": "a797e885dc81"
+    },
+    {
+      "question": "Who ran Chandrayaan-3?",
+      "claim": "Chandrayaan-3 was a mission run by the Indian Space Research Organisation.",
+      "label": "high",
+      "entailment": 0.999173104763031,
+      "neutral": 0.0005125520401634276,
+      "contradiction": 0.0030201300978660583,
+      "support_similarity": 0.8393786366681426,
+      "support_passage": "Chandrayaan-3. Chandrayaan-3 Chandrayaan-3 is the third lunar exploration mission of the Indian Space Research Organisation (ISRO). It followed Chandrayaan-2, whose Vikram lander crashed during its landing attempt in September 2019. Chandrayaan-3 carried a lander and a rover but no orbiter.",
+      "support_chunk": "Chandrayaan-3 Chandrayaan-3 is the third lunar exploration mission of the Indian Space Research Organisation (ISRO). It followed Chandrayaan-2, whose Vikram lander crashed during its landing attempt in September 2019. Chandrayaan-3 carried a lander and a rover but no orbiter. Its propulsion module carried the lander and rover to lunar orbit. Launch and journey Chandrayaan-3 was launched on 14 July 2023 aboard an LVM3 rocket from the Satish Dhawan Space Centre in Sriharikota. The spacecraft entered lunar orbit on 5 August 2023. The lander module separated from the propulsion module on 17 August 2023. Landing The Vikram lander touched down near the lunar south pole on 23 August 2023. With this landing, India became the fourth country to achieve a soft landing on the Moon and the first to land near the lunar south pole. The landing site was later named the Shiv Shakti point, and India declared 23 August as National Space Day. Rover and science results The Pragyan rover rolled out of the Vikram lander shortly after the landing and travelled about 100 metres across the surface. The Laser Induced Breakdown Spectroscope (LIBS) on the rover confirmed the presence of sulphur in the lunar surface near the south pole. It also detected aluminium, calcium, iron, chromium, titanium, manganese, silicon and oxygen. The ChaSTE instrument on the lander measured the temperature profile of the lunar topsoil down to a depth of about 10 centimetres. On 3 September 2023 the Vikram lander performed a hop experiment, firing its engines to rise about 40 centimetres and land again about 30 to 40 centimetres away. End of surface operations The lander and rover were designed to operate for about one lunar day, roughly 14 Earth days. Both were put into sleep mode in early September 2023 before the lunar night.",
+      "document": "chandrayaan-3.md",
+      "new_words": [
+        "run"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.125,
+      "consistency": 0.9945195019245148,
+      "judge": "stated",
+      "judge_reason": "Passage S1 explicitly says Chandrayaan-3 is an ISRO mission.",
+      "judge_prompt": "a797e885dc81"
+    },
+    {
+      "question": "When did Chandrayaan-3 enter lunar orbit?",
+      "claim": "The spacecraft went into orbit around the Moon on 5 August 2023.",
+      "label": "high",
+      "entailment": 0.9984641075134277,
+      "neutral": 0.0008701008628122509,
+      "contradiction": 0.9953018426895142,
+      "support_similarity": 0.7991563222372094,
+      "support_passage": "Chandrayaan-3. The spacecraft entered lunar orbit on 5 August 2023. The lander module separated from the propulsion module on 17 August 2023. Landing The Vikram lander touched down near the lunar south pole on 23 August 2023.",
+      "support_chunk": "Chandrayaan-3 Chandrayaan-3 is the third lunar exploration mission of the Indian Space Research Organisation (ISRO). It followed Chandrayaan-2, whose Vikram lander crashed during its landing attempt in September 2019. Chandrayaan-3 carried a lander and a rover but no orbiter. Its propulsion module carried the lander and rover to lunar orbit. Launch and journey Chandrayaan-3 was launched on 14 July 2023 aboard an LVM3 rocket from the Satish Dhawan Space Centre in Sriharikota. The spacecraft entered lunar orbit on 5 August 2023. The lander module separated from the propulsion module on 17 August 2023. Landing The Vikram lander touched down near the lunar south pole on 23 August 2023. With this landing, India became the fourth country to achieve a soft landing on the Moon and the first to land near the lunar south pole. The landing site was later named the Shiv Shakti point, and India declared 23 August as National Space Day. Rover and science results The Pragyan rover rolled out of the Vikram lander shortly after the landing and travelled about 100 metres across the surface. The Laser Induced Breakdown Spectroscope (LIBS) on the rover confirmed the presence of sulphur in the lunar surface near the south pole. It also detected aluminium, calcium, iron, chromium, titanium, manganese, silicon and oxygen. The ChaSTE instrument on the lander measured the temperature profile of the lunar topsoil down to a depth of about 10 centimetres. On 3 September 2023 the Vikram lander performed a hop experiment, firing its engines to rise about 40 centimetres and land again about 30 to 40 centimetres away. End of surface operations The lander and rover were designed to operate for about one lunar day, roughly 14 Earth days. Both were put into sleep mode in early September 2023 before the lunar night.",
+      "document": "chandrayaan-3.md",
+      "new_words": [
+        "went"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.14285714285714285,
+      "consistency": 0.9956346154212952,
+      "judge": "stated",
+      "judge_reason": "Passage S1 explicitly says spacecraft entered lunar orbit on 5 August 2023.",
+      "judge_prompt": "a797e885dc81"
+    },
+    {
+      "question": "What did the propulsion module do?",
+      "claim": "The propulsion module brought the lander and rover to lunar orbit.",
+      "label": "high",
+      "entailment": 0.9973155856132507,
+      "neutral": 0.0021283989772200584,
+      "contradiction": 0.009514776058495045,
+      "support_similarity": 0.6919380410007989,
+      "support_passage": "Chandrayaan-3. Its propulsion module carried the lander and rover to lunar orbit. Launch and journey Chandrayaan-3 was launched on 14 July 2023 aboard an LVM3 rocket from the Satish Dhawan Space Centre in Sriharikota. The spacecraft entered lunar orbit on 5 August 2023.",
+      "support_chunk": "Chandrayaan-3 Chandrayaan-3 is the third lunar exploration mission of the Indian Space Research Organisation (ISRO). It followed Chandrayaan-2, whose Vikram lander crashed during its landing attempt in September 2019. Chandrayaan-3 carried a lander and a rover but no orbiter. Its propulsion module carried the lander and rover to lunar orbit. Launch and journey Chandrayaan-3 was launched on 14 July 2023 aboard an LVM3 rocket from the Satish Dhawan Space Centre in Sriharikota. The spacecraft entered lunar orbit on 5 August 2023. The lander module separated from the propulsion module on 17 August 2023. Landing The Vikram lander touched down near the lunar south pole on 23 August 2023. With this landing, India became the fourth country to achieve a soft landing on the Moon and the first to land near the lunar south pole. The landing site was later named the Shiv Shakti point, and India declared 23 August as National Space Day. Rover and science results The Pragyan rover rolled out of the Vikram lander shortly after the landing and travelled about 100 metres across the surface. The Laser Induced Breakdown Spectroscope (LIBS) on the rover confirmed the presence of sulphur in the lunar surface near the south pole. It also detected aluminium, calcium, iron, chromium, titanium, manganese, silicon and oxygen. The ChaSTE instrument on the lander measured the temperature profile of the lunar topsoil down to a depth of about 10 centimetres. On 3 September 2023 the Vikram lander performed a hop experiment, firing its engines to rise about 40 centimetres and land again about 30 to 40 centimetres away. End of surface operations The lander and rover were designed to operate for about one lunar day, roughly 14 Earth days. Both were put into sleep mode in early September 2023 before the lunar night.",
+      "document": "chandrayaan-3.md",
+      "new_words": [
+        "brought"
+      ],
+      "new_numbers": [],
+      "novelty_share": 0.14285714285714285,
+      "consistency": 0.9982090592384338,
+      "judge": "stated",
+      "judge_reason": "S3 explicitly says propulsion module carried lander and rover to lunar orbit.",
+      "judge_prompt": "a797e885dc81"
     }
   ]
 }

@@ -137,6 +137,12 @@ _ABOUT_SOURCES = [
         r"(?:in|by)\s+" + _SOURCES,
         re.IGNORECASE,
     ),
+    # "No other experiments are mentioned as being performed by X in the provided sources"
+    re.compile(
+        r"\b(?:no|none|nothing|not)\b[^.]*\b(?:mentioned|stated|specified|listed|reported"
+        r"|described|discussed)\b[^.]*\b(?:in|by)\s+" + _SOURCES + r"\s*[.!]?$",
+        re.IGNORECASE,
+    ),
 ]
 
 

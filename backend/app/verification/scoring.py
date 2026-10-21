@@ -17,10 +17,13 @@ Evidence decides the label; the other signals adjust the score within it. In ord
    self-label cannot rescue an unsupported claim, because a model can be consistently wrong.
 5. Strong entailment with consistent samples -> high; otherwise the score decides
    between high and inferred.
-6. A "high" claim that brings a new number, or many new words, compared with its
-   passage is a deduction the passage does not state -> inferred.
+6. A "high" claim that brings a new quantity compared with its passage is a deduction
+   the passage does not state -> inferred. One that brings many new words but no
+   quantity is inferred too, unless the judge finds it stated in other words.
 
-The judge only sees claims NLI did not cleanly confirm (see needs_judgement).
+The judge sees claims NLI did not cleanly confirm, and claims with only new words (see
+needs_judgement). For the second kind it only decides between high and inferred: NLI
+has confirmed them, so a judge's "contradicted" does not overrule it.
 """
 
 from dataclasses import dataclass, field
@@ -62,7 +65,7 @@ class ClaimEvidence:
     novelty_share: float = 0.0
     consistency: float | None = None  # None when sampling is off
     self_label: str | None = None  # None when the generator did not tag the sentence
-    judge: str | None = None  # "derivable" / "contradicted" / "unsupported"; None if not judged
+    judge: str | None = None  # "stated" / "derivable" / "contradicted" / "unsupported"
     judge_reason: str | None = None
 
 
@@ -84,15 +87,21 @@ def is_contradicted(ev: ClaimEvidence, settings: Settings) -> bool:
     )
 
 
-def needs_judgement(ev: ClaimEvidence, settings: Settings) -> bool:
-    """Claims NLI did not cleanly confirm go to the judge: anything below the high
-    threshold, and anything with a strong contradiction even if another passage
-    supports it ("carried an orbiter, a lander and a rover": the lander and rover are
-    stated, the orbiter is contradicted)."""
+def nli_unsettled(ev: ClaimEvidence, settings: Settings) -> bool:
+    """NLI did not cleanly confirm the claim: entailment below the high threshold, or a
+    strong contradiction even if another passage supports it ("carried an orbiter, a
+    lander and a rover": the lander and rover are stated, the orbiter is contradicted)."""
     return (
         ev.support.entailment < settings.high_threshold
         or ev.max_contradiction >= settings.contradiction_threshold
     )
+
+
+def needs_judgement(ev: ClaimEvidence, settings: Settings) -> bool:
+    """Claims NLI left unsettled, and claims whose only novelty is new words: the judge
+    tells a paraphrase from a deduction. A new quantity always makes a deduction, so
+    those are not sent."""
+    return nli_unsettled(ev, settings) or (is_novel(ev, settings) and not ev.new_numbers)
 
 
 def relevance(similarity: float, settings: Settings) -> float:
@@ -128,13 +137,15 @@ def score_claim(ev: ClaimEvidence, settings: Settings) -> ClaimResult:
     contradicted = is_contradicted(ev, settings)
     unconfirmed = entail < settings.inferred_threshold or contradicted
     source = ev.support_source
+    # For a claim NLI confirmed, the judge only decides whether new words are a paraphrase.
+    judge_decides = nli_unsettled(ev, settings)
 
-    if ev.judge == "contradicted":
+    if ev.judge == "contradicted" and judge_decides:
         label: Label = "hallucinated"
         score = min(score, 1.0 - contra, below_inferred)
         source = ev.contradiction_source if contra >= 0.5 else ev.support_source
         reason = "The sources conflict with this claim." + judge_note
-    elif unconfirmed and ev.judge == "derivable":
+    elif unconfirmed and ev.judge in ("stated", "derivable"):
         label = "inferred"
         score = min(max(score, settings.inferred_threshold), below_high)
         reason = "Not stated in any passage, but follows from the evidence." + judge_note
@@ -164,7 +175,11 @@ def score_claim(ev: ClaimEvidence, settings: Settings) -> ClaimResult:
                 f"Partly supported by {_name(source)} (entailment {entail:.2f}), "
                 "but not stated directly."
             )
-        if label == "high" and is_novel(ev, settings):
+        paraphrase = ev.judge == "stated" and not ev.new_numbers
+        if label == "high" and paraphrase and ev.new_words:
+            new = ", ".join(ev.new_words[:4])
+            reason += f" The judge found it said in other words (new: {new})."
+        elif label == "high" and is_novel(ev, settings):
             label = "inferred"
             score = min(score, below_high)
             new = ", ".join((ev.new_numbers or ev.new_words)[:4])

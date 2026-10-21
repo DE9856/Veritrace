@@ -5,33 +5,54 @@ How well Veritrace's three labels match hand labels, on claims the tuning never 
 ## Setup
 
 - **Labels:** high (a passage states the claim), inferred (follows from the passages without outside knowledge), hallucinated (contradicted, or not supported). Judged by hand against the two sample documents only.
-- **Claims:** hand-written claims (`dev_claims.yaml`, `test_claims.yaml`), plus every claim the agent extracted from its own answers to the questions in `answer_questions.yaml`, labelled in `answer_labels.yaml`.
-- **Protocol:** the scoring rules were designed and the settings tuned on dev only; test is only scored. The numbers below use the settings in `config.yaml`; the grid search on dev (`calibration/tune.py`) is shown for comparison.
+- **Claims:** hand-written claims (`dev_claims.yaml`, `test_claims.yaml`, `fresh_claims.yaml`), plus every claim the agent extracted from its own answers to the questions in `answer_questions.yaml`, labelled in `answer_labels.yaml`.
+- **Protocol:** the scoring rules were designed and the settings tuned on dev only; test and fresh are only scored. In 0.9.0 the test set's errors were read to find what to fix, so test overstates that change; the fresh set, written before it, is the cleaner measure. The numbers below use the settings in `config.yaml`; the grid search on dev (`calibration/tune.py`) is shown for comparison.
 
 ## `qwen3:4b-instruct`
 
 Answers, judge and 2 resampled answers per question from `qwen3:4b-instruct`; NLI from `MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli`.
 
-- **Dev:** 65 claims (32 high, 14 inferred, 19 hallucinated): 39 hand-written, 26 from real answers.
+- **Dev:** 84 claims (43 high, 19 inferred, 22 hallucinated): 58 hand-written, 26 from real answers.
 - **Test:** 67 claims (39 high, 13 inferred, 15 hallucinated): 41 hand-written, 26 from real answers.
+- **Fresh:** 37 claims (15 high, 10 inferred, 12 hallucinated): 36 hand-written, 1 from real answers.
 
 ### Main result (test)
 
 | Setting | Accuracy | Macro-F1 | Hallucination precision | Hallucination recall | Hallucination F1 |
 |---|---|---|---|---|---|
-| Current `config.yaml` | 75% | 0.76 | 0.93 | 0.93 | 0.93 |
-| Tuned on dev | 75% | 0.76 | 0.93 | 0.93 | 0.93 |
+| Current `config.yaml` | 91% | 0.88 | 0.88 | 0.93 | 0.90 |
+| Tuned on dev | 91% | 0.88 | 0.88 | 0.93 | 0.90 |
 
 Confusion matrix on test, current settings:
 
 | Gold \ predicted | high | inferred | hallucinated |
 |---|---|---|---|
-| high | 24 | 15 | 0 |
-| inferred | 0 | 12 | 1 |
-| hallucinated | 0 | 1 | 14 |
+| high | 38 | 1 | 0 |
+| inferred | 2 | 9 | 2 |
+| hallucinated | 1 | 0 | 14 |
 
-- Hand-written claims (41): accuracy 76%, macro-F1 0.74, hallucination F1 0.97.
-- From answers claims (26): accuracy 73%, macro-F1 0.36, hallucination F1 0.00.
+- Hand-written claims (41): accuracy 93%, macro-F1 0.92, hallucination F1 0.93.
+- From answers claims (26): accuracy 88%, macro-F1 0.31, hallucination F1 0.00.
+
+### Main result (fresh)
+
+The cleaner measure since 0.9.0: the claims were written before the novelty and judge changes, and no rule or setting was tuned on them. Their errors under a first, word-list-only attempt were seen once; that attempt did not help here and was replaced by the judge's stated verdict.
+
+| Setting | Accuracy | Macro-F1 | Hallucination precision | Hallucination recall | Hallucination F1 |
+|---|---|---|---|---|---|
+| Current `config.yaml` | 81% | 0.78 | 0.80 | 1.00 | 0.89 |
+| Tuned on dev | 81% | 0.78 | 0.80 | 1.00 | 0.89 |
+
+Confusion matrix on fresh, current settings:
+
+| Gold \ predicted | high | inferred | hallucinated |
+|---|---|---|---|
+| high | 13 | 2 | 0 |
+| inferred | 2 | 5 | 3 |
+| hallucinated | 0 | 0 | 12 |
+
+- Hand-written claims (36): accuracy 81%, macro-F1 0.78, hallucination F1 0.89.
+- From answers claims (1): accuracy 100%, macro-F1 0.33, hallucination F1 0.00.
 
 ### Ablation (test, current settings)
 
@@ -40,14 +61,14 @@ Each row lets the scorer use only some signals; NLI entailment, contradiction an
 | Setting | Accuracy | Macro-F1 | Hallucination precision | Hallucination recall | Hallucination F1 |
 |---|---|---|---|---|---|
 | NLI only | 76% | 0.60 | 0.76 | 0.87 | 0.81 |
-| NLI + novelty | 69% | 0.68 | 0.76 | 0.87 | 0.81 |
-| NLI + novelty + judge | 73% | 0.75 | 0.93 | 0.93 | 0.93 |
-| NLI + novelty + judge + consistency | 73% | 0.75 | 0.93 | 0.93 | 0.93 |
-| Full ensemble (+ self-label) | 75% | 0.76 | 0.93 | 0.93 | 0.93 |
-| Full minus judge | 70% | 0.70 | 0.76 | 0.87 | 0.81 |
-| Full minus consistency | 73% | 0.75 | 0.93 | 0.93 | 0.93 |
-| Full minus novelty | 82% | 0.72 | 0.93 | 0.93 | 0.93 |
-| Baseline: LLM judge alone | 81% | 0.59 | 0.79 | 1.00 | 0.88 |
+| NLI + novelty | 79% | 0.76 | 0.76 | 0.87 | 0.81 |
+| NLI + novelty + judge | 90% | 0.86 | 0.88 | 0.93 | 0.90 |
+| NLI + novelty + judge + consistency | 90% | 0.86 | 0.88 | 0.93 | 0.90 |
+| Full ensemble (+ self-label) | 91% | 0.88 | 0.88 | 0.93 | 0.90 |
+| Full minus judge | 79% | 0.76 | 0.76 | 0.87 | 0.81 |
+| Full minus consistency | 90% | 0.86 | 0.88 | 0.93 | 0.90 |
+| Full minus novelty | 82% | 0.71 | 0.88 | 0.93 | 0.90 |
+| Baseline: LLM judge alone | 78% | 0.57 | 0.74 | 0.93 | 0.82 |
 | Baseline: self-consistency alone | 70% | 0.51 | 0.65 | 0.87 | 0.74 |
 
 The two baselines can only answer supported or not, so they never say inferred, which caps their macro-F1.
@@ -60,23 +81,24 @@ The grid search keeps every current value.
 
 | Claim | Gold | Predicted | Signals |
 |---|---|---|---|
-| ISRO, India's space agency, ran the Chandrayaan-3 mission. | high | inferred | E=1.00 C=0.12 cons=1.00 judge=derivable new words: india, agency, ran |
-| Chandrayaan-3 did not include an orbiter. | high | inferred | E=1.00 C=0.05 cons=1.00 judge=derivable new words: include |
-| Chandrayaan-3 lifted off from the Satish Dhawan Space Centre in Sriharikota. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: lifted, off |
-| The lander module split off from the propulsion module on 17 August 2023. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: split, off |
-| ChaSTE recorded how the temperature of the lunar topsoil changes down to about 10 centimetres deep. | high | inferred | E=1.00 C=0.00 cons=0.99 judge=derivable new words: recorded, how, changes, deep |
+| Chandrayaan-3 made India's first successful soft landing on the Moon. | inferred | high | E=0.92 C=0.07 cons=0.96 judge=stated new words: made, successful |
 | The LIBS instrument detected ten elements in total. | inferred | hallucinated | E=0.23 C=0.03 cons=0.00 judge=contradicted new words: instrument, ten, elements, total |
-| JWST is designed to see the universe in infrared. | high | inferred | E=1.00 C=0.00 cons=0.93 judge=derivable new words: designed, see |
-| The gold coating helps the mirror reflect infrared light. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: helps, reflect |
-| One of JWST's instruments is the Near-Infrared Spectrograph. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: one |
-| The telescope is named after James E. Webb, a former head of NASA. | high | inferred | E=1.00 C=0.00 cons=0.03 judge=derivable new words: former, head |
-| The Vikram lander performed a hop experiment on the surface. | high | inferred | E=0.24 C=0.72 cons=1.00 judge=derivable new words: surface |
-| No other experiments are mentioned as being performed by the Vikram lander on the surface in the provided sources. | hallucinated | inferred | E=0.94 C=0.02 cons=0.85 judge=contradicted new words: other, mentioned, provided, sources |
-| The James Webb Space Telescope carries the Near-Infrared Camera (NIRCam) as one of its four science instruments. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: one |
-| The James Webb Space Telescope carries the Near-Infrared Spectrograph (NIRSpec) as one of its four science instruments. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: one |
-| The James Webb Space Telescope carries the Mid-Infrared Instrument (MIRI) as one of its four science instruments. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: one |
-| The James Webb Space carries the Near-Infrared Imager and Slitless Spectrograph (NIRISS) as one of its four science instruments. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: one |
-| A cryocooler maintains MIRI at a temperature below 7 kelvin. | high | inferred | E=1.00 C=0.00 cons=1.00 judge=derivable new words: maintains, temperature |
+| MIRI is the coldest of JWST's instruments. | inferred | hallucinated | E=0.75 C=0.01 cons=0.99 judge=contradicted new words: coldest |
+| The Vikram lander performed a hop experiment on the surface. | high | inferred | E=0.24 C=0.72 cons=1.00 judge=stated new words: surface |
+| No other experiments are mentioned as being performed by the Vikram lander on the surface in the provided sources. | hallucinated | high | E=0.94 C=0.02 cons=0.85 judge=stated new words: other, mentioned, provided, sources |
+| MIRI requires a temperature below 7 kelvin. | inferred | high | E=1.00 C=0.00 cons=1.00 judge=stated new words: requires, temperature |
+
+### Fresh claims the current settings get wrong
+
+| Claim | Gold | Predicted | Signals |
+|---|---|---|---|
+| India was the first nation to land close to the lunar south pole. | high | inferred | E=0.99 C=0.06 cons=0.79 judge=contradicted new words: nation, close |
+| The rover did not keep working beyond its planned single lunar day. | inferred | high | E=1.00 C=0.00 cons=1.00 judge=stated new words: keep, working, beyond, planned, single |
+| The main mirror consists of 18 six-sided beryllium segments covered in gold. | high | inferred | E=1.00 C=0.00 cons=0.03 judge=stated new words: main, consists, six, sided, covered |
+| JWST took about 30 days to get to L2. | inferred | hallucinated | E=0.05 C=0.01 cons=0.26 judge=contradicted new words: jwst, took, get, l2 |
+| MIRI is the only JWST instrument that is not a near-infrared instrument. | inferred | hallucinated | E=0.55 C=0.08 cons=0.50 judge=contradicted new words: only |
+| James E. Webb had stopped leading NASA by 1970. | inferred | hallucinated | E=0.44 C=0.88 cons=0.00 judge=contradicted new words: stopped, leading, 1970 |
+| The mirror was not fully open during the launch. | inferred | high | E=1.00 C=0.00 cons=1.00 judge=stated new words: fully, open |
 
 ## Latency
 

@@ -13,7 +13,7 @@ def test_stated_claim_has_nothing_new():
 
 def test_deduction_brings_new_numbers_and_words():
     n = novelty("Chandrayaan-3 reached lunar orbit about three weeks after launch.", PASSAGE)
-    assert n.new_numbers == ["three"]
+    assert n.new_numbers == ["three", "weeks"]
     assert "reached" in n.new_words
 
 
@@ -42,3 +42,27 @@ def test_modals_and_causal_links_are_not_new_facts():
     passage = "MIRI has to be colder than the other instruments, so a cryocooler keeps it cold."
     claim = "MIRI needs a cryocooler because it must be colder than the other instruments."
     assert novelty(claim, passage).new_words == ["needs"]
+
+
+def test_paraphrase_words_that_add_no_fact_are_ignored():
+    passage = "JWST was launched on 25 December 2021 from Kourou, about 1.5 million km away."
+    # Verb particles and hedges.
+    assert novelty("JWST lifted off from Kourou.", passage).new_words == ["lifted"]
+    assert novelty("It is roughly 1.5 million km away.", passage).new_words == []
+    # The adjective and the noun for the same body.
+    lunar = "The spacecraft entered lunar orbit on 5 August 2023."
+    assert "moon" not in novelty("It entered orbit around the Moon.", lunar).new_words
+
+
+def test_one_of_a_list_is_not_a_new_number():
+    passage = "JWST carries four science instruments, including NIRSpec."
+    assert novelty("One of JWST's instruments is NIRSpec.", passage).new_numbers == []
+    assert novelty("JWST carries one camera.", passage).new_numbers == ["one"]
+
+
+def test_durations_comparisons_and_superlatives_are_quantities():
+    passage = "JWST launched on 25 December 2021. MIRI has to be colder than the others."
+    assert novelty("JWST reached orbit about a month later.", passage).new_numbers == ["month"]
+    assert novelty("MIRI is the only cold instrument.", passage).new_numbers == ["only"]
+    assert novelty("MIRI is the coldest instrument.", passage).new_numbers == ["coldest"]
+    assert novelty("MIRI is tested in the west.", passage).new_numbers == []

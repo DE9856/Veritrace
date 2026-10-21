@@ -54,3 +54,29 @@ claims:
   - {question: "What has JWST discovered?", claim: "JWST discovered liquid water on an exoplanet.", label: hallucinated}
   - {question: "How cold is NIRCam kept?", claim: "NIRCam is cooled to below 1 kelvin.", label: hallucinated}
   - {question: "When were JWST's first images released?", claim: "JWST's first full-colour images were released on 12 July 2023.", label: hallucinated}
+
+  # ---------------- Paraphrases (added in 0.9.0) ----------------
+  # The claims above mostly reuse the passage's words, so tuning never saw a correct claim
+  # in new words. These restate passages the way a hosted model does, plus deductions
+  # that add no number, so the novelty rule is tuned on both.
+  - {question: "Who ran Chandrayaan-3?", claim: "Chandrayaan-3 was a mission run by the Indian Space Research Organisation.", label: high}
+  - {question: "When did Chandrayaan-3 enter lunar orbit?", claim: "The spacecraft went into orbit around the Moon on 5 August 2023.", label: high}
+  - {question: "What did the propulsion module do?", claim: "The propulsion module brought the lander and rover to lunar orbit.", label: high}
+  - {question: "What did the rover do after landing?", claim: "Pragyan drove out of the Vikram lander soon after touchdown.", label: high}
+  - {question: "What happened before the lunar night?", claim: "Both the lander and the rover were switched to sleep mode in early September 2023.", label: high}
+  - {question: "What happened when sunlight returned?", claim: "The lander and rover never answered the attempts to wake them up.", label: high}
+  - {question: "Where was JWST launched from?", claim: "JWST lifted off from Kourou in French Guiana.", label: high}
+  - {question: "How far is L2 from Earth?", claim: "L2 lies roughly 1.5 million kilometres from Earth.", label: high}
+  - {question: "How big is the sunshield?", claim: "The sunshield is roughly as big as a tennis court.", label: high}
+  - {question: "What happened to the mirror after launch?", claim: "The mirror and sunshield opened out in space in the weeks after launch.", label: high}
+  - {question: "What did the first image show?", claim: "Webb's First Deep Field revealed thousands of faraway galaxies.", label: high}
+
+  - {question: "Was India the first to land near the lunar south pole?", claim: "No country had landed near the lunar south pole before India.", label: inferred}
+  - {question: "How did the rover get to the Moon?", claim: "The Pragyan rover was carried to the Moon inside the Vikram lander.", label: inferred}
+  - {question: "Why does JWST need a sunshield?", claim: "Without the sunshield, heat from the Sun would reach the telescope.", label: inferred}
+  - {question: "Which agencies developed JWST?", claim: "Only one of the agencies that developed JWST is European.", label: inferred}
+  - {question: "Did the rover survive the lunar night?", claim: "The Pragyan rover did not survive the lunar night.", label: inferred}
+
+  - {question: "When did Chandrayaan-3 enter lunar orbit?", claim: "The spacecraft went into orbit around the Moon on 17 August 2023.", label: hallucinated}
+  - {question: "Where was JWST launched from?", claim: "JWST lifted off from French Guiana on a Soyuz rocket.", label: hallucinated}
+  - {question: "How big is the sunshield?", claim: "The sunshield is roughly as big as a football stadium.", label: hallucinated}

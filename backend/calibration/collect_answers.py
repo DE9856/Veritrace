@@ -30,7 +30,13 @@ from app.ingestion.pipeline import ingest_file
 from app.schemas import ChatRequest
 from app.services import build_services
 from app.verification.scoring import needs_judgement
-from calibration.collect_signals import SAMPLES, judge_strictly, model_name, patient
+from calibration.collect_signals import (
+    SAMPLES,
+    judge_prompt_version,
+    judge_strictly,
+    model_name,
+    patient,
+)
 
 HERE = Path(__file__).parent
 
@@ -72,6 +78,7 @@ class RecordingAgent(Agent):
                     "cited": bool(ev.sentence_citations),
                     "judge": judgement.verdict if judgement else None,
                     "judge_reason": judgement.reason if judgement else None,
+                    "judge_prompt": judge_prompt_version(),
                 }
             )
         # Score as the app would: only claims the app sends to the judge use its verdict.

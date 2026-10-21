@@ -10,6 +10,9 @@
 
 Every node emits a "status" event when it starts, and generate streams "draft" events,
 so a client can follow the agent step by step.
+
+With `answer` set on the request (check mode), generate takes that answer instead of
+writing one, and the rest of the graph checks it the same way.
 """
 
 import asyncio
@@ -23,14 +26,14 @@ from langgraph.graph import END, START, StateGraph
 from app.agent.nodes.analyze import plan_queries
 from app.agent.nodes.consistency import consistency_scores, sample_answers
 from app.agent.nodes.extract import extract_claims, split_answer
-from app.agent.nodes.generate import generate
+from app.agent.nodes.generate import GeneratedAnswer, extract_citations, generate
 from app.agent.nodes.judge import judge_claims
 from app.agent.nodes.retrieve import retrieve_many
 from app.agent.nodes.revise import revise_answer
 from app.agent.nodes.verify import verify
 from app.agent.state import AgentState
-from app.providers.base import LLMError
-from app.schemas import ChatRequest, ChatResponse, LabelCounts
+from app.providers.base import LLMError, normalise_output
+from app.schemas import ChatRequest, ChatResponse, LabelCounts, SourceChunk
 from app.services import Services
 from app.verification.scoring import build_sentence, needs_judgement, roll_up, score_claim
 
@@ -110,7 +113,9 @@ class Agent:
             "analyze": "Planning search queries",
             "retrieve": "Searching the documents",
             "no_sources": "No documents to search",
-            "generate": "Writing the answer",
+            "generate": "Reading the answer to check"
+            if state["request"].answer
+            else "Writing the answer",
             "extract": "Splitting the answer into claims",
             "verify": "Checking each claim against the sources",
             "judge": "Reviewing claims the sources do not settle",
@@ -192,6 +197,10 @@ class Agent:
 
     async def generate(self, state: AgentState) -> dict[str, Any]:
         write = get_stream_writer()
+        if state["request"].answer:
+            generated = given_answer(state["request"].answer, state["sources"])
+            write({"type": "draft", "text": generated.answer})
+            return {"generated": generated, "sentences": split_answer(generated.tagged)}
         generated = await generate(
             state["request"].question,
             state["sources"],
@@ -323,3 +332,13 @@ class Agent:
             model=self.provider.model,
             timings_ms={},
         )
+
+
+def given_answer(text: str, sources: list[SourceChunk]) -> GeneratedAnswer:
+    """An answer to check, as if the generator had written it. It may cite [S1] labels,
+    but has no self-label tags."""
+    answer = normalise_output(text).strip()
+    cited, invalid = extract_citations(answer, {s.label for s in sources})
+    return GeneratedAnswer(
+        answer=answer, tagged=answer, cited_labels=cited, invalid_citations=invalid
+    )

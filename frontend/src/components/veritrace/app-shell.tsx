@@ -52,11 +52,12 @@ export function AppShell() {
 
   // Ticked documents that still exist; none ticked means search them all.
   const scoped = docs.documents.filter((d) => ticked.includes(d.id));
-  const ask = (question: string, safeMode: boolean) =>
+  const ask = (question: string, safeMode: boolean, answer?: string) =>
     void chat.ask(
       question,
       safeMode,
       scoped.length > 0 ? { ids: scoped.map((d) => d.id), names: scoped.map((d) => d.filename) } : undefined,
+      answer,
     );
 
   const disabledReason = healthError
@@ -156,7 +157,7 @@ export function AppShell() {
               onStop={chat.stop}
             />
             <p id="question-hint" className="mt-2 text-center text-xs text-muted-foreground">
-              Each answer is written first, then every claim in it is checked, so it takes 10 to 30 seconds.
+              Every claim in the answer is checked against your documents, so it takes 10 to 30 seconds.
             </p>
           </div>
         </main>

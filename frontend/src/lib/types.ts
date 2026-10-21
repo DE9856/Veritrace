@@ -2,7 +2,7 @@
 
 export type Label = "high" | "inferred" | "hallucinated";
 export type SelfLabel = "HIGH" | "INFERRED" | "UNSURE";
-export type JudgeVerdict = "derivable" | "contradicted" | "unsupported";
+export type JudgeVerdict = "stated" | "derivable" | "contradicted" | "unsupported";
 
 export interface DocumentInfo {
   id: string;
@@ -84,6 +84,7 @@ export interface ChatRequest {
   question: string;
   safe_mode?: boolean;
   document_ids?: string[];
+  answer?: string; // check this answer instead of writing one
 }
 
 export interface Health {

@@ -63,3 +63,9 @@ def test_lone_punctuation_after_a_refusal_is_not_a_sentence():
 def test_no_source_statements_are_recognised():
     assert is_about_sources("No source addresses water ice detection by the rover.")
     assert not is_about_sources("No rover detected water ice.")
+    # Seen live on a test question: a statement about what the sources leave out.
+    assert is_about_sources(
+        "No other experiments are mentioned as being performed by the Vikram lander on "
+        "the surface in the provided sources."
+    )
+    assert not is_about_sources("No other lander was described in news reports.")

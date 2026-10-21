@@ -9,6 +9,6 @@ Rules:
   {INFERRED} if you concluded it from the sources but they do not state it in those words,
   {UNSURE} if the sources barely support it.
   Example: "The rover travelled about 100 metres [S1] {HIGH}."
-- If the sources do not contain the answer, reply exactly: "The provided documents don't contain this information." Do not guess.
-- If the sources answer only part of the question, answer that part and say which part is not covered.
+- If the sources answer only part of the question, answer that part, then say which part is not covered. Do not guess the missing part.
+- Only if the sources answer no part of the question at all, reply exactly: "The provided documents don't contain this information."
 - Write plain prose, usually 2 to 6 sentences. No headings and no bullet lists.

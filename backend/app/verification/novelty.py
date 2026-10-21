@@ -3,8 +3,14 @@
 NLI entails deductions as readily as statements: "reached lunar orbit about three weeks
 after launch" scores 0.98 against a passage that only gives the two dates. A passage
 that states a claim uses the claim's words, while a deduction introduces new ones
-("three weeks"). A claim with a new number, or a large share of new words, is therefore
+("three weeks"). A claim with a new quantity, or a large share of new words, is therefore
 inferred rather than stated.
+
+Quantities are what deductions add: numbers, durations ("a month" after two dates),
+and comparisons ("only", "more than", "the coldest"). Other new words are often just a
+paraphrase ("lifted off" for "launched"), so only a large share of them counts. Words
+that rephrase without adding a fact (hedges, verb particles, "lunar" for "Moon") are
+ignored.
 """
 
 import re
@@ -20,7 +26,10 @@ _STOPWORDS = frozenset(
         # Modals, causal links and pronouns: "MIRI must be colder ... because" restates
         # "MIRI has to be colder ..., so"; the facts are in the other words.
         "must can could may might should would will shall because so since therefore thus "
-        "he she they them his her him we our you"
+        "he she they them his her him we our you "
+        # Hedges and verb particles: "roughly" restates "about", "lifted off" and
+        # "opened out" add their particle to a verb.
+        "roughly approximately around nearly almost some off out up"
     ).split()
 )
 _NUMBER_WORDS = frozenset(
@@ -30,12 +39,29 @@ _NUMBER_WORDS = frozenset(
         "eighty ninety hundred thousand million billion dozen half twice"
     ).split()
 )
+# Words that turn stated facts into a computed or compared one.
+_QUANTITY_WORDS = frozenset(
+    (
+        "day days week weeks fortnight month months year years decade decades hour hours "
+        "minute minutes only more less fewer most least than"
+    ).split()
+)
+# Superlatives ("coldest") compare what a passage states one by one. Words that merely end
+# in "est" are left out.
+_NOT_SUPERLATIVE = frozenset(
+    "west test rest interest forest request harvest contest suggest protest honest modest "
+    "earnest arrest invest digest manifest".split()
+)
+# The adjective and the noun for the same body: "lunar orbit" is an orbit around the Moon.
+_SAME_THING = {"lunar": "moon", "solar": "sun"}
 
 
 @dataclass(frozen=True)
 class Novelty:
     new_words: list[str]  # claim words (stemmed) that the passage does not contain
-    new_numbers: list[str]  # numbers, written as digits or words, that it does not contain
+    # Quantities the passage does not contain: numbers (as digits or words), durations,
+    # comparisons and superlatives.
+    new_numbers: list[str]
     share: float  # new words as a share of the claim's content words
 
 
@@ -50,13 +76,22 @@ def stem(word: str) -> str:
             word = word[: -len(suffix)]
             break
     # "achieve" and "achiev(ed)" should meet: drop a final silent e.
-    return word[:-1] if len(word) > 4 and word.endswith("e") else word
+    word = word[:-1] if len(word) > 4 and word.endswith("e") else word
+    return _SAME_THING.get(word, word)
 
 
 def _terms(text: str) -> list[str]:
     # Drop possessives first, or "JWST's" leaves a stray "s" that counts as a new word.
     text = re.sub(r"['’]s\b", "", text.lower())
+    # "One of its four instruments" picks one out of a list; it counts nothing.
+    text = re.sub(r"\bone of\b", "of", text)
     return [w for w in re.findall(r"[a-z0-9]+", text) if w not in _STOPWORDS]
+
+
+def is_quantity(word: str) -> bool:
+    if word.isdigit() or word in _NUMBER_WORDS or word in _QUANTITY_WORDS:
+        return True
+    return len(word) > 5 and word.endswith("est") and word not in _NOT_SUPERLATIVE
 
 
 def acronyms(text: str) -> set[str]:
@@ -70,6 +105,6 @@ def novelty(claim: str, passage: str) -> Novelty:
     claim_terms = _terms(claim)
     known = {stem(w) for w in _terms(passage)} | acronyms(passage)
     new = [w for w in dict.fromkeys(claim_terms) if stem(w) not in known]
-    numbers = [w for w in new if w.isdigit() or w in _NUMBER_WORDS]
+    numbers = [w for w in new if is_quantity(w)]
     share = len(new) / len(set(claim_terms)) if claim_terms else 0.0
     return Novelty(new_words=new, new_numbers=numbers, share=share)

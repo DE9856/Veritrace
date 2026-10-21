@@ -51,6 +51,13 @@ class ChatRequest(BaseModel):
         default=False,
         description="Also return a rewritten answer without the claims flagged as hallucinated.",
     )
+    answer: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=8000,
+        description="Check this answer instead of writing one: for answers written by hand, "
+        "or by another model.",
+    )
 
 
 class ClaimSignals(BaseModel):
@@ -66,7 +73,7 @@ class ClaimSignals(BaseModel):
     self_label: Literal["HIGH", "INFERRED", "UNSURE"] | None = Field(
         default=None, description="The generator's own tag for the sentence."
     )
-    judge: Literal["derivable", "contradicted", "unsupported"] | None = Field(
+    judge: Literal["stated", "derivable", "contradicted", "unsupported"] | None = Field(
         default=None, description="Inference judge verdict, for claims NLI could not confirm."
     )
     new_terms: list[str] = Field(

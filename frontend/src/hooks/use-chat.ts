@@ -17,6 +17,7 @@ export interface Exchange {
   id: string;
   question: string;
   safeMode: boolean;
+  checking: boolean; // the answer was given to be checked, not written by the model
   documents?: string[]; // filenames the question was limited to; undefined means all
   steps: Step[];
   draft: string;
@@ -37,7 +38,12 @@ export function useChat() {
   }, []);
 
   const ask = useCallback(
-    async (question: string, safeMode: boolean, scope?: { ids: string[]; names: string[] }) => {
+    async (
+      question: string,
+      safeMode: boolean,
+      scope?: { ids: string[]; names: string[] },
+      answer?: string,
+    ) => {
       controller.current?.abort();
       const abort = new AbortController();
       controller.current = abort;
@@ -48,6 +54,7 @@ export function useChat() {
           id,
           question,
           safeMode,
+          checking: !!answer,
           documents: scope?.names,
           steps: [],
           draft: "",
@@ -58,7 +65,7 @@ export function useChat() {
 
       let finished = false;
       await streamChat(
-        { question, safe_mode: safeMode, document_ids: scope?.ids },
+        { question, safe_mode: safeMode, document_ids: scope?.ids, answer },
         {
           onStatus: (step) => update(id, (e) => ({ steps: [...e.steps, { ...step, at: Date.now() }] })),
           onDraft: (text) => update(id, () => ({ draft: text })),

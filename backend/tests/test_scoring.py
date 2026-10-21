@@ -154,6 +154,27 @@ def test_many_new_words_make_a_supported_claim_inferred():
     assert score_claim(ev(1.0, cons=1.0), SETTINGS).label == "high"
 
 
+def test_judge_keeps_a_paraphrase_high_but_not_a_new_quantity():
+    paraphrase = ev(1.0, cons=1.0, judge="stated")
+    paraphrase.new_words, paraphrase.novelty_share = ["lifted"], 0.25
+    assert needs_judgement(paraphrase, SETTINGS)
+    result = score_claim(paraphrase, SETTINGS)
+    assert result.label == "high"
+    assert "other words (new: lifted)" in result.reason
+
+    counted = ev(1.0, cons=1.0, judge="stated")
+    counted.new_numbers, counted.new_words = ["month"], ["reached", "month"]
+    assert not needs_judgement(counted, SETTINGS)
+    assert score_claim(counted, SETTINGS).label == "inferred"
+
+
+def test_judge_cannot_overrule_nli_on_a_claim_sent_only_for_new_words():
+    # NLI confirmed it; the judge only decides between high and inferred.
+    novel = ev(1.0, cons=1.0, judge="contradicted")
+    novel.new_words, novel.novelty_share = ["nation", "close"], 0.25
+    assert score_claim(novel, SETTINGS).label == "inferred"
+
+
 def test_signals_are_reported():
     signals = score_claim(ev(0.9, cons=0.75, label="HIGH"), SETTINGS).signals
     assert (signals.consistency, signals.retrieval, signals.self_label) == (0.75, 1.0, "HIGH")

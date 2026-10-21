@@ -16,3 +16,15 @@ questions:
   - {split: test, question: "What are JWST's four instruments and what is special about MIRI?"}
   - {split: test, question: "How is JWST protected from heat?"}
   - {split: test, question: "What did Webb's first images show, and when were they released?"}
+
+  # Added in 0.9.0, held out with fresh_claims.yaml. Each asks for something the documents
+  # do not contain, next to something they do, so a model is tempted to fill the gap from
+  # memory. Claims that fill it are real hallucinations for the checker to catch.
+  - {split: fresh, question: "Which countries soft-landed on the Moon before India?"}
+  - {split: fresh, question: "How much did Chandrayaan-3 cost, and when was it launched?"}
+  - {split: fresh, question: "Who led the Chandrayaan-3 mission at ISRO, and what did the rover find?"}
+  - {split: fresh, question: "What temperatures did ChaSTE record in the lunar topsoil?"}
+  - {split: fresh, question: "How far away is the galaxy cluster in Webb's First Deep Field, and when was it shown?"}
+  - {split: fresh, question: "What has JWST discovered about exoplanet atmospheres?"}
+  - {split: fresh, question: "How much did JWST cost and how many years did it take to build?"}
+  - {split: fresh, question: "What is the sunshield made of, and how big is it?"}

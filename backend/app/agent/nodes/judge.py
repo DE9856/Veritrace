@@ -1,10 +1,13 @@
-"""Judge node: decides whether claims that NLI could not confirm are reasonable
-deductions from the evidence, contradicted by it, or unsupported.
+"""Judge node: decides whether claims are stated by the evidence in other words,
+reasonable deductions from it, contradicted by it, or unsupported.
 
 NLI only recognises claims a single passage states. Conclusions drawn from several
 passages, or approximate arithmetic on stated dates ("about two weeks"), come back
 neutral or even as contradictions. The judge sees all the evidence at once and
 separates deductions from invented or wrong facts.
+
+It also sees claims NLI confirmed but that use words their passage does not: the judge
+tells a paraphrase ("stated") from a deduction ("derivable"), which word overlap cannot.
 """
 
 from dataclasses import dataclass
@@ -17,7 +20,7 @@ from app.prompts import render
 from app.providers.base import LLMError, LLMProvider
 from app.schemas import SourceChunk
 
-JudgeVerdict = Literal["derivable", "contradicted", "unsupported"]
+JudgeVerdict = Literal["stated", "derivable", "contradicted", "unsupported"]
 
 
 class _Item(BaseModel):

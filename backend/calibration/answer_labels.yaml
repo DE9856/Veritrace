@@ -63,3 +63,7 @@ labels:
   Webb's first images showed thousands of distant galaxies behind SMACS 0723.: high
   Webb's first images were released on 11 July 2022.: high
   The rest of the first full-colour images were released on 12 July 2022.: high
+
+  # Fresh questions (0.9.0). qwen3:4b-instruct refused seven of the eight outright, even
+  # the half each question the documents answer.
+  The sunshield is about the size of a tennis court.: high

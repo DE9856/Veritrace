@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleXIcon, FileTextIcon, ShieldCheckIcon, SquareIcon } from "lucide-react";
+import { CircleXIcon, ClipboardCheckIcon, FileTextIcon, ShieldCheckIcon, SquareIcon } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Exchange } from "@/hooks/use-chat";
@@ -30,8 +30,13 @@ export function ExchangeView({
         <h2 className="font-serif text-[1.375rem] leading-snug font-semibold tracking-[-0.012em] whitespace-pre-wrap sm:text-[1.625rem]">
           {exchange.question}
         </h2>
-        {(exchange.safeMode || exchange.documents) && (
+        {(exchange.checking || exchange.safeMode || exchange.documents) && (
           <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-muted-foreground">
+            {exchange.checking && (
+              <span className="inline-flex items-center gap-1.5">
+                <ClipboardCheckIcon className="size-3.5" /> Checking a given answer
+              </span>
+            )}
             {exchange.safeMode && (
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheckIcon className="size-3.5" /> Safe mode
@@ -73,7 +78,9 @@ export function ExchangeView({
               aria-hidden
             />
           </p>
-          <p className="mt-3 text-[13px] text-muted-foreground">Checking each claim once the answer is written…</p>
+          <p className="mt-3 text-[13px] text-muted-foreground">
+            {exchange.checking ? "Checking each claim in this answer…" : "Checking each claim once the answer is written…"}
+          </p>
         </div>
       )}
 

@@ -55,6 +55,10 @@ curl localhost:8000/api/chat -H 'content-type: application/json' \
 curl -N localhost:8000/api/chat/stream -H 'content-type: application/json' \
   -d '{"question": "What does the mission mean for future missions?", "safe_mode": true}'
 
+# Check a given answer instead of writing one (check mode): here with a planted wrong date
+curl localhost:8000/api/chat -H 'content-type: application/json' \
+  -d '{"question": "When did Vikram land?", "answer": "Vikram landed on 23 September 2023."}'
+
 # The agent graph as a Mermaid diagram
 curl localhost:8000/api/chat/graph
 
@@ -77,7 +81,7 @@ Open http://localhost:3000, choose **Add the two sample documents**, and ask one
 
 ## Calibration and evaluation
 
-The labels are checked against hand labels on a dev set (used to design the rules and tune the settings) and a held-out test set (only scored). Results, with an ablation of each signal and the latency per question, are in [docs/evaluation.md](docs/evaluation.md).
+The labels are checked against hand labels on a dev set (used to design the rules and tune the settings) and two held-out sets (only scored): test, and fresh, written in 0.9.0 after test's errors had been read to find what to fix. Results, with an ablation of each signal and the latency per question, are in [docs/evaluation.md](docs/evaluation.md).
 
 ```bash
 cd backend
@@ -85,14 +89,16 @@ cd backend
 export LLM_PROVIDER=ollama              # or groq
 python -m calibration.collect_signals --out ${LLM_PROVIDER}_dev_signals.json
 python -m calibration.collect_signals --claims test_claims.yaml --out ${LLM_PROVIDER}_test_signals.json
+python -m calibration.collect_signals --claims fresh_claims.yaml --out ${LLM_PROVIDER}_fresh_signals.json
 python -m calibration.collect_answers   # claims from real answers, labelled in answer_labels.yaml
 python -m calibration.latency           # seconds (and tokens, on Groq) per question
 
 python -m calibration.evaluate --write  # instant: writes docs/evaluation.md
 python -m calibration.tune              # instant: grid search on the older signals.json
+python -m calibration.rejudge ${LLM_PROVIDER}_dev_signals.json  # after changing the judge prompt
 ```
 
-On Groq, collecting both sets uses more than the free tier's 200,000 tokens a day, so it takes two days.
+On Groq, collecting every set uses more than the free tier's 200,000 tokens a day, so it takes several days: `calibration/run_groq.sh` runs the steps in order and resumes after each quota reset.
 
 ## Tests
 

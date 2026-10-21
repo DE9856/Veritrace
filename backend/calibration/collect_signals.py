@@ -15,6 +15,7 @@ so every LLM signal comes from one model.
 
 import argparse
 import asyncio
+import hashlib
 import json
 import tempfile
 import time
@@ -29,11 +30,17 @@ from app.agent.nodes.retrieve import retrieve
 from app.agent.nodes.verify import verify
 from app.config import BACKEND_DIR, Settings
 from app.ingestion.pipeline import ingest_file
+from app.prompts import render
 from app.providers.base import LLMError, RateLimitError
 from app.services import build_services
 
 HERE = Path(__file__).parent
 SAMPLES = ["chandrayaan-3.md", "james-webb-space-telescope.md"]
+
+
+def judge_prompt_version() -> str:
+    """Identifies the judge prompt a verdict came from, so rejudge.py knows what to redo."""
+    return hashlib.sha256(render("judge_system").encode()).hexdigest()[:12]
 
 
 async def patient(fn, *args, **kwargs):
@@ -165,6 +172,7 @@ async def collect(settings: Settings, claims_file: Path, out: Path) -> list[dict
                 "consistency": consistency,
                 "judge": judgement.verdict if judgement else None,
                 "judge_reason": judgement.reason if judgement else None,
+                "judge_prompt": judge_prompt_version(),
             }
         )
         r = records[-1]

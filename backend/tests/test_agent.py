@@ -120,3 +120,36 @@ def test_graph_endpoint_returns_the_compiled_graph(client):
         "score -.-> revise",  # safe mode
     ):
         assert edge in mermaid
+
+
+def test_check_mode_verifies_the_given_answer_instead_of_writing_one(client, provider):
+    upload(client)
+    provider.extraction = {
+        "sentences": [
+            {"index": 0, "claims": ["Vikram touched down on 23 August 2023."]},
+            {"index": 1, "claims": ["Pragyan detected water ice."]},
+        ]
+    }
+
+    async def no_writing(*args, **kwargs):
+        raise AssertionError("check mode must not write an answer")
+        yield  # makes this an async generator
+
+    provider.stream = no_writing
+    r = client.post(
+        "/api/chat/stream",
+        json={
+            "question": "When did the Vikram lander land?",
+            "answer": "Vikram touched down on 23 August 2023 [S1]. Pragyan detected water ice.",
+        },
+    )
+    events = parse_sse(r.text)
+    status = next(d for k, d in events if k == "status" and d["node"] == "generate")
+    assert status["message"] == "Reading the answer to check"
+    verdict = events[-1][1]
+    assert (
+        verdict["answer"]
+        == "Vikram touched down on 23 August 2023 [S1]. Pragyan detected water ice."
+    )
+    assert verdict["cited_labels"] == ["S1"]
+    assert [s["label"] for s in verdict["sentences"]] == ["high", "hallucinated"]

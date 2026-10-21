@@ -10,10 +10,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Frontend: a "How it works" page (`/how-it-works`) with the agent's steps, the signals and their weights, the labelling rules, the models in use and the evaluation results.
 - Frontend: each answer shows the model that wrote it and the search queries the agent ran.
 - Frontend: tick documents in the documents panel to limit questions to them (the API's `document_ids`); the question shows which documents it searched.
+- Check mode: `ChatRequest.answer` checks a given answer (written by hand, or by another model) instead of having the model write one; the rest of the graph runs unchanged. In the app, the "Check an answer" switch adds a field for it, so a planted error can be shown flagged live.
+- Judge verdict "stated": the passage says the claim in other words. Claims NLI confirmed but whose only novelty is new words now go to the judge, which tells a paraphrase from a deduction; for these it only decides between high and inferred, so it cannot overrule NLI.
+- `calibration/fresh_claims.yaml`: a second held-out set of 36 claims (14 high, mostly paraphrases; 10 inferred; 12 hallucinated), written before the changes below, because the test set's errors had been used to find what to fix. Plus 8 questions in `answer_questions.yaml` (split `fresh`) that ask for something the documents lack next to something they have.
+- `calibration/dev_claims.yaml`: 19 paraphrased claims (11 high, 5 inferred without a number, 3 hallucinated). The dev set mostly copied the documents' words, which is why tuning never saw the paraphrase problem.
+- `calibration/rejudge.py`: judges saved claims again after a judge prompt change, without collecting the other signals again. Collected records note the judge prompt they used.
+- `calibration/run_groq.sh`: the Groq evaluation as resumable steps, to rerun after each daily quota reset.
 
 ### Changed
+- Novelty: a new quantity (a number, a duration such as "a month", a comparison such as "only" or "more than", a superlative) always makes a stated claim inferred. "One of" a list no longer counts as a number. Hedges ("roughly"), verb particles ("lifted off") and "lunar" for "Moon" no longer count as new words.
+- Generation prompt: answering the covered part of a question comes first, and the fixed refusal is only for questions the sources answer no part of. On Groq this answered one of four half-covered questions that it had refused; qwen3:4b-instruct still refuses all of them.
 - Frontend: the delete button on each document is always visible (it only showed on hover, so not at all on touch screens) and says what it removes: the uploaded file, its passages in the vector store and its record.
 - Frontend: the example questions are the demo-guide questions, each with a note on what it shows (every claim stated, inferred claims, an unsupported claim, a false premise).
+- The "How it works" page reports the fresh held-out set.
+
+### Fixed
+- A sentence about what the sources leave out ("No other experiments are mentioned ... in the provided sources") was extracted as a claim and checked. Found on a test answer.
+
+### Results (qwen3:4b-instruct)
+| Set | Before: accuracy / macro-F1 / hallucination F1 | After |
+|---|---|---|
+| Fresh (37, the clean measure) | 67% / 0.66 / 0.85 | 81% / 0.78 / 0.89 |
+| Test (67, its errors were read) | 75% / 0.76 / 0.93 | 91% / 0.88 / 0.90 |
+| Dev (84, with the new claims) | 82% / 0.81 / 0.86 | 86% / 0.80 / 0.84 |
+- Correct paraphrases labelled inferred: 8 of 14 high claims on fresh before, 2 after. A first attempt that only changed the word lists (and matching words by embedding similarity, which rated "europe"/"european" 0.91 and "coldest"/"colder" 0.84) fixed test but changed nothing on fresh, so it was not enough on its own.
+- The cost: the judge, given a "stated" option, sometimes calls a deduction stated (dev: 3 claims) or reads approximate arithmetic as a contradiction (fresh: 3 inferred claims labelled hallucinated), so hallucination precision fell on dev and test.
+- Every hallucinated claim on fresh is caught, and no stated claim is called hallucinated. The grid search on dev keeps every setting in `config.yaml`.
+- qwen3:4b-instruct refused seven of the eight half-covered fresh questions outright, so answers still contribute almost no hallucinations; check mode is the way to show one.
 
 ## [0.8.0] - 2026-10-21
 

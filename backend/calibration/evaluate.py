@@ -1,11 +1,15 @@
 """Evaluate the confidence labels on held-out claims, with an ablation of the signals.
 
-Data, per model (<provider>_dev_signals.json, <provider>_test_signals.json and
-<provider>_answers.json, from collect_signals.py and collect_answers.py):
-    dev   hand-written dev claims + claims from real answers to the "dev" questions
-    test  hand-written test claims + claims from real answers to the "test" questions
-The thresholds and weights are tuned on dev only; every number reported for test comes
-from claims the tuning never saw. Each model whose files exist gets its own section.
+Data, per model (<provider>_<split>_signals.json and <provider>_answers.json, from
+collect_signals.py and collect_answers.py):
+    dev    hand-written dev claims + claims from real answers to the "dev" questions
+    test   hand-written test claims + claims from real answers to the "test" questions
+    fresh  a second held-out set, added in 0.9.0 after test had been used to find the
+           novelty rule's errors: hand-written claims + answers to questions that tempt
+           the model to fill gaps in the documents
+The thresholds and weights are tuned on dev only; every number reported for test and
+fresh comes from claims the tuning never saw. Each model whose files exist gets its own
+section.
 
 Novelty is recomputed from the saved passages with the current code, so a change to
 app/verification/novelty.py can be evaluated without collecting the signals again.
@@ -122,7 +126,7 @@ def metrics(records: list[dict], label_of) -> dict:
 
 def judge_only(record: dict) -> str:
     """LLM-as-judge baseline: the judge's verdict alone, for every claim."""
-    return "high" if record["judge"] == "derivable" else "hallucinated"
+    return "high" if record["judge"] in ("stated", "derivable") else "hallucinated"
 
 
 def consistency_only(record: dict) -> str:
@@ -170,6 +174,11 @@ def available() -> list[str]:
 def model_section(provider: str) -> list[str]:
     dev, dev_missing = dataset(provider, "dev")
     test, test_missing = dataset(provider, "test")
+    fresh, fresh_missing = (
+        dataset(provider, "fresh")
+        if (HERE / f"{provider}_fresh_signals.json").exists()
+        else ([], [])
+    )
     meta = load(f"{provider}_dev_signals.json")
     current = Settings()
     tuned = search(dev, current)
@@ -184,7 +193,9 @@ def model_section(provider: str) -> list[str]:
         f"Answers, judge and {meta['consistency_samples']} resampled answers per question from "
         f"`{meta['model']}`; NLI from `{meta['nli_model']}`.\n"
     )
-    for split, records in (("Dev", dev), ("Test", test)):
+    for split, records in (("Dev", dev), ("Test", test), ("Fresh", fresh)):
+        if not records:
+            continue
         origins = Counter(r["origin"] for r in records)
         w(
             f"- **{split}:** {len(records)} claims ({counts(records)}): "
@@ -192,23 +203,34 @@ def model_section(provider: str) -> list[str]:
         )
     w("")
 
-    w("### Main result (test)\n")
-    w(TABLE_HEAD)
-    w(row("Current `config.yaml`", metrics(test, ours(current))))
-    w(row("Tuned on dev", metrics(test, ours(tuned))))
-    w("")
-    w("Confusion matrix on test, current settings:\n")
-    w(confusion_table(metrics(test, ours(current))["confusion"]))
-    w("")
-    for origin in ("hand-written", "from answers"):
-        part = [r for r in test if r["origin"] == origin]
-        if part:
-            m = metrics(part, ours(current))
+    for name, records in (("test", test), ("fresh", fresh)):
+        if not records:
+            continue
+        w(f"### Main result ({name})\n")
+        if name == "fresh":
             w(
-                f"- {origin.capitalize()} claims ({len(part)}): accuracy {m['accuracy']:.0%}, "
-                f"macro-F1 {m['macro_f1']:.2f}, hallucination F1 {m['hal_f1']:.2f}."
+                "The cleaner measure since 0.9.0: the claims were written before the novelty "
+                "and judge changes, and no rule or setting was tuned on them. Their errors "
+                "under a first, word-list-only attempt were seen once; that attempt did not "
+                "help here and was replaced by the judge's stated verdict.\n"
             )
-    w("")
+        w(TABLE_HEAD)
+        w(row("Current `config.yaml`", metrics(records, ours(current))))
+        w(row("Tuned on dev", metrics(records, ours(tuned))))
+        w("")
+        w(f"Confusion matrix on {name}, current settings:\n")
+        w(confusion_table(metrics(records, ours(current))["confusion"]))
+        w("")
+        for origin in ("hand-written", "from answers"):
+            part = [r for r in records if r["origin"] == origin]
+            if part:
+                m = metrics(part, ours(current))
+                w(
+                    f"- {origin.capitalize()} claims ({len(part)}): accuracy "
+                    f"{m['accuracy']:.0%}, macro-F1 {m['macro_f1']:.2f}, hallucination F1 "
+                    f"{m['hal_f1']:.2f}."
+                )
+        w("")
 
     w("### Ablation (test, current settings)\n")
     w(
@@ -236,23 +258,26 @@ def model_section(provider: str) -> list[str]:
         w("The grid search keeps every current value.")
     w("")
 
-    w("### Test claims the current settings get wrong\n")
-    wrong = [r for r in test if predict(r, current) != r["label"]]
-    if wrong:
-        w("| Claim | Gold | Predicted | Signals |\n|---|---|---|---|")
-        for r in wrong:
-            cons = "–" if r["consistency"] is None else f"{r['consistency']:.2f}"
-            new = ", ".join(r["new_words"]) or "–"
-            w(
-                f"| {r['claim']} | {r['label']} | {predict(r, current)} | "
-                f"E={r['entailment']:.2f} C={r['contradiction']:.2f} cons={cons} "
-                f"judge={r['judge']} new words: {new} |"
-            )
-    else:
-        w("None.")
-    w("")
+    for name, records in (("Test", test), ("Fresh", fresh)):
+        if not records:
+            continue
+        w(f"### {name} claims the current settings get wrong\n")
+        wrong = [r for r in records if predict(r, current) != r["label"]]
+        if wrong:
+            w("| Claim | Gold | Predicted | Signals |\n|---|---|---|---|")
+            for r in wrong:
+                cons = "–" if r["consistency"] is None else f"{r['consistency']:.2f}"
+                new = ", ".join(r["new_words"]) or "–"
+                w(
+                    f"| {r['claim']} | {r['label']} | {predict(r, current)} | "
+                    f"E={r['entailment']:.2f} C={r['contradiction']:.2f} cons={cons} "
+                    f"judge={r['judge']} new words: {new} |"
+                )
+        else:
+            w("None.")
+        w("")
 
-    unlabelled = dev_missing + test_missing
+    unlabelled = dev_missing + test_missing + fresh_missing
     if unlabelled:
         w(f"_{len(unlabelled)} claims from answers are not labelled yet and are left out._\n")
     return out
@@ -287,14 +312,17 @@ def build_report() -> str:
         "hand against the two sample documents only."
     )
     w(
-        "- **Claims:** hand-written claims (`dev_claims.yaml`, `test_claims.yaml`), plus every "
-        "claim the agent extracted from its own answers to the questions in "
-        "`answer_questions.yaml`, labelled in `answer_labels.yaml`."
+        "- **Claims:** hand-written claims (`dev_claims.yaml`, `test_claims.yaml`, "
+        "`fresh_claims.yaml`), plus every claim the agent extracted from its own answers to "
+        "the questions in `answer_questions.yaml`, labelled in `answer_labels.yaml`."
     )
     w(
         "- **Protocol:** the scoring rules were designed and the settings tuned on dev only; "
-        "test is only scored. The numbers below use the settings in `config.yaml`; the grid "
-        "search on dev (`calibration/tune.py`) is shown for comparison.\n"
+        "test and fresh are only scored. In 0.9.0 the test set's errors were read to find "
+        "what to fix, so test overstates that change; the fresh set, written before it, is "
+        "the cleaner measure. The numbers below use the "
+        "settings in `config.yaml`; the grid search on dev (`calibration/tune.py`) is shown "
+        "for comparison.\n"
     )
     for provider in available():
         out.extend(model_section(provider))

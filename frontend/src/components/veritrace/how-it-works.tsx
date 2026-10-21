@@ -30,7 +30,7 @@ const STEPS: { node: string; what: string }[] = [
   },
   {
     node: "judge",
-    what: "For claims NLI could not settle, a second LLM call decides: derivable from the passages, contradicted, or unsupported.",
+    what: "For claims NLI could not settle, or that use words their passage does not, a second LLM call decides: stated in other words, derivable from the passages, contradicted, or unsupported.",
   },
   {
     node: "consistency",
@@ -51,18 +51,19 @@ const RULES = [
   "A judge verdict of contradicted, or a strong NLI contradiction, makes a claim hallucinated.",
   "A claim no passage supports (entailment below 0.45) is hallucinated, unless the judge finds it derivable from the passages: then it is inferred.",
   "A supported claim is high confidence if its score is 0.75 or more, or if entailment is at least 0.85 and the resampled answers agree. Otherwise it is inferred.",
-  "A high-confidence claim that adds a new number, or many words its passage does not use, is a deduction: inferred.",
+  "A high-confidence claim that adds a quantity its passage does not have (a number, a duration, a comparison) is a deduction: inferred. One that only uses many new words stays high if the judge finds it stated in other words.",
 ];
 
-// From docs/evaluation.md (2026-10-21): held-out test set, never used for tuning.
+// From docs/evaluation.md (0.9.0): the fresh held-out set, written before the 0.9.0 changes and
+// never used for tuning.
 const EVALUATION = {
   model: "qwen3:4b-instruct",
-  claims: 67,
+  claims: 37,
   rows: [
-    { name: "Veritrace (all signals)", accuracy: "75%", macroF1: "0.76", halF1: "0.93" },
-    { name: "LLM judge alone", accuracy: "81%", macroF1: "0.59", halF1: "0.88" },
-    { name: "Self-consistency alone", accuracy: "70%", macroF1: "0.51", halF1: "0.74" },
-    { name: "NLI alone", accuracy: "76%", macroF1: "0.60", halF1: "0.81" },
+    { name: "Veritrace (all signals)", accuracy: "81%", macroF1: "0.78", halF1: "0.89" },
+    { name: "LLM judge alone", accuracy: "70%", macroF1: "0.54", halF1: "0.80" },
+    { name: "Self-consistency alone", accuracy: "62%", macroF1: "0.56", halF1: "0.75" },
+    { name: "NLI alone", accuracy: "73%", macroF1: "0.61", halF1: "0.85" },
   ],
 };
 
@@ -166,9 +167,10 @@ export function HowItWorks() {
               emphasise={0}
             />
             <Prose>
-              It catches 14 of the 15 hallucinated claims and never calls a claim the documents state
-              hallucinated. The judge and self-consistency baselines cannot say inferred at all. Its most common
-              mistake is labelling a correct paraphrase inferred. Full results, with an ablation of each signal:{" "}
+              It catches all 12 hallucinated claims and never calls a claim the documents state hallucinated. The
+              judge and self-consistency baselines cannot say inferred at all. Its most common mistake is calling a
+              deduction hallucinated: the small judge sometimes reads approximate arithmetic as a contradiction.
+              Full results, with an ablation of each signal:{" "}
               <Code>docs/evaluation.md</Code>.
             </Prose>
           </Section>
