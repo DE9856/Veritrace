@@ -47,6 +47,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      # Route types such as LayoutProps live in .next/, which a fresh checkout lacks.
+      - run: npx next typegen
       - run: npx tsc --noEmit
       - run: npm run lint
 
