@@ -101,7 +101,31 @@ cd deploy/ec2 && docker compose ps               # three containers, backend "he
 This step is optional; without it, the instance still updates itself at every start. It lets GitHub sign in to AWS with a short-lived token (OpenID Connect), so no AWS keys are stored in GitHub and no SSH port has to be open to the internet.
 
 1. **IAM → Identity providers → Add provider**: choose **OpenID Connect**, with provider URL `https://token.actions.githubusercontent.com` and audience `sts.amazonaws.com`.
-2. **IAM → Roles → Create role**: choose **Web identity**, the provider from step 1 and audience `sts.amazonaws.com`. Set GitHub organization `DE9856`, repository `Veritrace` and branch `master`. Skip the permissions page, name the role `veritrace-github-deploy`, and create it.
+   Type the URL with no trailing slash. A provider named `token.actions.githubusercontent.com/` does not match GitHub's tokens ("The web identity token provided could not be validated").
+2. **IAM → Roles → Create role**: choose **Custom trust policy** and paste the policy below. Then skip the permissions page, name the role `veritrace-github-deploy`, and create it.
+
+   This repository uses GitHub's immutable subject format, which names the owner and repository with their permanent IDs. A rule written as `repo:DE9856/Veritrace:...`, as the console's Web identity form writes it, never matches ("Not authorized to perform sts:AssumeRoleWithWebIdentity"). Check the format with `gh api repos/DE9856/Veritrace/actions/oidc/customization/sub`. Its `sub_claim_prefix` goes before the `:*`.
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       {
+         "Effect": "Allow",
+         "Principal": {
+           "Federated": "arn:aws:iam::ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+         },
+         "Action": "sts:AssumeRoleWithWebIdentity",
+         "Condition": {
+           "StringEquals": { "token.actions.githubusercontent.com:aud": "sts.amazonaws.com" },
+           "StringLike": {
+             "token.actions.githubusercontent.com:sub": "repo:DE9856@82948768/Veritrace@1427086997:*"
+           }
+         }
+       }
+     ]
+   }
+   ```
 3. Open the new role, then **Add permissions → Create inline policy → JSON**. Paste the following, with your region, account ID (top right of the console) and instance ID (EC2 → Instances) filled in:
 
    ```json
@@ -166,6 +190,7 @@ Only the parts that changed are rebuilt. The boot update's log is in `journalctl
 | Header dot is amber | A key is wrong or a quota is spent. Hover over the dot for the reason, and check `docker compose logs backend`. |
 | The backend restarts over and over | Usually out of memory. `docker compose logs backend` and `free -h` show it. Use an instance with 4 GB or more. |
 | SSH times out | If the SSH rule is set to My IP, your IP changed: edit the rule, or use Session Manager. |
-| The deploy job fails with "Not authorized to perform sts:AssumeRoleWithWebIdentity" | The role's trust policy must name `DE9856/Veritrace` and branch `master` (step 7.2), and the `AWS_DEPLOY_ROLE_ARN` variable must be that role's ARN. |
+| The deploy job fails with "The web identity token provided could not be validated" | The identity provider's URL has a trailing slash or a typo. Delete it and add it again as `https://token.actions.githubusercontent.com` (step 7.1). |
+| The deploy job fails with "Not authorized to perform sts:AssumeRoleWithWebIdentity" | The role's trust policy must use the repository's immutable subject, `repo:DE9856@82948768/Veritrace@1427086997:*` (step 7.2), and the `AWS_DEPLOY_ROLE_ARN` variable must be that role's ARN. |
 | The deploy job fails with `InvalidInstanceId` | The instance has no `veritrace-ec2` role, or its SSM agent has not registered yet. Attach the role (EC2 → Actions → Security → Modify IAM role), then wait a few minutes. |
 | The site did not change after starting the instance | The boot update may still be building. Check `journalctl -u veritrace-update -f`. |
