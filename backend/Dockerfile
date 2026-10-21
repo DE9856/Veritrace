@@ -1,5 +1,5 @@
-# Veritrace backend, for Hugging Face Spaces (Docker SDK) or any container host.
-# The LLM is called over the network (Gemini, with Groq as fallback); the embedding
+# Veritrace backend in a container (see docs/docker.md).
+# The LLM is called over the network (Groq, with Gemini as fallback); the embedding
 # and NLI models run on the CPU inside the container.
 
 FROM python:3.12-slim
@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Spaces run containers as user 1000.
+# Run as an unprivileged user.
 RUN useradd --create-home --uid 1000 user
 WORKDIR /home/user/app
 
@@ -32,14 +32,14 @@ AutoTokenizer.from_pretrained(name); AutoModelForSequenceClassification.from_pre
 
 COPY --chown=user . .
 
-# Defaults for a hosted deployment; override any of them with Space variables.
-# The disk is wiped on restart, so the sample documents are indexed at startup.
-ENV LLM_PROVIDER=gemini \
-    LLM_FALLBACK=groq \
+# Defaults; backend/.env passed with --env-file overrides any of them. The container's
+# disk is fresh on every run, so the sample documents are indexed at startup.
+ENV LLM_PROVIDER=groq \
+    LLM_FALLBACK=gemini \
     CONSISTENCY_SAMPLES=2 \
     SEED_SAMPLES=true \
     DATA_DIR=/home/user/data \
-    PORT=7860
+    PORT=8000
 
-EXPOSE 7860
+EXPOSE 8000
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

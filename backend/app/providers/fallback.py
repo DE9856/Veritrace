@@ -1,7 +1,8 @@
 """Primary provider with a fallback for when the primary runs out of quota."""
 
+import asyncio
 import time
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 
 from app.providers.base import LLMProvider, RateLimitError, T
 from app.schemas import ProviderHealth
@@ -9,6 +10,10 @@ from app.schemas import ProviderHealth
 # How long to skip the primary after a rate limit that came without a reset time. The
 # primary has already retried with backoff by then, so the limit is not momentary.
 DEFAULT_COOLDOWN_S = 60.0
+# When the fallback is rate limited too but the primary's limit resets within this many
+# seconds (a per-minute token limit, not a daily quota), wait for the primary instead of
+# failing the question.
+MAX_WAIT_FOR_PRIMARY_S = 90.0
 
 
 class FallbackProvider:
@@ -26,11 +31,13 @@ class FallbackProvider:
         fallback: LLMProvider,
         *,
         clock: Callable[[], float] = time.monotonic,
+        sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
     ):
         self.primary = primary
         self.fallback = fallback
         self.fallback_calls = 0
         self._clock = clock
+        self._sleep = sleep
         self._primary_blocked_until = 0.0
 
     # The provider and model reported in responses are the ones currently serving.
@@ -50,6 +57,15 @@ class FallbackProvider:
         cooldown = error.retry_after_s or DEFAULT_COOLDOWN_S
         self._primary_blocked_until = max(self._primary_blocked_until, self._clock() + cooldown)
 
+    async def _wait_for_primary(self, error: RateLimitError) -> None:
+        """Called when the fallback is rate limited too. Wait for the primary if its
+        limit resets soon; otherwise re-raise the fallback's error."""
+        wait = self._primary_blocked_until - self._clock()
+        if wait > MAX_WAIT_FOR_PRIMARY_S:
+            raise error
+        await self._sleep(max(0.0, wait))
+        self._primary_blocked_until = 0.0
+
     async def _call(self, method: str, *args, **kwargs):
         if not self.primary_blocked:
             try:
@@ -57,7 +73,11 @@ class FallbackProvider:
             except RateLimitError as error:
                 self._trip(error)
         self.fallback_calls += 1
-        return await getattr(self.fallback, method)(*args, **kwargs)
+        try:
+            return await getattr(self.fallback, method)(*args, **kwargs)
+        except RateLimitError as error:
+            await self._wait_for_primary(error)
+        return await getattr(self.primary, method)(*args, **kwargs)
 
     async def generate(
         self, prompt: str, *, system: str | None = None, temperature: float | None = None
@@ -89,7 +109,17 @@ class FallbackProvider:
                 if started:  # half an answer from one model cannot be finished by another
                     raise
         self.fallback_calls += 1
-        async for piece in self.fallback.stream(prompt, system=system, temperature=temperature):
+        started = False
+        try:
+            async for piece in self.fallback.stream(prompt, system=system, temperature=temperature):
+                started = True
+                yield piece
+            return
+        except RateLimitError as error:
+            if started:
+                raise
+            await self._wait_for_primary(error)
+        async for piece in self.primary.stream(prompt, system=system, temperature=temperature):
             yield piece
 
     async def health(self) -> ProviderHealth:

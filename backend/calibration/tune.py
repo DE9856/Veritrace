@@ -40,6 +40,9 @@ GRID = {
     ],
 }
 JWST_WORDS = ("JWST", "Webb", "MIRI", "NIRCam")
+# Signals score_claim can use. NLI (entailment, contradiction, passage match) is always on;
+# the ablation in evaluate.py switches the others off one at a time.
+ALL_SIGNALS = frozenset({"novelty", "judge", "consistency", "self_label"})
 _SOURCE = SourceChunk(
     label="S1",
     chunk_id="c",
@@ -53,12 +56,15 @@ _SOURCE = SourceChunk(
 
 
 def document(record: dict) -> str:
+    if record.get("document"):
+        return "jwst" if "webb" in record["document"] else "chandrayaan"
     text = record["question"] + record["claim"]
     return "jwst" if any(w in text for w in JWST_WORDS) else "chandrayaan"
 
 
-def predict(record: dict, settings: Settings) -> str:
+def predict(record: dict, settings: Settings, signals: frozenset[str] = ALL_SIGNALS) -> str:
     entail, contra = record["entailment"], record["contradiction"]
+    novel = "novelty" in signals
     ev = ClaimEvidence(
         sentence_index=0,
         text=record["claim"],
@@ -68,14 +74,16 @@ def predict(record: dict, settings: Settings) -> str:
         max_contradiction=contra,
         contradiction_source=_SOURCE,
         support_similarity=record["support_similarity"],
-        new_words=record.get("new_words", []),
-        new_numbers=record.get("new_numbers", []),
-        novelty_share=record.get("novelty_share", 0.0),
-        consistency=record["consistency"],
+        new_words=record.get("new_words", []) if novel else [],
+        new_numbers=record.get("new_numbers", []) if novel else [],
+        novelty_share=record.get("novelty_share", 0.0) if novel else 0.0,
+        consistency=record["consistency"] if "consistency" in signals else None,
+        # Hand-written claims have no self-label; claims from real answers do.
+        self_label=record.get("self_label") if "self_label" in signals else None,
     )
     # Every claim was judged during collection; use the verdict only where these
     # settings would have sent the claim to the judge.
-    if needs_judgement(ev, settings):
+    if "judge" in signals and needs_judgement(ev, settings):
         ev.judge, ev.judge_reason = record["judge"], record["judge_reason"]
     return score_claim(ev, settings).label
 

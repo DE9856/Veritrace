@@ -56,6 +56,7 @@ class ClaimEvidence:
     max_contradiction: float
     contradiction_source: SourceChunk | None
     support_similarity: float = 0.0  # cosine similarity of claim and supporting passage
+    support_passage: str = ""  # the window NLI read, with its document title in front
     new_words: list[str] = field(default_factory=list)  # claim words the passage lacks
     new_numbers: list[str] = field(default_factory=list)
     novelty_share: float = 0.0

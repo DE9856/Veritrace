@@ -1,0 +1,89 @@
+{
+  "model": "qwen3:4b-instruct",
+  "questions": [
+    {
+      "question": "What made the Chandrayaan-3 landing historic?",
+      "seconds": 16.8,
+      "steps_ms": {
+        "extract": 3991,
+        "judge": 0,
+        "generate": 2935,
+        "analyze": 1534,
+        "consistency": 1233,
+        "score": 0,
+        "verify": 7016,
+        "retrieve": 37
+      }
+    },
+    {
+      "question": "What experiments did the Vikram lander perform on the surface?",
+      "seconds": 12.3,
+      "steps_ms": {
+        "extract": 2698,
+        "judge": 3346,
+        "generate": 2054,
+        "analyze": 1487,
+        "consistency": 2099,
+        "score": 0,
+        "verify": 2707,
+        "retrieve": 33
+      }
+    },
+    {
+      "question": "What happened to Chandrayaan-3 after the lunar night?",
+      "seconds": 14.0,
+      "steps_ms": {
+        "extract": 4214,
+        "judge": 3690,
+        "generate": 2507,
+        "analyze": 1437,
+        "consistency": 1363,
+        "score": 0,
+        "verify": 2152,
+        "retrieve": 30
+      }
+    },
+    {
+      "question": "What are JWST's four instruments and what is special about MIRI?",
+      "seconds": 17.5,
+      "steps_ms": {
+        "extract": 4848,
+        "judge": 0,
+        "generate": 3084,
+        "analyze": 1471,
+        "consistency": 2332,
+        "score": 0,
+        "verify": 5726,
+        "retrieve": 36
+      }
+    },
+    {
+      "question": "How is JWST protected from heat?",
+      "seconds": 9.9,
+      "steps_ms": {
+        "extract": 2824,
+        "judge": 0,
+        "generate": 1376,
+        "analyze": 1206,
+        "consistency": 390,
+        "score": 0,
+        "verify": 4052,
+        "retrieve": 29
+      }
+    },
+    {
+      "question": "What did Webb's first images show, and when were they released?",
+      "seconds": 14.5,
+      "steps_ms": {
+        "extract": 3773,
+        "judge": 0,
+        "generate": 2562,
+        "analyze": 1402,
+        "consistency": 348,
+        "score": 0,
+        "verify": 6396,
+        "retrieve": 34
+      }
+    }
+  ]
+}

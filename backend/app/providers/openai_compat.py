@@ -40,6 +40,9 @@ class OpenAICompatibleProvider:
         # limit; "low" saves quota and time.
         self.reasoning_effort = reasoning_effort
         self.limiter = RateLimiter(requests_per_minute)
+        # Tokens the API reports as used (prompt, reasoning and output), for budgeting
+        # against a daily token cap (calibration/latency.py reports it per question).
+        self.tokens_used = 0
         self._client = httpx.AsyncClient(
             base_url=base_url.rstrip("/"),
             headers={"Authorization": f"Bearer {api_key}"},
@@ -63,7 +66,9 @@ class OpenAICompatibleProvider:
             except httpx.HTTPError as exc:
                 raise Retryable(LLMError(f"{self.name} request failed: {exc}")) from exc
             _raise_for_status(self.name, response)
-            return response.json()
+            data = response.json()
+            self.tokens_used += (data.get("usage") or {}).get("total_tokens", 0)
+            return data
 
         return await with_retries(attempt, attempts=self.max_attempts)
 
@@ -107,7 +112,12 @@ class OpenAICompatibleProvider:
                 payload = line[5:].strip()
                 if payload == "[DONE]":
                     break
-                delta = json.loads(payload)["choices"][0].get("delta", {}).get("content")
+                chunk = json.loads(payload)
+                # Groq reports the stream's usage in its last chunk, under "x_groq".
+                usage = chunk.get("usage") or (chunk.get("x_groq") or {}).get("usage") or {}
+                self.tokens_used += usage.get("total_tokens", 0)
+                choices = chunk.get("choices") or [{}]
+                delta = choices[0].get("delta", {}).get("content")
                 if delta:
                     yield normalise_output(delta)
         except httpx.HTTPError as exc:

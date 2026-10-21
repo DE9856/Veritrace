@@ -1,0 +1,56 @@
+# Held-out hand-labelled claims: never used for tuning, only to report how the tuned
+# settings do on claims they have not seen. Same label definitions as dev_claims.yaml.
+#
+# Unlike the dev set, most "high" claims here are paraphrases ("lifted off", "split
+# off", "a former head of NASA"), as a hosted model writes them, and several
+# hallucinations swap one entity for another from the same document.
+
+claims:
+  # ---------------- Chandrayaan-3 ----------------
+  - {question: "Who ran the Chandrayaan-3 mission?", claim: "ISRO, India's space agency, ran the Chandrayaan-3 mission.", label: high}
+  - {question: "What happened to Chandrayaan-2's lander?", claim: "Chandrayaan-2's Vikram lander crashed while trying to land in September 2019.", label: high}
+  - {question: "Did Chandrayaan-3 have an orbiter?", claim: "Chandrayaan-3 did not include an orbiter.", label: high}
+  - {question: "Where was Chandrayaan-3 launched from?", claim: "Chandrayaan-3 lifted off from the Satish Dhawan Space Centre in Sriharikota.", label: high}
+  - {question: "When did the lander separate?", claim: "The lander module split off from the propulsion module on 17 August 2023.", label: high}
+  - {question: "What did the ChaSTE instrument measure?", claim: "ChaSTE recorded how the temperature of the lunar topsoil changes down to about 10 centimetres deep.", label: high}
+  - {question: "What is National Space Day?", claim: "India made 23 August its National Space Day.", label: high}
+  - {question: "What happened to the propulsion module?", claim: "In November 2023 the propulsion module went back to an orbit around Earth.", label: high}
+
+  - {question: "How long after launch did Vikram land?", claim: "Vikram landed about 40 days after launch.", label: inferred}
+  - {question: "How high did the lander rise in the hop experiment?", claim: "During the hop experiment the lander rose less than half a metre.", label: inferred}
+  - {question: "Was Chandrayaan-3 India's first lunar landing?", claim: "Chandrayaan-3 made India's first successful soft landing on the Moon.", label: inferred}
+  - {question: "How many elements did the LIBS instrument detect?", claim: "The LIBS instrument detected ten elements in total.", label: inferred}
+  - {question: "How long did the surface mission last?", claim: "The surface mission lasted less than a month.", label: inferred}
+  - {question: "Which hemisphere of the Moon did Chandrayaan-3 land in?", claim: "Chandrayaan-3 landed in the Moon's southern hemisphere.", label: inferred}
+
+  - {question: "When did the Vikram lander touch down?", claim: "The Vikram lander touched down on 23 September 2023.", label: hallucinated}
+  - {question: "Which country first landed near the lunar south pole?", claim: "India became the third country to soft-land on the Moon.", label: hallucinated}
+  - {question: "How high did the lander rise in the hop experiment?", claim: "During the hop experiment the lander rose about 4 metres.", label: hallucinated}
+  - {question: "What did the ChaSTE instrument measure?", claim: "ChaSTE measured the soil temperature down to a depth of 1 metre.", label: hallucinated}
+  - {question: "Who built the LVM3 rocket?", claim: "The LVM3 rocket was built by Hindustan Aeronautics.", label: hallucinated}
+  - {question: "What did the Pragyan rover find?", claim: "The rover found titanium in commercially useful quantities.", label: hallucinated}
+  - {question: "What happened in November 2023?", claim: "In November 2023 the Vikram lander was moved back to an orbit around Earth.", label: hallucinated}
+
+  # ---------------- James Webb Space Telescope ----------------
+  - {question: "What kind of light does JWST observe?", claim: "JWST is designed to see the universe in infrared.", label: high}
+  - {question: "Where is JWST located?", claim: "JWST orbits the second Sun-Earth Lagrange point, about 1.5 million kilometres away from Earth.", label: high}
+  - {question: "What does the sunshield do?", claim: "The sunshield shields the telescope from the heat of the Sun, Earth and Moon.", label: high}
+  - {question: "Why is the mirror coated in gold?", claim: "The gold coating helps the mirror reflect infrared light.", label: high}
+  - {question: "Which instruments does JWST carry?", claim: "One of JWST's instruments is the Near-Infrared Spectrograph.", label: high}
+  - {question: "What did the first image show?", claim: "Webb's First Deep Field showed the galaxy cluster SMACS 0723.", label: high}
+  - {question: "Who was the telescope named after?", claim: "The telescope is named after James E. Webb, a former head of NASA.", label: high}
+
+  - {question: "How long after launch was the first image shown?", claim: "Webb's First Deep Field was shown about six and a half months after launch.", label: inferred}
+  - {question: "How many space agencies developed JWST?", claim: "Three space agencies developed JWST.", label: inferred}
+  - {question: "Which JWST instrument is the coldest?", claim: "MIRI is the coldest of JWST's instruments.", label: inferred}
+  - {question: "How many JWST instruments work in the near-infrared?", claim: "Three of JWST's four instruments work in the near-infrared.", label: inferred}
+  - {question: "When was the first image released compared with the others?", claim: "The first image came out one day before the rest of the first full-colour images.", label: inferred}
+  - {question: "Who led NASA in 1965?", claim: "James E. Webb was NASA's leader in 1965.", label: inferred}
+
+  - {question: "What is JWST's mirror coated with?", claim: "JWST's primary mirror is coated with silver.", label: hallucinated}
+  - {question: "Where is JWST located?", claim: "JWST sits at the first Sun-Earth Lagrange point.", label: hallucinated}
+  - {question: "Which instrument needs a cryocooler?", claim: "NIRSpec is kept below 7 kelvin by a cryocooler.", label: hallucinated}
+  - {question: "How much did JWST cost?", claim: "JWST cost about 10 billion US dollars.", label: hallucinated}
+  - {question: "What did the first image show?", claim: "Webb's First Deep Field showed the Carina Nebula.", label: hallucinated}
+  - {question: "Where was JWST launched from?", claim: "JWST was launched from Cape Canaveral in Florida.", label: hallucinated}
+  - {question: "What is the sunshield made of?", claim: "The sunshield is made of Kapton.", label: hallucinated}

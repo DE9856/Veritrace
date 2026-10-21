@@ -17,6 +17,9 @@ export function DocumentsPanel({
   loading,
   uploading,
   error,
+  selected,
+  onToggle,
+  onClearSelection,
   onUpload,
   onRemove,
 }: {
@@ -24,6 +27,9 @@ export function DocumentsPanel({
   loading: boolean;
   uploading: string[];
   error: string | null;
+  selected: string[]; // documents the next question is limited to; empty means all
+  onToggle: (id: string) => void;
+  onClearSelection: () => void;
   onUpload: (files: File[]) => void;
   onRemove: (doc: DocumentInfo) => void;
 }) {
@@ -90,6 +96,19 @@ export function DocumentsPanel({
         }}
       />
 
+      {documents.length > 1 && (
+        <p className="flex items-baseline justify-between gap-2 px-1 text-xs text-muted-foreground">
+          {selected.length === 0
+            ? "Questions search every document. Tick some to search only those."
+            : `Questions search only the ${selected.length} ticked.`}
+          {selected.length > 0 && (
+            <button type="button" onClick={onClearSelection} className="shrink-0 text-primary hover:underline">
+              Search all
+            </button>
+          )}
+        </p>
+      )}
+
       <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto">
         {uploading.map((name) => (
           <li key={name} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground">
@@ -99,7 +118,17 @@ export function DocumentsPanel({
         ))}
         {documents.map((doc) => (
           <li key={doc.id} className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted">
-            <FileTextIcon className="size-4 shrink-0 text-muted-foreground" />
+            {documents.length > 1 ? (
+              <input
+                type="checkbox"
+                checked={selected.includes(doc.id)}
+                onChange={() => onToggle(doc.id)}
+                aria-label={`Search ${doc.filename}`}
+                className="size-4 shrink-0 accent-primary"
+              />
+            ) : (
+              <FileTextIcon className="size-4 shrink-0 text-muted-foreground" />
+            )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm" title={doc.filename}>
                 {doc.filename}
@@ -119,15 +148,16 @@ export function DocumentsPanel({
                 onBlur={() => setConfirming(null)}
                 autoFocus
               >
-                Remove
+                Delete
               </Button>
             ) : (
               <Button
                 size="icon-xs"
                 variant="ghost"
-                className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                className="text-muted-foreground opacity-60 group-hover:opacity-100 hover:text-destructive focus-visible:opacity-100"
                 onClick={() => setConfirming(doc.id)}
-                aria-label={`Remove ${doc.filename}`}
+                aria-label={`Delete ${doc.filename}`}
+                title="Delete this document and everything stored for it"
               >
                 <Trash2Icon />
               </Button>

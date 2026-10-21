@@ -196,7 +196,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
       <li><a href="#api">API contract</a></li>
       <li><a href="#models">Model strategy</a></li>
       <li><a href="#structure">Project structure</a></li>
-      <li><a href="#deploy">Deployment</a></li>
+      <li><a href="#deploy">Running the demo</a></li>
       <li><a href="#roadmap">Build roadmap</a></li>
       <li><a href="#decisions">Design decisions</a></li>
       <li><a href="#limits">Limitations</a></li>
@@ -232,7 +232,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
       <h3>Goal</h3>
       <p>Build an assistant that checks its own answers before showing them. It breaks each answer into individual factual claims, verifies each claim against retrieved source passages and against its own repeated samples, and returns the answer with a visible confidence level for every sentence.</p>
       <h3>Scope</h3>
-      <p>Questions are answered over a knowledge base of documents the user uploads (PDF, TXT, Markdown). Anything the knowledge base cannot support is labelled as unsupported rather than silently trusted. The system runs on free local models during development and switches to the Gemini API for the final version.</p>
+      <p>Questions are answered over a knowledge base of documents the user uploads (PDF, TXT, Markdown). Anything the knowledge base cannot support is labelled as unsupported rather than silently trusted. The system runs on free local models during development and on free-tier hosted models (Groq, with Gemini as fallback) for the demo, with the local model as an offline backup.</p>
     </section>
 
     <section id="taxonomy">
@@ -272,7 +272,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <li><strong>Agentic re-retrieval</strong><span>If the first retrieval finds weak evidence, the agent rewrites the query and searches again before answering.</span></li>
         <li><strong>Safer answer rewrite</strong><span>An optional mode that rewrites the answer to remove or hedge flagged claims, shown next to the original.</span></li>
         <li><strong>Live progress</strong><span>The UI streams each agent step (retrieving, verifying, scoring) as it happens over Server-Sent Events.</span></li>
-        <li><strong>Swappable model backend</strong><span>One setting switches between local Ollama models and the Gemini API without code changes.</span></li>
+        <li><strong>Swappable model backend</strong><span>One setting switches between a local Ollama model and hosted APIs (Groq, Gemini) without code changes.</span></li>
       </ul>
     </section>
 
@@ -333,10 +333,10 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
           <!-- Services -->
           <rect class="d-box" x="780" y="60" width="165" height="115" rx="8"/>
           <text class="d-title" x="794" y="86">LLM provider</text>
-          <text class="d-text" x="794" y="107">dev: Ollama</text>
+          <text class="d-text" x="794" y="107">offline: Ollama</text>
           <text class="d-text" x="794" y="124">  qwen3:4b-instruct</text>
-          <text class="d-text" x="794" y="145">final: Gemini 3.5 Flash</text>
-          <text class="d-text" x="794" y="162">fallback: Groq gpt-oss-120b</text>
+          <text class="d-text" x="794" y="145">main: Groq gpt-oss-120b</text>
+          <text class="d-text" x="794" y="162">fallback: Gemini 3.5 Flash</text>
 
           <rect class="d-box" x="780" y="220" width="165" height="100" rx="8"/>
           <text class="d-title" x="794" y="246">NLI verifier</text>
@@ -376,7 +376,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <li><div><h3>Extract claims <span class="pill n">LLM · JSON</span></h3><p>Breaks each sentence into atomic, standalone claims and returns structured JSON that maps each claim to its sentence index.</p></div></li>
         <li><div><h3>Verify with NLI <span class="pill n">DeBERTa</span></h3><p>Sources are split into short 3-sentence windows, and each claim is checked against its 4 best-matching windows (ranked by embedding similarity plus shared words, so dates and names count) and the best window of every source it cited. The claim is the hypothesis; the window, prefixed with its document title, is the premise. The model returns entailment, neutral and contradiction probabilities. Clear support outranks a contradiction from a passage about something else.</p></div></li>
         <li><div><h3>Judge inference <span class="pill n">LLM</span></h3><p>For claims NLI could not confirm: unsupported ones, and ones NLI reads as contradicted, since NLI often mistakes a correct deduction ("about two weeks" from two dates) for a conflict. The judge sees all the evidence at once and answers derivable, contradicted or unsupported, with a short reason. All such claims go in one LLM call.</p></div></li>
-        <li><div><h3>Consistency check <span class="pill n">LLM + NLI</span></h3><p>Samples N more answers at a higher temperature (N = 3 locally, 2 on Gemini because of free-tier limits). For each claim, it measures the fraction of samples that entail it, following the SelfCheckGPT approach.</p></div></li>
+        <li><div><h3>Consistency check <span class="pill n">LLM + NLI</span></h3><p>Samples N more answers at a higher temperature (N = 3 locally, 2 on hosted models because of free-tier limits). For each claim, it measures the fraction of samples that entail it, following the SelfCheckGPT approach.</p></div></li>
         <li><div><h3>Score and label <span class="pill n">Deterministic</span></h3><p>Combines the signals into a score per claim, applies the override rules, assigns labels, and rolls the results up to sentences and to the whole answer.</p></div></li>
         <li><div><h3>Revise <span class="pill n">LLM · optional</span></h3><p>If the user turns on safe mode and any claim is flagged, this step rewrites the answer to remove or hedge flagged claims. Both versions are returned.</p></div></li>
       </ol>
@@ -413,9 +413,9 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <table>
           <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
           <tbody>
-            <tr><td>LLM (development)</td><td>Ollama with <code>qwen3:4b-instruct</code> (Q4, non-thinking)</td><td>Free and offline. At about 2.5 GB it fits entirely in a 4 GB laptop GPU, so the roughly seven LLM calls per question stay fast. It is the non-thinking build of Qwen3 4B, close to Qwen2.5-7B in quality, and supports a JSON output mode.</td></tr>
-            <tr><td>LLM (final)</td><td>Google Gemini API, <code>gemini-3.5-flash</code> with thinking off, free tier, <code>google-genai</code> SDK</td><td>Better at claim extraction and judging; structured output with a JSON schema; fits the $0 budget. The free tier allows only 20 requests a day per model, so the fallback matters.</td></tr>
-            <tr><td>LLM (fallback)</td><td>Groq free tier, <code>openai/gpt-oss-120b</code>, low reasoning effort</td><td>Takes over when Gemini is rate limited, through any OpenAI-compatible API. 1000 requests a day, 1 to 2 seconds per call.</td></tr>
+            <tr><td>LLM (development and offline backup)</td><td>Ollama with <code>qwen3:4b-instruct</code> (Q4, non-thinking)</td><td>Free and offline, so the demo still works without internet. At about 2.5 GB it fits entirely in a 4 GB laptop GPU, so the roughly seven LLM calls per question stay fast. It is the non-thinking build of Qwen3 4B, close to Qwen2.5-7B in quality, and supports a JSON output mode.</td></tr>
+            <tr><td>LLM (main)</td><td>Groq free tier, <code>openai/gpt-oss-120b</code>, low reasoning effort, through any OpenAI-compatible API</td><td>Strong at claim extraction and judging, JSON mode, 1 to 2 seconds per call, and 1000 requests a day on the free tier, enough for a live demo. The limit that matters is 8000 tokens a minute.</td></tr>
+            <tr><td>LLM (fallback)</td><td>Google Gemini API, <code>gemini-3.5-flash</code> with thinking off, free tier, <code>google-genai</code> SDK</td><td>Takes over when Groq is rate limited. Structured output with a JSON schema. Only 20 requests a day per model (about three questions) and 6 to 30 seconds per call, which is why it is the fallback and not the main model.</td></tr>
             <tr><td>Agent orchestration</td><td>LangGraph</td><td>Explicit state graph with conditional edges and loops. The agent design is visible and easy to explain in the viva.</td></tr>
             <tr><td>Backend API</td><td>FastAPI, Pydantic v2, Uvicorn, sse-starlette</td><td>Async Python, typed request and response models, automatic OpenAPI docs, and streaming over SSE.</td></tr>
             <tr><td>Document parsing</td><td>PyMuPDF, pysbd</td><td>Fast PDF text extraction; pysbd splits sentences reliably for chunking and highlighting.</td></tr>
@@ -424,7 +424,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
             <tr><td>NLI verifier</td><td><code>MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli</code></td><td>Trained on fact-verification data (FEVER) and runs locally. It is a different model from the generator, so the check is independent.</td></tr>
             <tr><td>Frontend</td><td>Next.js 16 (App Router), TypeScript, Tailwind CSS 4, shadcn/ui (Radix)</td><td>Component-based UI for highlighted spans, hover cards and side panels. Streams through <code>@microsoft/fetch-event-source</code>.</td></tr>
             <tr><td>Persistence</td><td>SQLite via SQLModel</td><td>Stores chat history and document records with no extra service.</td></tr>
-            <tr><td>Tooling</td><td>uv, Docker, Ruff, pytest, npm, ESLint</td><td>Reproducible environments and one Dockerfile for deployment.</td></tr>
+            <tr><td>Tooling</td><td>uv, Docker, Ruff, pytest, npm, ESLint</td><td>Reproducible environments, and a Dockerfile that runs the backend in a container.</td></tr>
           </tbody>
         </table>
       </div>
@@ -502,8 +502,8 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
     </section>
 
     <section id="models">
-      <h2>Model strategy: local first, Gemini at the end</h2>
-      <p>All LLM calls go through one small interface, so moving from Ollama to Gemini only changes an environment variable.</p>
+      <h2>Model strategy: local first, hosted at the end</h2>
+      <p>All LLM calls go through one small interface, so moving between Ollama, Groq and Gemini only changes an environment variable.</p>
 <pre>class LLMProvider(Protocol):
     async def generate(self, prompt, *, system=None, temperature=None) -&gt; str: ...
     def stream(self, prompt, *, system=None, temperature=None) -&gt; AsyncIterator[str]: ...
@@ -522,10 +522,10 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <li>NLI runs locally on DeBERTa, so the most frequent check costs no API calls.</li>
         <li>Use 3 consistency samples locally and 2 on hosted models, sent in parallel.</li>
         <li>Pace requests on the client to stay under each provider's per-minute limit, and retry rate-limit and overload errors after the delay the server gives.</li>
-        <li>When Gemini reports its daily quota is used up, skip it until the reset time it gives and send every call to Groq (a circuit breaker), instead of failing first on each call.</li>
+        <li>When the main model is rate limited, skip it until the reset time it gives and send every call to the fallback (a circuit breaker), instead of failing first on each call. If the fallback is out of quota too and the main model resets within 90 seconds (a per-minute limit), wait for it rather than fail the question.</li>
         <li>Normalise each model's quirks in one place: <code>【S1】</code> and <code>[ S1 ]</code> become <code>[S1]</code>, and special spaces and hyphens become plain ones.</li>
       </ul>
-      <p>Prompts live in versioned files under <code>prompts/</code>. When the backend switches to Gemini, only the prompts that need adjusting change; the graph code stays the same.</p>
+      <p>Prompts live in versioned files under <code>prompts/</code>. When the backend switches models, only the prompts that need adjusting change; the graph code stays the same.</p>
     </section>
 
     <section id="structure">
@@ -544,7 +544,8 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
 │   │   │   ├── pipeline.py      # answer_question() entry point
 │   │   │   └── nodes/           # analyze, retrieve, generate, extract,
 │   │   │                        # verify, judge, consistency, score, revise
-│   │   ├── providers/           # base.py, ollama.py, factory.py (+ gemini.py)
+│   │   ├── providers/           # ollama, gemini, openai_compat (Groq),
+│   │   │                        # fallback, factory
 │   │   ├── verification/        # nli.py (DeBERTa), scoring.py
 │   │   ├── ingestion/           # parser, chunker, embedder, pipeline
 │   │   ├── store/               # chroma.py, sqlite.py
@@ -561,25 +562,28 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
 │   ├── lib/                     # api.ts, sse.ts, types.ts
 │   └── package.json
 ├── docs/
-│   └── project-overview.html
+│   ├── project-overview.html
+│   ├── demo.md                  # presentation checklist and questions
+│   └── docker.md                # optional: backend in a container
+├── start.sh                     # starts backend and frontend together
 ├── CHANGELOG.md
 └── README.md</pre>
     </section>
 
     <section id="deploy">
-      <h2>Deployment</h2>
-      <p>Deployment happens after the switch to Gemini, so the hosted backend doesn't need to run an LLM. It still runs the embedding model and the NLI model on CPU, which need about 1.5 GB of RAM in total.</p>
+      <h2>Running the demo</h2>
+      <p>Veritrace runs on one laptop for the presentation; it is not hosted. <code>./start.sh</code> starts the backend on port 8000 and the frontend on port 3000, waits for the models to load, and indexes the two sample documents on first start. Hosting was dropped: a free Hugging Face Docker Space now needs a paid plan, and a public URL would let anyone spend the free model quota.</p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Part</th><th>Host</th><th>Notes</th></tr></thead>
+          <thead><tr><th>Command</th><th>Model</th><th>When to use it</th></tr></thead>
           <tbody>
-            <tr><td>Frontend</td><td>Vercel (free)</td><td>Next.js deploys from the Git repository. The backend URL is set through <code>NEXT_PUBLIC_API_URL</code>.</td></tr>
-            <tr><td>Backend</td><td>Hugging Face Spaces, Docker SDK (free CPU tier)</td><td>Free tier has enough RAM for DeBERTa and bge, unlike the 512 MB free tiers elsewhere. The Gemini key is stored as a Space secret.</td></tr>
-            <tr><td>Vector data</td><td>ChromaDB inside the Space</td><td>Free Space storage is reset on restart, so sample documents are bundled and re-ingested on startup. User uploads last for the session.</td></tr>
+            <tr><td><code>./start.sh</code></td><td>Groq, with Gemini as fallback</td><td>The normal demo. About 10 to 30 seconds per question.</td></tr>
+            <tr><td><code>./start.sh ollama</code></td><td>Local <code>qwen3:4b-instruct</code></td><td>No internet. About 15 seconds per question once the model is loaded; starts Ollama if it is not running.</td></tr>
+            <tr><td><code>./start.sh gemini</code></td><td>Gemini, with Groq as fallback</td><td>To show the circuit breaker switching models when Gemini's daily quota runs out.</td></tr>
           </tbody>
         </table>
       </div>
-      <p>For local development, <code>docker compose</code> runs the backend, frontend and Ollama together.</p>
+      <p>The demo questions and a pre-flight checklist are in <code>docs/demo.md</code>. The backend also runs in Docker (<code>docs/docker.md</code>), which needs about 1.5 GB of RAM for the embedding and NLI models.</p>
     </section>
 
     <section id="roadmap">
@@ -591,7 +595,8 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
         <li><span class="ph">Phase 3</span><div><strong>Full scoring</strong><span>Self-labels, consistency sampling, the inference judge, the weighted score, override rules and roll-up. Tune thresholds on a small labelled set.</span></div></li>
         <li><span class="ph">Phase 4</span><div><strong>Agentic graph</strong><span>Move the pipeline into LangGraph with the retry loop, the sufficiency check and the optional revise node. Stream the node status over SSE.</span></div></li>
         <li><span class="ph">Phase 5</span><div><strong>Frontend</strong><span>Chat UI, highlighted answers, evidence inspector, citation viewer, upload panel and the live agent-step indicator.</span></div></li>
-        <li><span class="ph">Phase 6</span><div><strong>Gemini and deployment</strong><span>Gemini provider and prompt adjustments, rate-limit handling and fallback, Dockerfile, then deploy to Hugging Face Spaces and Vercel.</span></div></li>
+        <li><span class="ph">Phase 6</span><div><strong>Hosted models</strong><span>Gemini and Groq providers, rate-limit handling and fallback, and a Dockerfile for the backend.</span></div></li>
+        <li><span class="ph">Phase 7</span><div><strong>Local demo</strong><span>One-command start, Groq as the main model with Gemini as fallback and Ollama as the offline backup, and a demo checklist. The app is shown locally rather than hosted.</span></div></li>
       </ol>
     </section>
 
@@ -606,7 +611,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
             <tr><td>Verifier model</td><td>Separate DeBERTa NLI model</td><td>Using the generator as its own judge shares its blind spots. A separate, smaller model gives an independent check at no API cost.</td></tr>
             <tr><td>Granularity</td><td>Verify claims, display sentences</td><td>Sentence-only checking misses a false fact mixed with true ones. Showing claims only is cluttered.</td></tr>
             <tr><td>Orchestration</td><td>LangGraph state graph</td><td>A plain function chain cannot easily loop or branch. A free-form ReAct agent is less predictable for a verification pipeline.</td></tr>
-            <tr><td>Models</td><td>Ollama during development, Gemini for the final version</td><td>Starting on Gemini would use up the free quota during development. Staying local would weaken extraction and judging quality.</td></tr>
+            <tr><td>Models</td><td>Ollama during development, Groq for the demo, Gemini as fallback</td><td>Starting on a hosted model would use up the free quota during development. Staying local would weaken extraction and judging quality. Gemini's free tier (20 requests a day) is too small to be the main model.</td></tr>
           </tbody>
         </table>
       </div>
@@ -621,7 +626,7 @@ footer { margin-top: 32px; font-size: 14px; color: var(--muted); }
             <li>Claims outside the uploaded documents are labelled unsupported even when they are true.</li>
             <li>NLI models struggle with numbers, dates and negation across long passages.</li>
             <li>Consistency sampling adds latency and API calls.</li>
-            <li>The score weights are set by hand and only roughly calibrated.</li>
+            <li>Faithful paraphrases are often labelled inferred. On a held-out test set the labels were 75% accurate, and hallucinations were caught with 0.93 precision and recall (docs/evaluation.md).</li>
             <li>The knowledge base is English-only.</li>
           </ul>
         </div>

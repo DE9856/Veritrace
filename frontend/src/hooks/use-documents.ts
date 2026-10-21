@@ -74,9 +74,11 @@ export function useDocuments(onChange?: () => void) {
     async (doc: DocumentInfo) => {
       try {
         await api.remove(doc.id);
-        toast.success(`Removed ${doc.filename}`);
+        toast.success(`Deleted ${doc.filename}`, {
+          description: "The file and its passages are no longer stored.",
+        });
       } catch (e) {
-        toast.error(`Could not remove ${doc.filename}`, {
+        toast.error(`Could not delete ${doc.filename}`, {
           description: e instanceof Error ? e.message : String(e),
         });
       }

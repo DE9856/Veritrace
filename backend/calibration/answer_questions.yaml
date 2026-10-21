@@ -1,0 +1,18 @@
+# Questions whose real answers are checked by collect_answers.py. The claims from "dev"
+# questions may be used for tuning; claims from "test" questions are held out.
+# Some ask for reasons or comparisons, so the answers include deductions as well as facts.
+
+questions:
+  - {split: dev, question: "When did Vikram land and what did the rover find?"}
+  - {split: dev, question: "Why did the Chandrayaan-3 surface mission end?"}
+  - {split: dev, question: "How did Chandrayaan-3 travel from Earth to the Moon?"}
+  - {split: dev, question: "Why does MIRI need a cryocooler, and why is the mirror coated in gold?"}
+  - {split: dev, question: "Who was James E. Webb and why was the telescope named after him?"}
+  - {split: dev, question: "How long did it take JWST to reach L2 and to release its first images?"}
+
+  - {split: test, question: "What made the Chandrayaan-3 landing historic?"}
+  - {split: test, question: "What experiments did the Vikram lander perform on the surface?"}
+  - {split: test, question: "What happened to Chandrayaan-3 after the lunar night?"}
+  - {split: test, question: "What are JWST's four instruments and what is special about MIRI?"}
+  - {split: test, question: "How is JWST protected from heat?"}
+  - {split: test, question: "What did Webb's first images show, and when were they released?"}

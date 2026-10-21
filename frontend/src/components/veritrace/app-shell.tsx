@@ -22,6 +22,7 @@ export function AppShell() {
   const chat = useChat();
   const [selection, setSelection] = useState<Selection | null>(null);
   const [docsOpen, setDocsOpen] = useState(false);
+  const [ticked, setTicked] = useState<string[]>([]);
   // Matches Tailwind's lg and xl breakpoints: side panels become overlays below them.
   const wide = useMediaQuery("(min-width: 64rem)");
   const extraWide = useMediaQuery("(min-width: 80rem)");
@@ -37,6 +38,15 @@ export function AppShell() {
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 240) el.scrollTo({ top: el.scrollHeight });
   }, [last?.draft, last?.steps.length, last?.status, chat.exchanges.length]);
 
+  // Ticked documents that still exist; none ticked means search them all.
+  const scoped = docs.documents.filter((d) => ticked.includes(d.id));
+  const ask = (question: string, safeMode: boolean) =>
+    void chat.ask(
+      question,
+      safeMode,
+      scoped.length > 0 ? { ids: scoped.map((d) => d.id), names: scoped.map((d) => d.filename) } : undefined,
+    );
+
   const disabledReason = healthError
     ? "The backend is offline. Start it, then reload."
     : !docs.loading && docs.documents.length === 0
@@ -49,6 +59,9 @@ export function AppShell() {
       loading={docs.loading}
       uploading={docs.uploading}
       error={docs.error}
+      selected={scoped.map((d) => d.id)}
+      onToggle={(id) => setTicked((t) => (t.includes(id) ? t.filter((x) => x !== id) : [...t, id]))}
+      onClearSelection={() => setTicked([])}
       onUpload={(files) => void docs.upload(files)}
       onRemove={(doc) => void docs.remove(doc)}
     />
@@ -81,7 +94,7 @@ export function AppShell() {
                 <Welcome
                   documents={docs.documents}
                   disabled={!!disabledReason}
-                  onAsk={(q) => void chat.ask(q, false)}
+                  onAsk={(q) => ask(q, false)}
                 />
               ) : (
                 chat.exchanges.map((exchange) => (
@@ -99,12 +112,11 @@ export function AppShell() {
             <Composer
               running={chat.running}
               disabledReason={disabledReason}
-              onAsk={(q, safe) => void chat.ask(q, safe)}
+              onAsk={ask}
               onStop={chat.stop}
             />
             <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
-              Each answer takes about half a minute on a local model: it is written, then every claim is
-              checked.
+              Each answer is written first, then every claim in it is checked, so it takes 10 to 30 seconds.
             </p>
           </div>
         </main>
@@ -153,14 +165,22 @@ function Overlay({
   );
 }
 
-const EXAMPLES: Record<string, string[]> = {
+// Questions for the sample documents, each showing a different part of the checking.
+const EXAMPLES: Record<string, { question: string; shows: string }[]> = {
   "chandrayaan-3": [
-    "When did Vikram land and what did the rover find?",
-    "How did Chandrayaan-3 compare with Chandrayaan-2?",
+    { question: "When did Vikram land and what did the rover find?", shows: "every claim stated" },
+    { question: "Why did the Chandrayaan-3 surface mission end?", shows: "stated and inferred claims" },
   ],
   "james-webb-space-telescope": [
-    "How long did JWST take to reach its orbit?",
-    "Why is MIRI kept so cold?",
+    {
+      question: "Who was James E. Webb and why was the telescope named after him?",
+      shows: "often an unsupported claim; try safe mode",
+    },
+    {
+      question: "Why does MIRI need a cryocooler, and why is the mirror coated in gold?",
+      shows: "stated and inferred claims",
+    },
+    { question: "Why was JWST launched on a Falcon 9 rocket?", shows: "a false premise" },
   ],
 };
 
@@ -175,7 +195,7 @@ function Welcome({
 }) {
   const examples = documents.flatMap((d) => {
     const stem = d.filename.replace(/\.[^.]+$/, "");
-    return EXAMPLES[stem] ?? [`What are the main points of ${d.filename}?`];
+    return EXAMPLES[stem] ?? [{ question: `What are the main points of ${d.filename}?`, shows: "" }];
   });
 
   return (
@@ -206,16 +226,17 @@ function Welcome({
       {examples.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Try asking</p>
-          <div className="flex flex-wrap gap-2">
-            {examples.slice(0, 4).map((q) => (
+          <div className="flex flex-col items-start gap-2">
+            {examples.slice(0, 6).map(({ question, shows }) => (
               <button
-                key={q}
+                key={question}
                 type="button"
                 disabled={disabled}
-                onClick={() => onAsk(q)}
-                className="rounded-full border bg-card px-3 py-1.5 text-sm hover:border-primary hover:bg-accent disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                onClick={() => onAsk(question)}
+                className="rounded-lg border bg-card px-3 py-1.5 text-left text-sm hover:border-primary hover:bg-accent disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
               >
-                {q}
+                {question}
+                {shows && <span className="ml-2 text-xs text-muted-foreground">{shows}</span>}
               </button>
             ))}
           </div>

@@ -6,7 +6,21 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-All six phases are built. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step and shows how every claim was checked. It runs on Gemini (`gemini-3.5-flash`) with Groq (`openai/gpt-oss-120b`) as the fallback, or fully offline on a local Ollama model. The backend ships as a Docker image; see [`docs/deployment.md`](docs/deployment.md) to put it on Hugging Face Spaces and the frontend on Vercel.
+All six phases are built. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step and shows how every claim was checked. It runs on Groq (`openai/gpt-oss-120b`) with Gemini (`gemini-3.5-flash`) as the fallback, or fully offline on a local Ollama model. It is run locally for the presentation; [`docs/demo.md`](docs/demo.md) has the checklist and demo questions.
+
+## Quick start
+
+**[STARTUP.md](STARTUP.md)** has every step to turn Veritrace on: one-time setup, starting and stopping, a manual start and common problems.
+
+With the backend and frontend set up as below:
+
+```bash
+./start.sh          # Groq, with Gemini as fallback
+./start.sh ollama   # fully offline on the local model
+./start.sh gemini   # Gemini first, Groq as fallback
+```
+
+This starts the backend on port 8000 and the frontend on port 3000, indexes the two sample documents on first start, and stops both on Ctrl+C. Open http://localhost:3000.
 
 ## Run the backend
 
@@ -18,7 +32,7 @@ uv venv --python 3.12
 source .venv/bin/activate
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -r requirements-dev.txt   # runtime plus pytest and ruff
-cp .env.example .env   # then paste GEMINI_API_KEY (and GROQ_API_KEY) into .env
+cp .env.example .env   # then set LLM_PROVIDER=groq and paste GROQ_API_KEY (and GEMINI_API_KEY)
 
 # Only for LLM_PROVIDER=ollama (fully offline):
 ollama pull qwen3:4b-instruct
@@ -61,14 +75,24 @@ npm run dev
 
 Open http://localhost:3000, choose **Add the two sample documents**, and ask one of the suggested questions. Select a highlighted sentence to see its claim check, or a citation to read the source passage.
 
-## Calibration
+## Calibration and evaluation
+
+The labels are checked against hand labels on a dev set (used to design the rules and tune the settings) and a held-out test set (only scored). Results, with an ablation of each signal and the latency per question, are in [docs/evaluation.md](docs/evaluation.md).
 
 ```bash
 cd backend
-python -m calibration.collect_signals   # about 7 minutes: runs the real models on 39 labelled claims
-python -m calibration.tune              # instant: re-scores them under a grid of settings
-python -m calibration.tune --write      # also writes the best values into config.yaml
+# Collect the raw signals once per model (reruns resume where they stopped)
+export LLM_PROVIDER=ollama              # or groq
+python -m calibration.collect_signals --out ${LLM_PROVIDER}_dev_signals.json
+python -m calibration.collect_signals --claims test_claims.yaml --out ${LLM_PROVIDER}_test_signals.json
+python -m calibration.collect_answers   # claims from real answers, labelled in answer_labels.yaml
+python -m calibration.latency           # seconds (and tokens, on Groq) per question
+
+python -m calibration.evaluate --write  # instant: writes docs/evaluation.md
+python -m calibration.tune              # instant: grid search on the older signals.json
 ```
+
+On Groq, collecting both sets uses more than the free tier's 200,000 tokens a day, so it takes two days.
 
 ## Tests
 
@@ -77,3 +101,7 @@ cd backend
 pytest        # uses a fake embedder and LLM, so Ollama does not need to be running
 ruff check .
 ```
+
+## Docker
+
+The backend also runs in a container; see [`docs/docker.md`](docs/docker.md).

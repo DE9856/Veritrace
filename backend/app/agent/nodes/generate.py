@@ -5,7 +5,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from app.prompts import render
-from app.providers.base import LLMProvider
+from app.providers.base import LLMProvider, normalise_output
 from app.schemas import SourceChunk
 
 # Matches [S1], [S2, S4] and [S2; S4].
@@ -67,8 +67,10 @@ async def generate(
         pieces: list[str] = []
         async for piece in provider.stream(prompt, system=system):
             pieces.append(piece)
-            on_draft(visible_draft("".join(pieces)))
-        tagged = "".join(pieces).strip()
+            on_draft(visible_draft(normalise_output("".join(pieces))))
+        # Providers normalise each piece, but a citation like "[ S1 ]" can be split
+        # across pieces, so normalise the whole answer again.
+        tagged = normalise_output("".join(pieces)).strip()
     answer = strip_self_labels(tagged)
     cited, invalid = extract_citations(answer, {s.label for s in sources})
     return GeneratedAnswer(

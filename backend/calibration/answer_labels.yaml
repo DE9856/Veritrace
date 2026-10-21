@@ -1,0 +1,65 @@
+# Hand labels for the claims collect_answers.py extracted from real answers
+# (answer_signals.json), keyed by the claim's exact text. Same definitions as
+# dev_claims.yaml, judged only against the two sample documents:
+#   high          a passage states the claim (paraphrases count)
+#   inferred      no passage states it, but it follows from the passages
+#   hallucinated  contradicted by the passages, or not supported by them
+
+# Labelled from the qwen3:4b-instruct answers (ollama_answers.json). Notes on the
+# non-obvious ones: "about 29 days" to L2 is 30 by the dates (approximate, so inferred);
+# "182 days" from L2 to the first images is 168 by the dates; ChaSTE on the lander is a
+# second experiment; the gold coating is on the primary mirror, not MIRI's.
+
+labels:
+  The Vikram lander touched down near the lunar south pole on 23 August 2023.: high
+  The Pragyan rover confirmed the presence of sulphur in the lunar surface near the south pole.: high
+  The Pragyan rover detected aluminium, calcium, iron, chromium, titanium, manganese, silicon, and oxygen.: high
+  The Chandrayaan-3 lander did not respond to wake-up attempts when sunlight returned after the lunar night.: high
+  The Chandrayaan-3 rover did not respond to wake-up attempts when sunlight returned after the lunar night.: high
+  The Chandrayaan-3 lander was put into sleep mode in early September 2023.: high
+  The Chandrayaan-3 rover was put into sleep mode in early September 2023.: high
+  The Chandrayaan-3 mission ended due to the failure to resume operations during the lunar day following the lunar night.: inferred
+  The Chandrayaan-3 surface operations were designed to last about one lunar day, roughly 14 Earth days.: high
+  Chandrayaan-3 was launched on an LVM3 rocket.: high
+  Chandrayaan-3 was launched from the Satish Dhawan Space Centre in Sriharikota.: high
+  Chandrayaan-3 entered lunar orbit after the launch and journey.: high
+  The propulsion module carried the lander and rover to lunar orbit.: high
+  Chandrayaan-3 traveled from Earth to the Moon using an LVM3 rocket and a propulsion module that guided it to lunar orbit.: inferred
+  MIRI needs a cryocooler because it must be colder than the other instruments.: high
+  MIRI must be kept below 7 kelvin.: inferred
+  A cryocooler is used to maintain MIRI below 7 kelvin.: high
+  The mirror in MIRI is coated in gold.: hallucinated
+  The gold coating improves the reflection of infrared light.: high
+  James E. Webb was the leader of NASA from 1961 to 1968.: high
+  The telescope was named after James E. Webb because he led NASA during a key period in its history.: hallucinated
+  JWST took about 29 days to reach its orbit around the second Sun-Earth Lagrange point (L2).: inferred
+  JWST reached its orbit around the second Sun-Earth Lagrange point (L2) on 24 January 2022.: high
+  JWST launched on 25 December 2021.: high
+  Webb's First Deep Field was released on 11 July 2022.: high
+  It took approximately 182 days from reaching L2 to releasing its first images.: hallucinated
+  The Chandrayaan-3 landing made India the fourth country to achieve a soft landing on the Moon.: high
+  The Chandrayaan-3 landing made India the first country to land near the lunar south pole.: high
+  The landing site of the Chandrayaan-3 mission was named the Shiv Shakti point.: high
+  India declared 23 August as National Space Day.: high
+  The Vikram lander performed a hop experiment on the surface.: high
+  The Vikram lander fired its engines to rise about 40 centimetres.: high
+  The Vikram lander landed about 30 to 40 centimetres away after the hop experiment.: high
+  No other experiments are mentioned as being performed by the Vikram lander on the surface in the provided sources.: hallucinated
+  After the lunar night, the lander and rover did not respond to wake-up attempts when sunlight returned.: high
+  The propulsion module was moved from lunar orbit to an orbit around the Earth.: high
+  The James Webb Space Telescope carries the Near-Infrared Camera (NIRCam) as one of its four science instruments.: high
+  The James Webb Space Telescope carries the Near-Infrared Spectrograph (NIRSpec) as one of its four science instruments.: high
+  The James Webb Space Telescope carries the Mid-Infrared Instrument (MIRI) as one of its four science instruments.: high
+  ? The James Webb Space carries the Near-Infrared Imager and Slitless Spectrograph (NIRISS) as one of its four science instruments.
+  : high
+  MIRI requires a temperature below 7 kelvin.: inferred
+  A cryocooler maintains MIRI at a temperature below 7 kelvin.: high
+  The James Webb Space Telescope has a five-layer sunshield.: high
+  The five-layer sunshield is about the size of a tennis court.: high
+  The sunshield shields the James Webb Space Telescope from the heat of the Sun.: high
+  The sunshield shields the James Webb Space Telescope from the heat of the Earth.: high
+  The sunshield shields the James Webb Space Telescope from the heat of the Moon.: high
+  Webb's first images showed the galaxy cluster SMACS 0723.: high
+  Webb's first images showed thousands of distant galaxies behind SMACS 0723.: high
+  Webb's first images were released on 11 July 2022.: high
+  The rest of the first full-colour images were released on 12 July 2022.: high

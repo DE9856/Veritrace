@@ -152,6 +152,7 @@ def _verify_sync(
                 support=support,
                 support_source=windows[support_window].source,
                 support_similarity=similarities[c][support_window],
+                support_passage=windows[support_window].titled,
                 max_contradiction=contra.contradiction,
                 contradiction_source=windows[contra_window].source,
                 new_words=new.new_words,

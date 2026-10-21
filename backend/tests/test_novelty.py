@@ -27,3 +27,18 @@ def test_word_forms_match_through_stemming():
     # Seen live: "successfully achieved" vs the passage's "achieve a soft landing".
     assert stem("achieved") == stem("achieve")
     assert stem("successfully") == stem("successful")
+
+
+def test_possessive_adds_no_new_word():
+    assert novelty("Chandrayaan-3's rocket was an LVM3.", PASSAGE).new_words == []
+
+
+def test_acronym_of_a_named_thing_is_known():
+    passage = "James Webb Space Telescope\n\nThe telescope was launched on 25 December 2021."
+    assert novelty("JWST was launched on 25 December 2021.", passage).new_words == []
+
+
+def test_modals_and_causal_links_are_not_new_facts():
+    passage = "MIRI has to be colder than the other instruments, so a cryocooler keeps it cold."
+    claim = "MIRI needs a cryocooler because it must be colder than the other instruments."
+    assert novelty(claim, passage).new_words == ["needs"]

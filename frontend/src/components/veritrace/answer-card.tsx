@@ -1,6 +1,6 @@
 "use client";
 
-import { InfoIcon, ShieldCheckIcon, TriangleAlertIcon } from "lucide-react";
+import { CpuIcon, InfoIcon, SearchIcon, ShieldCheckIcon, TriangleAlertIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -121,6 +121,38 @@ export function AnswerCard({
                 </button>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      <AnswerDetails response={response} />
+    </div>
+  );
+}
+
+/** How the answer was produced: the model that wrote it and the searches the agent ran. */
+function AnswerDetails({ response }: { response: ChatResponse }) {
+  return (
+    <div className="space-y-1.5 border-t pt-3 text-xs text-muted-foreground">
+      <p className="flex items-center gap-1.5">
+        <CpuIcon className="size-3.5 shrink-0" />
+        Answered by <span className="font-mono text-foreground">{response.model}</span>
+        <span>({response.provider})</span>
+      </p>
+      {response.queries.length > 0 && (
+        <div className="flex items-start gap-1.5">
+          <SearchIcon className="mt-0.5 size-3.5 shrink-0" />
+          <div className="flex flex-wrap items-center gap-1">
+            <span>
+              {response.retrieval_attempts > 1
+                ? `Searched ${response.retrieval_attempts} times for`
+                : "Searched for"}
+            </span>
+            {response.queries.map((query) => (
+              <span key={query} className="rounded border bg-muted/40 px-1.5 py-0.5 text-foreground">
+                {query}
+              </span>
+            ))}
           </div>
         </div>
       )}

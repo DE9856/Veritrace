@@ -16,6 +16,7 @@ export interface Exchange {
   id: string;
   question: string;
   safeMode: boolean;
+  documents?: string[]; // filenames the question was limited to; undefined means all
   steps: Step[];
   draft: string;
   response?: ChatResponse;
@@ -35,19 +36,28 @@ export function useChat() {
   }, []);
 
   const ask = useCallback(
-    async (question: string, safeMode: boolean) => {
+    async (question: string, safeMode: boolean, scope?: { ids: string[]; names: string[] }) => {
       controller.current?.abort();
       const abort = new AbortController();
       controller.current = abort;
       const id = crypto.randomUUID();
       setExchanges((all) => [
         ...all,
-        { id, question, safeMode, steps: [], draft: "", status: "running", startedAt: Date.now() },
+        {
+          id,
+          question,
+          safeMode,
+          documents: scope?.names,
+          steps: [],
+          draft: "",
+          status: "running",
+          startedAt: Date.now(),
+        },
       ]);
 
       let finished = false;
       await streamChat(
-        { question, safe_mode: safeMode },
+        { question, safe_mode: safeMode, document_ids: scope?.ids },
         {
           onStatus: (step) => update(id, (e) => ({ steps: [...e.steps, step] })),
           onDraft: (text) => update(id, () => ({ draft: text })),

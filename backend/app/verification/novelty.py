@@ -16,7 +16,11 @@ _STOPWORDS = frozenset(
         "it its this that these those as into about also than then their there which who "
         "has have had do does did not no its it's "
         # Connective words a rephrasing adds without adding a fact ("using its LIBS ...").
-        "using use used via through also then both each while after before during"
+        "using use used via through also then both each while after before during "
+        # Modals, causal links and pronouns: "MIRI must be colder ... because" restates
+        # "MIRI has to be colder ..., so"; the facts are in the other words.
+        "must can could may might should would will shall because so since therefore thus "
+        "he she they them his her him we our you"
     ).split()
 )
 _NUMBER_WORDS = frozenset(
@@ -50,12 +54,21 @@ def stem(word: str) -> str:
 
 
 def _terms(text: str) -> list[str]:
-    return [w for w in re.findall(r"[a-z0-9]+", text.lower()) if w not in _STOPWORDS]
+    # Drop possessives first, or "JWST's" leaves a stray "s" that counts as a new word.
+    text = re.sub(r"['’]s\b", "", text.lower())
+    return [w for w in re.findall(r"[a-z0-9]+", text) if w not in _STOPWORDS]
+
+
+def acronyms(text: str) -> set[str]:
+    """Initials of each run of capitalised words, so a claim may say "JWST" about a
+    passage titled "James Webb Space Telescope"."""
+    runs = re.findall(r"[A-Z][a-z]+(?: [A-Z][a-z]+)+", text)
+    return {"".join(word[0] for word in run.split()).lower() for run in runs}
 
 
 def novelty(claim: str, passage: str) -> Novelty:
     claim_terms = _terms(claim)
-    known = {stem(w) for w in _terms(passage)}
+    known = {stem(w) for w in _terms(passage)} | acronyms(passage)
     new = [w for w in dict.fromkeys(claim_terms) if stem(w) not in known]
     numbers = [w for w in new if w.isdigit() or w in _NUMBER_WORDS]
     share = len(new) / len(set(claim_terms)) if claim_terms else 0.0

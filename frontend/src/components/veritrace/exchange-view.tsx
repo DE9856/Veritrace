@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleXIcon, ShieldCheckIcon, SquareIcon } from "lucide-react";
+import { CircleXIcon, FileTextIcon, ShieldCheckIcon, SquareIcon } from "lucide-react";
 
 import type { Exchange } from "@/hooks/use-chat";
 
@@ -26,9 +26,18 @@ export function ExchangeView({
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-xl rounded-br-sm bg-primary px-3.5 py-2 text-primary-foreground dark:border dark:border-primary/30 dark:bg-accent dark:text-foreground">
           <p className="whitespace-pre-wrap">{exchange.question}</p>
-          {exchange.safeMode && (
-            <p className="mt-1 flex items-center gap-1 text-xs opacity-80">
-              <ShieldCheckIcon className="size-3" /> Safe mode
+          {(exchange.safeMode || exchange.documents) && (
+            <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs opacity-80">
+              {exchange.safeMode && (
+                <span className="inline-flex items-center gap-1">
+                  <ShieldCheckIcon className="size-3" /> Safe mode
+                </span>
+              )}
+              {exchange.documents && (
+                <span className="inline-flex items-center gap-1">
+                  <FileTextIcon className="size-3" /> Only {exchange.documents.join(", ")}
+                </span>
+              )}
             </p>
           )}
         </div>

@@ -1,4 +1,5 @@
-from app.agent.nodes.generate import extract_citations
+from app.agent.nodes.generate import extract_citations, generate
+from app.schemas import SourceChunk
 
 
 def test_extracts_single_and_grouped_citations_in_order():
@@ -24,3 +25,29 @@ def test_strips_reasoning_with_or_without_opening_tag():
     assert _THINK_BLOCK.sub("", "<think>plan</think>\n\nAnswer [S1].").strip() == "Answer [S1]."
     assert _THINK_BLOCK.sub("", "plan... </think>\n\nAnswer [S1].").strip() == "Answer [S1]."
     assert _THINK_BLOCK.sub("", "Answer [S1].") == "Answer [S1]."
+
+
+class SplitStream:
+    """Streams a padded citation split across pieces, as gpt-oss on Groq does."""
+
+    async def stream(self, prompt, *, system=None):
+        for piece in ["Below 7 kelvin ", "[ S", "1 ]", " {HIGH}."]:
+            yield piece
+
+
+async def test_padded_citation_split_across_stream_pieces_is_recognised():
+    source = SourceChunk(
+        label="S1",
+        chunk_id="doc_p1_c0",
+        document_id="doc",
+        filename="f.md",
+        title="Doc",
+        page=1,
+        text="x.",
+        similarity=0.8,
+    )
+    drafts = []
+    result = await generate("q", [source], provider=SplitStream(), on_draft=drafts.append)
+    assert result.answer == "Below 7 kelvin [S1]."
+    assert result.cited_labels == ["S1"]
+    assert drafts[-1] == "Below 7 kelvin [S1]."

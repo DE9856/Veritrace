@@ -1,6 +1,7 @@
 "use client";
 
-import { MonitorIcon, MoonIcon, PanelLeftIcon, SunIcon } from "lucide-react";
+import { BookOpenIcon, MonitorIcon, MoonIcon, PanelLeftIcon, SunIcon } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 
@@ -36,6 +37,11 @@ export function Header({
         </p>
       </div>
       <div className="ml-auto flex items-center gap-1">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/how-it-works">
+            <BookOpenIcon /> <span className="hidden sm:inline">How it works</span>
+          </Link>
+        </Button>
         <HealthStatus health={health} error={healthError} />
         <ThemeToggle />
       </div>

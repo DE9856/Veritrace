@@ -213,6 +213,25 @@ async def test_groq_streams_server_sent_events():
     assert [piece async for piece in provider.stream("q")] == ["Hel", "lo"]
 
 
+async def test_groq_counts_the_tokens_it_reports():
+    body = (
+        'data: {"choices": [{"delta": {"content": "Hi"}}]}\n\n'
+        'data: {"choices": [], "x_groq": {"usage": {"total_tokens": 40}}}\n\n'
+        "data: [DONE]\n\n"
+    )
+
+    def handler(request: httpx.Request):
+        if json.loads(request.content).get("stream"):
+            return httpx.Response(200, text=body, headers={"content-type": "text/event-stream"})
+        message = {"choices": [{"message": {"content": "ok"}}], "usage": {"total_tokens": 2}}
+        return httpx.Response(200, json=message)
+
+    provider = groq(handler)
+    assert [piece async for piece in provider.stream("q")] == ["Hi"]
+    await provider.generate("q")
+    assert provider.tokens_used == 42
+
+
 # ---------------------------------------------------------------- fallback and factory
 
 
@@ -319,6 +338,36 @@ async def test_rate_limit_without_reset_time_skips_the_primary_briefly():
     clock.now += 61
     gemini.error = None
     assert await provider.generate("q") == "from gemini"
+
+
+async def test_waits_for_a_per_minute_limit_when_the_fallback_is_out_of_quota():
+    clock = Clock()
+    groq = Scripted("groq", RateLimitError("tokens per minute", retry_after_s=40))
+    gemini = Scripted("gemini", RateLimitError("daily quota", retry_after_s=5000))
+    waits = []
+
+    async def sleep(seconds):
+        waits.append(seconds)
+        clock.now += seconds
+        groq.error = None  # the per-minute window has passed
+
+    provider = FallbackProvider(groq, gemini, clock=clock, sleep=sleep)
+    assert await provider.generate("q") == "from groq"
+    assert waits == [40]
+    assert provider.name == "groq"
+
+
+async def test_does_not_wait_for_a_primary_daily_quota():
+    clock = Clock()
+    gemini = Scripted("gemini", RateLimitError("daily quota", retry_after_s=5000))
+    groq = Scripted("groq", RateLimitError("tokens per minute"))
+
+    async def sleep(seconds):
+        raise AssertionError("should not wait hours")
+
+    provider = FallbackProvider(gemini, groq, clock=clock, sleep=sleep)
+    with pytest.raises(RateLimitError, match="tokens per minute"):
+        await provider.generate("q")
 
 
 def test_gemini_daily_quota_error_carries_the_reset_time():

@@ -5,8 +5,71 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Planned
-- Push the backend to a Hugging Face Space and the frontend to Vercel, following `docs/deployment.md`.
+### Added
+- `STARTUP.md`: one-time setup, starting and stopping (with `start.sh` or by hand), quota limits and fixes for common problems.
+- Frontend: a "How it works" page (`/how-it-works`) with the agent's steps, the signals and their weights, the labelling rules, the models in use and the evaluation results.
+- Frontend: each answer shows the model that wrote it and the search queries the agent ran.
+- Frontend: tick documents in the documents panel to limit questions to them (the API's `document_ids`); the question shows which documents it searched.
+
+### Changed
+- Frontend: the delete button on each document is always visible (it only showed on hover, so not at all on touch screens) and says what it removes: the uploaded file, its passages in the vector store and its record.
+- Frontend: the example questions are the demo-guide questions, each with a note on what it shows (every claim stated, inferred claims, an unsupported claim, a false premise).
+
+## [0.8.0] - 2026-10-21
+
+Evaluation. The labels are now measured on a held-out test set, with an ablation of each signal, two single-signal baselines and the latency per question. Results are in `docs/evaluation.md`.
+
+### Added
+- `calibration/test_claims.yaml`: 41 held-out hand-labelled claims (15 high, many of them paraphrases; 12 inferred; 14 hallucinated, including swapped entities and facts that are true but not in the documents).
+- `calibration/collect_answers.py` and `answer_questions.yaml`: run the real agent on 12 questions (6 dev, 6 test) and save every claim it extracts with its raw signals, so the evaluation also covers claims a model actually wrote. Hand labels are in `answer_labels.yaml`.
+- `calibration/evaluate.py`: tunes on dev, scores test, and writes `docs/evaluation.md` with the main result, confusion matrix, ablation, baselines (LLM judge alone, self-consistency alone), the test claims it gets wrong and latency. Novelty is recomputed from the saved passages, so a change to the novelty rule is evaluated without calling a model.
+- `calibration/latency.py`: seconds per question through the full agent and, on Groq, the tokens each question uses.
+- The Groq provider counts the tokens the API reports as used.
+
+### Changed
+- The collection scripts take `--claims` and `--out`, turn the fallback model off so every LLM signal comes from one model, wait out rate limits, and save after every claim or answer so an interrupted run resumes.
+- A judge call that fails during collection is retried instead of being saved as "no verdict".
+
+### Fixed
+- Novelty counted the "s" of a possessive ("JWST's") as a new word, and did not recognise an acronym of a name in the passage ("JWST" for "James Webb Space Telescope").
+- Novelty counted modals, causal links and pronouns ("must", "because", "he") as new words, so "MIRI needs a cryocooler because it must be colder" was demoted to inferred against "MIRI has to be colder ..., so a cryocooler keeps it ...". Found on the dev set.
+
+### Results (qwen3:4b-instruct, test set, 67 claims)
+- Accuracy 75%, macro-F1 0.76, hallucination precision and recall 0.93. The novelty fixes raise dev accuracy from 90.8% to 92.3% and leave test unchanged.
+- Every hallucinated claim but one is caught, and no supported claim is called hallucinated. Most errors are faithful paraphrases labelled inferred (15 of 39 high claims): the novelty rule, designed on dev claims that mostly copy the documents' words, does not carry over to the paraphrase-heavy test claims. Without novelty, accuracy is 82% but inferred is almost never predicted.
+- The grid search on dev keeps every current setting, so `config.yaml` is unchanged.
+
+### Found while testing
+- Groq's free tier also caps tokens at 200,000 a day (rolling), which the collection reached after the 39 dev claims. A full question uses several thousand tokens (consistency sampling and the judge send the passages again), so rehearsing the demo many times on the day can use up the quota.
+- "one of its four instruments" counts "one" as a new number, which forces inferred. Seen on test claims only, so left for after the evaluation.
+
+## [0.7.0] - 2026-10-21
+
+Local demo. Veritrace is shown on a laptop rather than hosted, so deployment is dropped in favour of a one-command start, a reliable model setup and a demo guide.
+
+### Added
+- `start.sh`: starts the backend and frontend together, waits for the models to load, and stops both on Ctrl+C. `./start.sh ollama` runs fully offline (starting Ollama if needed), `./start.sh gemini` starts on Gemini.
+- `docs/demo.md`: pre-flight checklist, five demo questions with the labels they usually produce, and what to do when the network or a model fails.
+- `docs/docker.md`: running the backend image locally.
+- The fallback waits for the primary instead of failing when both are rate limited and the primary's limit resets within 90 seconds (Groq's per-minute token limit), so a burst of questions is slower rather than an error.
+
+### Changed
+- Groq (`openai/gpt-oss-120b`) is the main model and Gemini the fallback. Gemini's free tier (20 requests a day, about three questions) is too small to lead a live demo; Groq allows 1000 requests and 200,000 tokens a day.
+- The Docker image defaults to Groq with Gemini as fallback and listens on port 8000, like the local backend.
+- The project overview describes the local demo instead of hosting, and lists Phase 7.
+
+### Removed
+- `docs/deployment.md` and `deploy/huggingface/`. A Docker Space on Hugging Face now needs a paid plan, and a public URL would let anyone spend the free model quota.
+
+### Fixed
+- Citations written as `[ S1 ]` were not recognised when the answer was streamed, because the padding could be split across stream pieces and each piece was normalised on its own. The answer then reported no citations, the citations were not clickable in the app, and verification did not know which source each sentence cited. The whole answer is now normalised after streaming.
+
+### Found while testing
+- On Groq, faithful paraphrases are often labelled inferred at about 0.74: gpt-oss rewords more than the local model the novelty threshold was tuned on. To be addressed by re-running the calibration on Groq.
+- gpt-oss rarely adds facts the documents lack; off-topic questions mostly get "the documents don't contain this".
+
+### Verified
+- 117 backend tests pass. `./start.sh` on Groq and `./start.sh ollama` offline each answered demo questions in the app's API, and Ctrl+C (SIGTERM) stopped every process including Ollama.
 
 ## [0.6.0] - 2026-10-20
 

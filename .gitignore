@@ -48,3 +48,6 @@ Thumbs.db
 # ---------- Logs ----------
 *.log
 logs/
+
+# ---------- Local notes (not for the repo) ----------
+TODO.md
