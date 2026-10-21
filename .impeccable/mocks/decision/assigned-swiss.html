@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Veritrace · Swiss Information Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--black:#111214;--k2:#1d1f22;--k-muted:#9a9ca1;--white:#fff;--ground:#f2f2f0;--g1:#e4e4e1;--g2:#c9c9c5;--muted:#62646a;--violet:#4f2fd0;--high:#1f7a4d;--inf:#9a6400;--hal:#b3261e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;display:flex;background:var(--ground);color:var(--black);font:400 15px/1.5 Archivo,sans-serif}
+.rail{width:248px;background:var(--black);color:#fff;padding:28px 22px;display:flex;flex-direction:column;gap:32px}
+.mark{font:800 30px/1 Archivo;font-stretch:72%;letter-spacing:-.01em;text-transform:uppercase}.mark small{display:block;font:500 11px/1.4 Archivo;font-stretch:100%;letter-spacing:.04em;color:var(--k-muted);text-transform:none;margin-top:6px}
+.lab{font:600 11px Archivo;letter-spacing:.08em;text-transform:uppercase;color:var(--k-muted);margin-bottom:10px;display:flex;justify-content:space-between}
+.doc{display:grid;grid-template-columns:20px 1fr;gap:10px;padding:9px 0;border-top:1px solid #2b2d31;font-size:14px}.doc b{font:700 12px Archivo;color:var(--k-muted);font-feature-settings:"tnum"}
+.doc p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.doc small{display:block;color:var(--k-muted);font-size:12px}.doc.on p{color:#fff;font-weight:600}
+.btn-r{border:1px solid #3a3c41;padding:9px 12px;font-weight:600;font-size:13.5px;text-align:center}
+.foot{margin-top:auto;font-size:12.5px;color:var(--k-muted);border-top:1px solid #2b2d31;padding-top:12px}.foot b{color:#fff;font-weight:600}
+main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--white)}
+.top{display:flex;align-items:center;height:52px;padding:0 48px;border-bottom:1px solid var(--g1);gap:24px;font-size:13px;color:var(--muted)}
+.top .t{margin-left:auto;display:flex;gap:8px;align-items:center;border:1px solid var(--g2);padding:6px 12px;color:var(--black);font-weight:600}
+.grid{flex:1;display:grid;grid-template-columns:repeat(12,1fr);column-gap:24px;padding:40px 48px 0;overflow:hidden;background:repeating-linear-gradient(90deg,transparent 0 calc((100% - 11*24px)/12),rgba(79,47,208,.035) 0 calc((100% - 11*24px)/12 + 24px))}
+.qn{grid-column:1/3;font:700 12px Archivo;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:12px}
+.q{grid-column:3/12;font:700 40px/1.06 Archivo;font-stretch:80%;letter-spacing:-.015em;margin-bottom:36px}
+.side{grid-column:1/5}.num{font:800 168px/.8 Archivo;font-stretch:62%;letter-spacing:-.03em;font-feature-settings:"tnum"}.num span{font:500 18px Archivo;font-stretch:100%;color:var(--muted);letter-spacing:0}
+.cap{font:600 12px Archivo;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 28px}
+.scale{position:relative;height:96px;border-top:2px solid var(--black)}
+.zone{position:absolute;top:0;height:10px}.ticks{position:absolute;top:18px;left:0;right:0;height:40px}
+.tk{position:absolute;width:3px;height:40px}.tk i{position:absolute;top:44px;left:-6px;font:700 12px Archivo;font-style:normal;font-feature-settings:"tnum"}
+.cut{position:absolute;top:-2px;bottom:18px;border-left:1px dashed var(--black)}.cut em{position:absolute;bottom:-18px;left:-8px;font:500 11px Archivo;font-style:normal;color:var(--muted)}
+.ax{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;font:500 11px Archivo;color:var(--muted)}
+.ans{grid-column:6/13}.text{font:400 21px/1.62 Archivo;max-width:640px}
+.s1{text-decoration:line-through 2px var(--hal)}.s2{text-decoration:underline 3px var(--inf);text-underline-offset:6px}
+sup{font:700 11px Archivo;color:var(--violet);margin-left:2px}
+.claims{margin-top:28px;border-top:2px solid var(--black)}
+.c{display:grid;grid-template-columns:28px 1fr 96px 40px;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--g1);font-size:14.5px}
+.c b{font:800 15px Archivo;font-feature-settings:"tnum"}.c .v{font:600 12px Archivo;letter-spacing:.06em;text-transform:uppercase}.c .s{font:700 22px Archivo;font-stretch:75%;text-align:right;font-feature-settings:"tnum"}
+.composer{margin:0 48px 22px;display:flex;align-items:center;gap:16px;border:2px solid var(--black);padding:12px 14px;color:var(--muted);background:#fff}
+.composer .go{margin-left:auto;background:var(--violet);color:#fff;padding:8px 16px;font-weight:700;font-size:14px}
+</style></head><body>
+<aside class="rail">
+  <div class="mark">Veritrace<small>Hallucination-aware information assistant</small></div>
+  <div><div class="lab"><span>Documents</span><span>4</span></div>
+    <div class="doc on"><b>01</b><div><p>james-webb-space-telescope.md</p><small>MD · 1 page · 1 passage</small></div></div>
+    <div class="doc"><b>02</b><div><p>chandrayaan-3.md</p><small>MD · 1 page · 2 passages</small></div></div>
+    <div class="doc"><b>03</b><div><p>Cyber-Security-and-Privacy-Study-Book.pdf</p><small>PDF · 122 pages · 178 passages</small></div></div>
+    <div class="doc"><b>04</b><div><p>TOC_Assignment1-2.docx.pdf</p><small>PDF · 1 page · 1 passage</small></div></div>
+    <div class="btn-r" style="margin-top:14px">Add documents</div></div>
+  <div class="foot"><b>gpt-oss-120b</b> · groq · serving</div>
+</aside>
+<main>
+  <div class="top"><span>Question 01</span><span>Checked 22:27</span><span>4 claims</span><span class="t">Claim check ▸</span></div>
+  <div class="grid">
+    <div class="qn">Question 01</div>
+    <h1 class="q">Who was James E. Webb, and why was the telescope named after him?</h1>
+    <div class="side">
+      <div class="num">51<span> / 100</span></div>
+      <div class="cap">Answer confidence</div>
+      <div class="scale">
+        <div class="zone" style="left:0;width:45%;background:var(--hal)"></div><div class="zone" style="left:45%;width:30%;background:var(--inf)"></div><div class="zone" style="left:75%;width:25%;background:var(--high)"></div>
+        <div class="cut" style="left:45%"><em>45</em></div><div class="cut" style="left:75%"><em>75</em></div>
+        <div class="ticks"><div class="tk" style="left:29%;background:var(--hal)"><i>4</i></div><div class="tk" style="left:42%;background:var(--hal)"><i>2</i></div><div class="tk" style="left:52%;background:var(--inf)"><i>1</i></div><div class="tk" style="left:91%;background:var(--high)"><i>3</i></div></div>
+        <div class="ax"><span>0</span><span>100</span></div>
+      </div>
+    </div>
+    <div class="ans">
+      <p class="text"><span class="s2">James E. Webb led NASA as its administrator from 1961 to 1968,</span> <span class="s1">guiding the agency during the early years of the Apollo program</span><sup>S1</sup>. <span class="s1">The telescope was named to honor his leadership and contributions to NASA’s history</span><sup>S1</sup>.</p>
+      <div class="claims">
+        <div class="c"><b>1</b><span>Led NASA as administrator, 1961 to 1968</span><span class="v" style="color:var(--inf)">Inferred</span><span class="s">52</span></div>
+        <div class="c"><b>2</b><span>Guided the agency in Apollo’s early years</span><span class="v" style="color:var(--hal)">Flagged</span><span class="s">42</span></div>
+        <div class="c"><b>3</b><span>The telescope is named after Webb</span><span class="v" style="color:var(--high)">High</span><span class="s">91</span></div>
+        <div class="c"><b>4</b><span>Named to honor his leadership</span><span class="v" style="color:var(--hal)">Flagged</span><span class="s">29</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="composer">Ask about your documents…<span style="font-size:13px">Safe mode · Check an answer</span><span class="go">Ask</span></div>
+</main>
+</body></html>

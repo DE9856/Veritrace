@@ -40,7 +40,7 @@ export function CitedText({
         ) : (
           <span
             key={`${start}-${label}`}
-            className="mx-0.5 inline-flex -translate-y-[0.45em] rounded-[4px] bg-pencil-soft px-1 font-sans text-pencil text-[11px] leading-4 font-medium tabular-nums"
+            className="ml-0.5 inline-flex -translate-y-[0.45em] bg-signal-soft px-1 text-[11px] leading-4 font-bold text-signal tabular-nums"
           >
             {label}
           </span>
@@ -86,9 +86,9 @@ export function CitationChip({
         onCite(label);
       }}
       className={cn(
-        "mx-0.5 inline-flex -translate-y-[0.45em] items-center rounded-[4px] px-1 font-sans text-[11px] leading-4 font-medium tabular-nums",
-        "bg-pencil-soft text-pencil transition-colors duration-150 hover:bg-pencil hover:text-primary-foreground",
-        active && "bg-pencil text-primary-foreground",
+        "ml-0.5 inline-flex -translate-y-[0.45em] items-center px-1 text-[11px] leading-4 font-bold tabular-nums",
+        "bg-signal-soft text-signal transition-colors duration-150 hover:bg-signal hover:text-primary-foreground",
+        active && "bg-signal text-primary-foreground",
       )}
       aria-label={`Open source ${label}`}
     >
@@ -99,7 +99,7 @@ export function CitationChip({
   return (
     <HoverCard openDelay={350} closeDelay={80}>
       <HoverCardTrigger asChild>{chip}</HoverCardTrigger>
-      <HoverCardContent side="top" className="w-[22rem] p-0 font-sans">
+      <HoverCardContent side="top" className="w-[22rem] rounded-none border-2 border-foreground p-0 ring-0 shadow-[0_8px_24px_rgb(0_0_0/0.14)]">
         <PassagePreview source={source} context={context} />
       </HoverCardContent>
     </HoverCard>
@@ -115,7 +115,7 @@ function PassagePreview({ source, context }: { source: SourceChunk; context?: st
   return (
     <div>
       <div className="flex items-baseline gap-2 border-b border-rule px-3.5 py-2 text-xs">
-        <span className="rounded-[4px] bg-pencil px-1 font-medium text-primary-foreground tabular-nums">
+        <span className="bg-signal px-1 font-bold text-primary-foreground tabular-nums">
           {source.label}
         </span>
         <span className="min-w-0 flex-1 truncate text-muted-foreground">
@@ -123,13 +123,13 @@ function PassagePreview({ source, context }: { source: SourceChunk; context?: st
         </span>
         <span className="text-muted-foreground tabular-nums">match {source.similarity.toFixed(2)}</span>
       </div>
-      <p className="px-3.5 py-3 font-serif text-[0.9375rem] leading-relaxed">
+      <p className="px-3.5 py-3 text-[0.9375rem] leading-relaxed">
         {excerpt.map((sentence, i) => (
           <span
             key={i}
             className={
               i === focus
-                ? "rounded-[2px] bg-pencil-soft text-foreground underline decoration-pencil/60 decoration-2 underline-offset-4"
+                ? "bg-signal-soft text-foreground underline decoration-signal/60 decoration-2 underline-offset-4"
                 : "text-muted-foreground"
             }
           >

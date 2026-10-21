@@ -2,10 +2,11 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Veritrace: a checker's proof. The copy under check sits on white sheets; the checking apparatus
-   (the ruled margin, line numbers, selection, actions, focus) is drawn in the editor's blue pencil
-   on a pale blue-tinted shell. The three verdicts (green stated, amber inferred, red flagged) keep
-   the meaning they have in docs/project-overview.html, and nothing else uses those hues. */
+/* Veritrace: a Swiss information sheet. A black rail beside a white sheet on a strict column grid,
+   one grotesk (Archivo) in condensed and regular widths, square corners and black rules. Neutrals
+   come from one tonal ramp. The violet signal marks only what can be pressed or is selected; the
+   three verdicts (green stated, amber inferred, red flagged) keep the meaning they have in
+   docs/project-overview.html, and nothing else uses those hues. */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -14,7 +15,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-ui);
   --font-heading: var(--font-ui);
-  --font-serif: var(--font-copy);
   --font-mono: var(--font-code);
 
   --color-high: var(--high);
@@ -23,12 +23,12 @@
   --color-inferred-soft: var(--inferred-soft);
   --color-halluc: var(--halluc);
   --color-halluc-soft: var(--halluc-soft);
-  --color-surface: var(--surface);
   --color-sheet: var(--sheet);
   --color-rule: var(--rule);
   --color-canvas: var(--canvas);
-  --color-pencil: var(--pencil);
-  --color-pencil-soft: var(--pencil-soft);
+  --color-rail: var(--rail);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
 
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -47,88 +47,98 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
 
-  /* Two radii only: 8px for sheets and panels, 6px for controls. */
-  --radius-sm: calc(var(--radius) * 0.75);
-  --radius-md: calc(var(--radius) * 0.75);
-  --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
-  --radius-2xl: var(--radius);
-  --radius-3xl: var(--radius);
+  /* Square corners throughout; the 999px radius is for spinners only. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
   --radius-4xl: 999px;
 
-  /* Motion: strong ease-out for anything responding to the user, the drawer curve for sheets. */
+  /* Motion: a strong ease-out for anything answering the user, the drawer curve for panels. */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+/* The tonal ramp (light): #ffffff, #f4f4f2, #ececea, #e3e3e0, #d6d6d2, #b9b9b4, #5c5d61, #111214.
+   Every neutral below is a step of it. */
 :root {
-  --background: #edf1f8; /* the shell: sidebar ground, tinted toward the pencil */
-  --surface: #edf1f8;
-  --canvas: #f6f8fc; /* the working area between shell and sheets */
-  --sheet: #ffffff; /* the answer and the inspector */
-  --foreground: #121826;
+  --background: #ffffff;
+  --foreground: #111214;
+  --sheet: #ffffff;
+  --canvas: #f4f4f2;
+  --rail: #111214;
   --card: #ffffff;
-  --card-foreground: #121826;
+  --card-foreground: #111214;
   --popover: #ffffff;
-  --popover-foreground: #121826;
-  --pencil: #2343c4; /* the editor's blue pencil */
-  --pencil-soft: #e6ecfc;
-  --primary: var(--pencil);
+  --popover-foreground: #111214;
+  --signal: #4a3aa8;
+  --signal-soft: #ecebf6;
+  --primary: var(--signal);
   --primary-foreground: #ffffff;
-  --secondary: #e2e7f1;
-  --secondary-foreground: #121826;
-  --muted: #eaeef6;
-  --muted-foreground: #535d72;
-  --accent: #e6ecfc;
-  --accent-foreground: #121826;
-  --destructive: #b3261e;
-  --border: #d6ddea;
-  --rule: #e5eaf3;
-  --input: #cbd3e3;
-  --ring: var(--pencil);
-  --radius: 0.5rem;
+  --secondary: #ececea;
+  --secondary-foreground: #111214;
+  --muted: #ececea;
+  --muted-foreground: #5c5d61;
+  --accent: #ececea;
+  --accent-foreground: #111214;
+  --destructive: #a52e47;
+  --border: #d6d6d2;
+  --rule: #e3e3e0;
+  --input: #b9b9b4;
+  --ring: var(--signal);
+  --radius: 0rem;
 
-  --high: #1f7a4d;
-  --high-soft: #dff2e7;
-  --inferred: #9a6400;
-  --inferred-soft: #fbedcc;
-  --halluc: #b3261e;
-  --halluc-soft: #fbe0dd;
+  --high: #126a40;
+  --high-soft: #e3efe7;
+  --inferred: #94701c;
+  --inferred-soft: #f5edda;
+  --halluc: #a52e47;
+  --halluc-soft: #f6e4e8;
 }
 
+/* The same sheet at night (and the rail, which is always this scope). Ramp: #0b0b0c, #161719,
+   #1c1d20, #26272b, #2f3034, #45464b, #a3a4a8, #ececea. */
 .dark {
-  --background: #0e131d;
-  --surface: #0e131d;
-  --canvas: #121826;
-  --sheet: #171e2c;
-  --foreground: #e7eaf1;
-  --card: #171e2c;
-  --card-foreground: #e7eaf1;
-  --popover: #1d2535;
-  --popover-foreground: #e7eaf1;
-  --pencil: #8fa8ff;
-  --pencil-soft: #1d2747;
-  --primary: var(--pencil);
-  --primary-foreground: #0e131d;
-  --secondary: #232c3e;
-  --secondary-foreground: #e7eaf1;
-  --muted: #1e2636;
-  --muted-foreground: #9aa3b5;
-  --accent: #1d2747;
-  --accent-foreground: #e7eaf1;
-  --destructive: #f08a80;
-  --border: #283246;
-  --rule: #212a3b;
-  --input: #323d54;
-  --ring: var(--pencil);
+  --background: #161719;
+  --foreground: #ececea;
+  --sheet: #1c1d20;
+  --canvas: #121315;
+  --rail: #0b0b0c;
+  --card: #1c1d20;
+  --card-foreground: #ececea;
+  --popover: #26272b;
+  --popover-foreground: #ececea;
+  --signal: #a59ce0;
+  --signal-soft: #29264a;
+  --primary: var(--signal);
+  --primary-foreground: #111214;
+  --secondary: #26272b;
+  --secondary-foreground: #ececea;
+  --muted: #26272b;
+  --muted-foreground: #a3a4a8;
+  --accent: #26272b;
+  --accent-foreground: #ececea;
+  --destructive: #d3687f;
+  --border: #2f3034;
+  --rule: #26272b;
+  --input: #45464b;
+  --ring: var(--signal);
 
-  --high: #5fcf94;
-  --high-soft: #16301f;
-  --inferred: #e9b44c;
-  --inferred-soft: #33280f;
-  --halluc: #f08a80;
-  --halluc-soft: #3a1a18;
+  --high: #3c9566;
+  --high-soft: #172920;
+  --inferred: #c49c4a;
+  --inferred-soft: #2e2716;
+  --halluc: #d3687f;
+  --halluc-soft: #331b21;
+}
+
+/* The rail is always a dark scope, so its controls take the dark tokens on the rail's own black. */
+.rail-scope {
+  --background: var(--rail);
+  --sheet: color-mix(in oklch, var(--rail), white 7%);
 }
 
 @layer base {
@@ -141,7 +151,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "ss01" 0;
+    font-feature-settings: "tnum" 0;
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -153,82 +163,97 @@
     @apply font-heading;
     text-wrap: balance;
   }
-  /* Source Serif's display cut at large sizes, its text cut in running copy. */
-  .font-serif {
-    font-optical-sizing: auto;
-  }
   ::selection {
-    background: color-mix(in oklch, var(--pencil) 22%, transparent);
+    background: color-mix(in oklch, var(--signal) 24%, transparent);
   }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
-  /* Thin, ink-toned scrollbars instead of the browser's grey slab. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 22%, transparent) transparent;
   }
   input,
   textarea {
-    caret-color: var(--foreground);
+    caret-color: var(--signal);
+  }
+  input[type="checkbox"] {
+    accent-color: var(--signal);
   }
 }
 
 @layer components {
-  /* A sentence in a checked answer, underlined in the colour of its weakest claim. The margin
-     rail beside it carries the mark and the score; hover and selection fill it. */
+  /* Column headers, table heads and margin notes: small, semibold, tracked capitals. */
+  .caps {
+    font-size: 11.5px;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  /* Figures that sit in columns or update live. */
+  .figures {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* A sentence in a checked answer, underlined in the colour (and style) of its weakest claim. */
   .sentence {
-    @apply rounded-[3px];
     text-decoration-line: underline;
     text-decoration-thickness: 2px;
-    text-underline-offset: 5px;
+    text-underline-offset: 6px;
     text-decoration-skip-ink: none;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
-    transition: background-color 150ms ease;
+    transition:
+      background-color 150ms ease,
+      opacity 200ms ease;
   }
   .sentence[data-label="high"] {
-    text-decoration-color: color-mix(in oklch, var(--high) 70%, transparent);
+    text-decoration-color: color-mix(in oklch, var(--high) 75%, transparent);
   }
   .sentence[data-label="inferred"] {
     text-decoration-color: var(--inferred);
   }
-  /* A proofer's strike: still legible, but plainly marked for removal. */
+  /* Flagged: a broken red underline. Stated is solid, inferred solid amber, flagged is the line
+     that does not hold; the text stays fully legible rather than reading as deleted copy. */
   .sentence[data-label="hallucinated"] {
-    text-decoration-line: line-through;
-    text-decoration-color: color-mix(in oklch, var(--halluc) 85%, transparent);
-    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--halluc);
+    text-decoration-style: dashed;
   }
   .sentence[data-label="none"] {
     text-decoration-line: none;
   }
-  /* Hover and selection are the pencil's, never a verdict tint: those hues stay the verdicts'. */
   .sentence[role="button"][data-hover="true"] {
-    background-color: color-mix(in oklch, var(--pencil) 6%, transparent);
+    background-color: color-mix(in oklch, var(--signal) 7%, transparent);
   }
   .sentence[aria-pressed="true"] {
-    background-color: color-mix(in oklch, var(--pencil) 11%, transparent);
+    background-color: color-mix(in oklch, var(--signal) 13%, transparent);
+  }
+  /* While one sentence is under inspection, the rest of the answer steps back. */
+  .sentence[data-dim="true"] {
+    opacity: 0.38;
   }
   .sentence[role="button"]:focus-visible {
     outline-offset: 1px;
   }
+  .sentence-land {
+    animation: underline-in 420ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+  }
 
-  /* A proof mark draws itself once, when its verdict lands. */
+  /* A verdict mark draws itself once, when its claim row arrives. */
   .proof-mark path {
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
     animation: mark-draw 420ms var(--ease-out) both;
     animation-delay: var(--delay, 0ms);
   }
-  .proof-mark-score {
-    animation: fade-in 260ms ease both;
-    animation-delay: calc(var(--delay, 0ms) + 160ms);
-  }
 
-  /* A sentence's underline (or strike) lands with its margin mark when the verdict arrives. */
-  .sentence-land {
-    animation: underline-in 420ms var(--ease-out) both;
+  /* The signature moment: when a verdict lands, each claim slides from zero to its score on the
+     threshold scale, in reading order. */
+  .scale-tick {
+    animation: tick-in 720ms var(--ease-out) both;
     animation-delay: var(--delay, 0ms);
   }
 
@@ -247,19 +272,18 @@
     position: absolute;
     inset: 0;
     width: 40%;
-    border-radius: inherit;
-    background: var(--pencil);
+    background: currentColor;
     animation: sweep 1100ms var(--ease-in-out) infinite;
   }
 
-  /* The agent's current stage on the route. */
+  /* The agent's current stage. */
   .stage-live {
     animation: stage-live 1600ms ease-in-out infinite;
   }
 
-  /* Rows that arrive while the agent works, and the parts of a finished answer. */
   .arrive {
-    animation: arrive 220ms var(--ease-out) both;
+    animation: arrive 240ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
   }
   .grow-x {
     transform-origin: left center;
@@ -274,7 +298,7 @@
   .disclosure {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 220ms var(--ease-out);
+    transition: grid-template-rows 240ms var(--ease-out);
   }
   .disclosure[data-open="true"] {
     grid-template-rows: 1fr;
@@ -282,6 +306,14 @@
   .disclosure > * {
     min-height: 0;
     overflow: hidden;
+  }
+
+  /* The docked claim panel opens by width, so the sheet beside it narrows instead of being covered. */
+  .panel-dock {
+    transition: width 320ms var(--ease-drawer);
+  }
+  .panel-dock[data-open="false"] {
+    transition-duration: 240ms;
   }
 
   /* Side sheets below the docking breakpoints: always mounted, so opening and closing are
@@ -305,8 +337,12 @@
   [data-sheet-open="true"] .sheet-panel {
     transform: translateX(0);
   }
+  /* A closed sheet is hidden once it has slid away, so no sub-pixel edge shows at the screen side. */
   [data-sheet-open="false"] .sheet-panel {
-    transition-duration: 220ms;
+    visibility: hidden;
+    transition:
+      transform 220ms var(--ease-drawer),
+      visibility 0s 220ms;
   }
 }
 
@@ -323,7 +359,7 @@
 @keyframes arrive {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
 }
 @keyframes underline-in {
@@ -331,10 +367,21 @@
     text-decoration-color: transparent;
   }
 }
+/* Each tick is a full-width layer with its marker at the score, so sliding the layer by minus the
+   score moves the marker from zero with a transform alone. */
+@keyframes tick-in {
+  from {
+    transform: translateX(var(--from, 0%));
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+}
 @keyframes evidence-flash {
   0%,
   35% {
-    background-color: color-mix(in oklch, var(--pencil) 28%, transparent);
+    background-color: color-mix(in oklch, var(--signal) 26%, transparent);
   }
 }
 @keyframes sweep {
@@ -347,7 +394,7 @@
 }
 @keyframes stage-live {
   50% {
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--pencil) 18%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--signal) 22%, transparent);
   }
 }
 @keyframes grow-x {
@@ -358,7 +405,8 @@
 
 /* Reduced motion keeps the fades that explain a change and drops everything that travels. */
 @media (prefers-reduced-motion: reduce) {
-  .proof-mark path {
+  .proof-mark path,
+  .scale-tick {
     animation: none;
   }
   .arrive,
@@ -373,9 +421,8 @@
   .stage-live {
     animation: none;
   }
-  .sheet-panel {
-    transition: none;
-  }
+  .sheet-panel,
+  .panel-dock,
   .disclosure {
     transition: none;
   }

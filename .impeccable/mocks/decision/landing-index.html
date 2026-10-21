@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Veritrace · Index Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;background:#f4f4f2;color:#111214;font:400 16px/1.5 Archivo,sans-serif;position:relative}
+.bars{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(17,18,20,.025) 0 88px,transparent 88px 112px);background-position-x:64px}
+nav{position:relative;height:64px;display:flex;align-items:center;gap:32px;padding:0 64px;border-bottom:1px solid #d6d6d2;font-size:14px;font-weight:500}
+nav b{font:800 26px/1 Archivo;font-stretch:70%;text-transform:uppercase;margin-right:auto}
+nav .go{background:#4a3aa8;color:#fff;padding:9px 16px;font-weight:700}
+main{position:relative;display:grid;grid-template-columns:7fr 5fr;gap:48px;padding:72px 64px 0}
+h1{font:800 104px/.86 Archivo;font-stretch:62%;letter-spacing:-.02em;word-spacing:.08em}
+.lede{margin-top:28px;max-width:560px;font-size:20px;line-height:1.55;color:#5c5d61}
+.cta{margin-top:36px;display:flex;gap:12px}.cta span{padding:14px 22px;font-weight:700;font-size:15px}
+.p{background:#4a3aa8;color:#fff}.s{border:2px solid #111214}
+.idx{border-top:2px solid #111214;margin-top:8px}
+.idx h3{font:600 11.5px Archivo;letter-spacing:.08em;text-transform:uppercase;color:#5c5d61;padding:12px 0}
+.row{display:grid;grid-template-columns:56px 1fr 24px;gap:16px;align-items:baseline;border-top:1px solid #d6d6d2;padding:18px 0}
+.row b{font:800 44px/.8 Archivo;font-stretch:62%}
+.row strong{display:block;font:700 22px/1.1 Archivo;font-stretch:80%}.row p{font-size:14.5px;color:#5c5d61;margin-top:4px}
+.proof{position:absolute;left:64px;right:64px;bottom:40px;display:flex;gap:48px;border-top:2px solid #111214;padding-top:14px;font-size:14px;color:#5c5d61}
+.proof b{display:block;font:800 40px/.9 Archivo;font-stretch:62%;color:#111214}
+</style></head><body><div class="bars"></div>
+<nav><b>Veritrace</b><span>How it works</span><span>Evaluation</span><span class="go">Open Veritrace</span></nav>
+<main>
+ <div><h1>Answers you can check, claim by claim.</h1>
+  <p class="lede">Veritrace answers questions from the documents you upload, splits each answer into claims, and labels every claim High confidence, Inferred or Possibly hallucinated, with the passage that decides it.</p>
+  <div class="cta"><span class="p">Open Veritrace →</span><span class="s">See how it checks</span></div></div>
+ <div class="idx"><h3>How it works</h3>
+  <div class="row"><b>1</b><div><strong>Ask</strong><p>Upload PDFs, text or Markdown, and ask in plain language.</p></div>↓</div>
+  <div class="row"><b>2</b><div><strong>Answer</strong><p>An agent searches, rewrites weak searches, and answers with citations.</p></div>↓</div>
+  <div class="row"><b>3</b><div><strong>Check</strong><p>Each claim is tested by NLI, a second-model judge and resampled answers.</p></div>↓</div>
+  <div class="row"><b>4</b><div><strong>Trace</strong><p>Open any claim to read the source passage behind its label.</p></div>↓</div>
+ </div>
+</main>
+<div class="proof"><span><b>12 / 12</b>hallucinated claims caught on the held-out set</span><span><b>0.89</b>hallucination F1</span><span><b>80 / 86</b>planted errors caught</span></div>
+</body></html>

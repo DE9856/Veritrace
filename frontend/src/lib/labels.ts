@@ -42,3 +42,17 @@ export const STEP_NAMES: Record<string, string> = {
 export const percent = (value: number) => `${Math.round(value * 100)}`;
 
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+
+// The cut-offs the backend clamps scores to (backend/config.yaml): a flagged claim scores below
+// 0.45, an inferred one 0.45 to 0.74, a high-confidence one 0.75 or more.
+export const INFERRED_CUTOFF = 0.45;
+export const HIGH_CUTOFF = 0.75;
+
+/** Every claim in an answer gets one number, in reading order, used wherever the claim appears:
+ *  after its sentence, on the threshold scale, in the claim list and in the claim panel. */
+export function numberClaims<S extends { index: number; claims: unknown[] }>(sentences: S[]) {
+  const numbers = new Map<number, number[]>();
+  let n = 0;
+  for (const sentence of sentences) numbers.set(sentence.index, sentence.claims.map(() => ++n));
+  return numbers;
+}

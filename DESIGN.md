@@ -1,355 +1,319 @@
 ---
 name: Veritrace
-description: Answers from your documents, with every claim marked in the margin as stated, inferred or possibly hallucinated.
+description: Answers from your documents, laid out as a Swiss information sheet that shows why every claim got its verdict.
 colors:
-  pencil: "#2343c4"
-  pencil-soft: "#e6ecfc"
-  ink: "#121826"
-  ink-muted: "#535d72"
-  shell-ground: "#edf1f8"
-  canvas: "#f6f8fc"
-  sheet: "#ffffff"
-  tint-secondary: "#e2e7f1"
-  tint-muted: "#eaeef6"
-  border: "#d6ddea"
-  rule: "#e5eaf3"
-  input-stroke: "#cbd3e3"
-  verdict-high: "#1f7a4d"
-  verdict-inferred: "#9a6400"
-  verdict-inferred-soft: "#fbedcc"
-  verdict-halluc: "#b3261e"
+  signal: "#4a3aa8"
+  signal-soft: "#ecebf6"
+  ink: "#111214"
+  rail-black: "#111214"
+  sheet-white: "#ffffff"
+  canvas-grey: "#f4f4f2"
+  wash: "#ececea"
+  hairline: "#e3e3e0"
+  border-grey: "#d6d6d2"
+  input-grey: "#b9b9b4"
+  muted-ink: "#5c5d61"
+  stated-green: "#126a40"
+  stated-soft: "#e3efe7"
+  inferred-amber: "#94701c"
+  inferred-soft: "#f5edda"
+  flagged-red: "#a52e47"
+  flagged-soft: "#f6e4e8"
 typography:
   display:
-    fontFamily: "\"Source Serif 4\", Georgia, serif"
-    fontSize: "3.25rem"
-    fontWeight: 600
-    lineHeight: 1.05
-    letterSpacing: "-0.022em"
-  headline:
-    fontFamily: "\"Source Serif 4\", Georgia, serif"
-    fontSize: "1.625rem"
-    fontWeight: 600
-    lineHeight: 1.375
-    letterSpacing: "-0.012em"
-  score:
-    fontFamily: "\"Source Serif 4\", Georgia, serif"
-    fontSize: "2.75rem"
-    fontWeight: 600
-    lineHeight: 0.9
-    letterSpacing: "-0.02em"
-    fontFeature: "\"tnum\" 1"
-  wordmark:
-    fontFamily: "\"Source Serif 4\", Georgia, serif"
-    fontSize: "1.3125rem"
-    fontWeight: 600
-    lineHeight: "24px"
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "clamp(3.25rem, 6vw, 6rem)"
+    fontWeight: 800
+    lineHeight: 0.88
     letterSpacing: "-0.015em"
+    fontVariation: "\"wdth\" 62"
+  numeral:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "clamp(4rem, 9vw, 8.5rem)"
+    fontWeight: 800
+    lineHeight: 0.8
+    letterSpacing: "-0.03em"
+    fontFeature: "\"tnum\", \"lnum\""
+    fontVariation: "\"wdth\" 62"
+  headline:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "clamp(1.875rem, 3vw, 2.625rem)"
+    fontWeight: 700
+    lineHeight: 1.05
+    letterSpacing: "-0.015em"
+    fontVariation: "\"wdth\" 80"
   title:
-    fontFamily: "\"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 600
-    lineHeight: 1.43
-  copy:
-    fontFamily: "\"Source Serif 4\", Georgia, serif"
-    fontSize: "1.125rem"
-    fontWeight: 400
-    lineHeight: 1.8
-  passage:
-    fontFamily: "\"Source Serif 4\", Georgia, serif"
-    fontSize: "0.9875rem"
-    fontWeight: 400
-    lineHeight: 1.75
-  body:
-    fontFamily: "\"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.9375rem"
-    fontWeight: 400
-    lineHeight: 1.6
-  label:
-    fontFamily: "\"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.8125rem"
-    fontWeight: 500
-    lineHeight: 1.4
-    fontFeature: "\"tnum\" 1"
-  cite:
-    fontFamily: "\"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.6875rem"
-    fontWeight: 500
-    lineHeight: 1.45
-    fontFeature: "\"tnum\" 1"
-  line-number:
-    fontFamily: "\"Schibsted Grotesk\", ui-sans-serif, system-ui, sans-serif"
-    fontSize: "10.5px"
-    fontWeight: 400
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "2rem"
+    fontWeight: 800
     lineHeight: 1
-    fontFeature: "\"tnum\" 1"
+    letterSpacing: "-0.015em"
+    fontVariation: "\"wdth\" 70"
+  reading:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "1.25rem"
+    fontWeight: 400
+    lineHeight: 1.7
+  body:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "15px"
+    fontWeight: 400
+    lineHeight: 1.375
+  small:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.5
+  label:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "11.5px"
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: "0.08em"
+  figure:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "15px"
+    fontWeight: 700
+    lineHeight: 1
+    fontFeature: "\"tnum\", \"lnum\""
+    fontVariation: "\"wdth\" 75"
   code:
-    fontFamily: "\"Geist Mono\", ui-monospace, monospace"
-    fontSize: "0.8125rem"
+    fontFamily: "Geist Mono, ui-monospace, monospace"
+    fontSize: "0.8em"
     fontWeight: 400
 rounded:
-  sheet: "8px"
-  control: "6px"
-  chip: "4px"
-  pill: "999px"
+  none: "0px"
+  round: "999px"
 spacing:
-  gutter: "8px"
-  sheet-pad-sm: "16px"
-  sheet-pad: "24px"
-  stack: "24px"
-  exchange: "48px"
+  hair: "4px"
+  tight: "8px"
+  row: "12px"
+  sheet-x-sm: "20px"
+  gutter: "24px"
+  sheet-x: "32px"
+  section: "40px"
 components:
   button-primary:
-    backgroundColor: "{colors.pencil}"
-    textColor: "{colors.sheet}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "32px"
+    backgroundColor: "{colors.signal}"
+    textColor: "{colors.sheet-white}"
+    typography: "{typography.small}"
+    rounded: "{rounded.none}"
+    padding: "0 16px"
+    height: "36px"
+  button-primary-disabled:
+    backgroundColor: "{colors.wash}"
+    textColor: "{colors.muted-ink}"
+    rounded: "{rounded.none}"
   button-outline:
-    backgroundColor: "{colors.sheet}"
+    backgroundColor: "{colors.sheet-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "32px"
+    rounded: "{rounded.none}"
+    padding: "0 16px"
+    height: "36px"
   button-outline-hover:
-    backgroundColor: "{colors.tint-muted}"
-  button-ghost:
-    textColor: "{colors.ink-muted}"
-    rounded: "{rounded.control}"
-    padding: "0 10px"
-    height: "28px"
-  button-ghost-hover:
-    backgroundColor: "{colors.tint-muted}"
+    backgroundColor: "{colors.wash}"
+  panel-toggle-open:
+    backgroundColor: "{colors.signal-soft}"
+    textColor: "{colors.signal}"
+    rounded: "{rounded.none}"
+    padding: "0 12px"
+    height: "32px"
+  source-tag:
+    backgroundColor: "{colors.signal-soft}"
+    textColor: "{colors.signal}"
+    typography: "{typography.figure}"
+    rounded: "{rounded.none}"
+    padding: "0 4px"
+  source-tag-active:
+    backgroundColor: "{colors.signal}"
+    textColor: "{colors.sheet-white}"
+  claim-row-selected:
+    backgroundColor: "{colors.signal-soft}"
     textColor: "{colors.ink}"
-  answer-sheet:
-    backgroundColor: "{colors.sheet}"
+    padding: "12px 0"
+  exchange-sheet:
+    backgroundColor: "{colors.sheet-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.sheet}"
-    padding: "24px"
-  proof-slug:
-    backgroundColor: "{colors.pencil-soft}"
-    textColor: "{colors.pencil}"
-    typography: "{typography.label}"
-    padding: "8px 24px"
+    rounded: "{rounded.none}"
+    padding: "24px 32px 40px"
   composer:
-    backgroundColor: "{colors.sheet}"
-    rounded: "{rounded.sheet}"
-    padding: "6px"
-  cite-chip:
-    backgroundColor: "{colors.pencil-soft}"
-    textColor: "{colors.pencil}"
-    typography: "{typography.cite}"
-    rounded: "{rounded.chip}"
-    padding: "0 4px"
-  cite-chip-active:
-    backgroundColor: "{colors.pencil}"
-    textColor: "{colors.sheet}"
-  rail-mark-selected:
-    backgroundColor: "{colors.pencil}"
-    textColor: "{colors.sheet}"
-    height: "22px"
-    padding: "0 4px"
-  document-row:
-    rounded: "{rounded.control}"
-    padding: "6px 8px"
-  document-row-ticked:
-    backgroundColor: "{colors.pencil-soft}"
-  tooltip:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.sheet}"
-    rounded: "{rounded.control}"
-    padding: "6px 10px"
+    backgroundColor: "{colors.sheet-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    padding: "8px"
+  rail:
+    backgroundColor: "{colors.rail-black}"
+    textColor: "{colors.wash}"
+    width: "16rem"
+  claim-panel:
+    backgroundColor: "{colors.sheet-white}"
+    textColor: "{colors.ink}"
+    width: "26rem"
+  query-chip:
+    backgroundColor: "{colors.wash}"
+    textColor: "{colors.ink}"
+    typography: "{typography.small}"
+    rounded: "{rounded.none}"
+    padding: "2px 8px"
 ---
 
 # Design System: Veritrace
 
 ## Overview
 
-**Creative North Star: "The Editor's Blue Pencil"**
+**Creative North Star: "The Swiss Information Sheet"**
 
-Every answer is a galley proof on a fact-checker's desk, and the checker works in blue pencil. The copy under check is set in a book serif on a white sheet. Around it, everything the checker does is drawn in one committed blue: the double-ruled margin with its galley line numbers, the selection, the citations, the actions, the focus ring, the status dot. Each sentence earns a mark in that margin at its right edge: a tick when a passage states it, a tilde when it follows but not in those words, a strike when it is unsupported. The proof is the product; the pencil is the hand that checks it.
+Every answer is set like a page of International Typographic Style information design: a white sheet on a strict twelve-column grid, laid on a pale grey ground beside a black rail. One grotesk, Archivo, does all the talking; its width axis supplies a condensed cut for numerals and headings and a regular cut for reading. The sheet's spine is the verdict: a huge condensed confidence numeral and a threshold scale that places every numbered claim on one fixed 0 to 100 ramp against the two cut-offs (45 and 75) the backend labels from.
 
-The world is a pale blue-tinted shell, a lighter canvas and white sheets, with ink text and two kinds of colour only: the pencil, which is the apparatus, and the three verdicts, which keep the fixed meaning PRODUCT.md gives them. Source Serif 4 speaks for the page (headings, the wordmark, the headline figures, the copy under check) and Schibsted Grotesk, a newsroom grotesk, does the working parts with tabular figures. Density is that of a working desk: 13px labels, 1px rules, sheets that sit flat. The category default this refuses is a chat bubble with coloured highlights; the previous ink-only chrome on Geist was rejected by the user as reading like a stock kit.
+The world is formal, dense where data lives and generous where reading happens. The answer holds a fixed measure (40rem) and spare width goes to the margins, never to longer lines. Structure is drawn with black rules (2px heads, 1px dividers) rather than boxes, tints or shadows. Colour is rationed: neutrals come from one tonal ramp, a single violet marks only what can be pressed or is selected, and green, amber and red speak only for verdicts.
 
-Light and dark are both first-class (system default). Dark mode is the same desk under a lamp: a near-black blue ground, slightly raised sheets, the pencil lifted to a light periwinkle and the verdicts lifted to stay legible. Its values live alongside the light ones in `frontend/src/app/globals.css` and in the sidecar.
+Claims are numbered once and the same number appears in the answer's superscripts, on the scale, in the claim list and in the claim panel, so a reader can cross-reference by number alone. Picking a claim dims the rest of the answer and opens the claim panel with its evidence.
 
 **Key Characteristics:**
-- Two kinds of colour: the blue pencil for the apparatus, green/amber/red for verdicts only.
-- Two voices: Source Serif 4 for the page's voice and the copy under check, Schibsted Grotesk for the apparatus.
-- A galley margin beside every checked answer: a double pencil rule, numbered lines, drawn proof marks and scores.
-- Three surface tones: blue-tinted ground, canvas, white sheet. Depth by tone and 1px rules, not shadow.
-- Marks draw once when a verdict lands; everything else is quick and interruptible.
+- Black rail, white sheets, pale grey ground; square corners everywhere.
+- One grotesk at several widths; tabular lining figures on every number that sits in a column or updates.
+- One violet signal for interaction and selection; verdict hues for verdicts only.
+- 2px black head rules open every sheet, section and list; 1px hairlines divide rows.
+- The confidence numeral plus the threshold scale is the signature.
+- Flat at rest; depth appears only on floating layers that are open.
 
 ## Colors
 
-A cool blue-tinted paper-and-ink palette carrying one apparatus hue and three reserved verdict hues.
+A neutral tonal ramp carries almost everything; one violet and three verdict hues are the only chroma, each with a single job.
 
 ### Primary
-- **Editor's Blue Pencil** (pencil): primary buttons, the focus ring, text selection (at 22%), the selected rail chip, the pressed sentence tint (11%, 6% on hover), active citation chips and source keys, the double margin rule (45%) and its line numbers (70%), the brand tick, the serving status dot, spinners, the streaming caret, the dashed border of the live log (35%), signal bars (80%), How it works step numbers and inline links. Dark: a light periwinkle, with dark ground-coloured content on pencil fills.
-- **Pencil Wash** (pencil-soft): the proof slug band (at 70%), citation chips and source keys at rest, ticked documents, the matched sentence in a source passage, the drop zone, the hovered source link (50%).
+- **Signal Violet** (signal; dark theme #a59ce0): the only interactive colour. Primary buttons, the open claim-panel toggle, checked document boxes, the active tab underline, source tags, the selected claim's number on the scale, focus rings, the text caret and the composer's focus frame. Its soft tint (signal-soft; dark #29264a) fills selected claim and source rows and the matched evidence line; 6 to 7% violet washes mark hover on rows and sentences, 13% marks a pressed sentence.
 
-### Tertiary (the verdicts; fixed by PRODUCT.md)
-- **Stated Green** (verdict-high): the tick, the High confidence underline (70% mix) and its share of the label bar.
-- **Query Amber** (verdict-inferred): the tilde, the Inferred underline, its bar share, and the retry icon in the agent log (same meaning: not settled on the first pass).
-- **Query Amber Wash** (verdict-inferred-soft): the low-coverage caution note; the one soft verdict fill on screen.
-- **Strike Red** (verdict-halluc): the × mark, the line-through strike (85% mix), its bar share, a contradiction signal at or above 0.7, failed agent steps and invalid-citation warnings (same meaning: this did not hold).
+### Tertiary (verdicts)
+- **Stated Green** (stated-green; dark #3c9566): claims the documents state. Solid underline at 75% strength, tick mark, top zone of the scale.
+- **Inferred Amber** (inferred-amber; dark #c49c4a): claims that follow but are not stated. Solid amber underline, tilde mark, middle zone. Its soft tint also backs the low-coverage note.
+- **Flagged Red** (flagged-red; dark #d3687f): possibly hallucinated claims. Broken (dashed) red underline, cross mark, bottom zone, and alarm values in the claim signals.
+- Each verdict has a soft companion (stated-soft, inferred-soft, flagged-soft) for quiet backgrounds; the scale zones use the full hue at 25%.
 
 ### Neutral
-- **Proofing Ink** (ink): text, tooltips, the hollow not-serving status ring.
-- **Muted Ink** (ink-muted): secondary text, 13px section labels, metadata, rail scores at rest.
-- **Blue Shell Ground** (shell-ground): the page and the sidebar, tinted toward the pencil.
-- **Canvas** (canvas): the framed centre column and the answer's Searched for footer.
-- **Sheet White** (sheet): the answer card, the inspector, the composer, outline buttons.
-- **Tint** (tint-muted): hover fills on rows and sources, search query chips, code, skeletons. **Secondary Tint** (tint-secondary): the disabled send button.
-- **Border** (border): sheet outlines. **Rule** (rule): hairlines inside sheets and the sidebar foot. **Input Stroke** (input-stroke): the composer, outline buttons, the switch when off.
+- **Ink** (ink): text, 2px head rules, the scale's confidence pointer, the active theme button.
+- **Rail Black** (rail-black; dark #0b0b0c): the shell rail, always rendered as a dark scope in both themes.
+- **Sheet White** (sheet-white; dark #1c1d20): exchange sheets, the claim panel, the composer.
+- **Canvas Grey** (canvas-grey; dark #121315): the ground the sheets sit on and the thin top bar.
+- **Wash** (wash; dark #26272b): muted fills: query chips, missing-word chips, meter tracks, disabled primary buttons, outline hover.
+- **Hairline** (hairline; dark #26272b): 1px dividers between rows.
+- **Border Grey** (border-grey; dark #2f3034): sheet side edges, the top bar's bottom edge, rail dividers.
+- **Input Grey** (input-grey; dark #45464b): unchecked switch tracks, stage-dot outlines.
+- **Muted Ink** (muted-ink; dark #a3a4a8): secondary text, labels, scale tick numbers.
+
+The light ramp is #ffffff, #f4f4f2, #ececea, #e3e3e0, #d6d6d2, #b9b9b4, #5c5d61, #111214; the dark ramp is #0b0b0c, #161719, #1c1d20, #26272b, #2f3034, #45464b, #a3a4a8, #ececea. Every neutral is a step of one of them.
 
 ### Named Rules
-**The Quarantine Rule.** A hue on screen is either a verdict or the pencil. Green, amber and red mean stated, inferred and flagged (or a failure that means the same thing); the pencil means the checker is acting. No third hue. The red Delete confirmation in the documents list is a known exception, recorded as fact, not a pattern to extend.
+**The One Signal Rule.** Violet appears only on something that can be pressed or is currently selected. Headings, rules, decoration and data never take it.
 
-**The Blue Pencil Rule.** The pencil is the single apparatus hue: actions, focus, selection, citations, the margin, status, progress. It never marks a verdict, and its fills stay small (chips, buttons, the selected rail mark); larger areas take the pencil wash or the blue-tinted neutrals.
+**The Verdict Monopoly Rule.** Green, amber and red mean stated, inferred and possibly hallucinated. Nothing else in the interface uses those hues.
 
-**The Pencil Selection Rule.** Selection is pencil: a pencil chip with white content (selected rail mark, active citation, active source key), the pencil wash for chosen things (ticked documents), an 11% pencil tint on a pressed sentence and 6% on hover. Never a verdict tint, never ink.
-
-**The Pencil Status Rule.** The model status dot is filled pencil when a model is serving, a hollow 1.5px ink ring when it is not, a pulsing muted dot while checking. Status is never green or red.
+**The One Ramp Rule.** Every neutral is a step of the tonal ramp; no off-ramp greys.
 
 ## Typography
 
-**Voice Font:** Source Serif 4 with the opsz axis and `font-optical-sizing: auto` (with Georgia, serif)
-**Apparatus Font:** Schibsted Grotesk (with system sans)
-**Code Font:** Geist Mono, for code only
+**Display Font:** Archivo (variable, wdth axis), condensed widths 62 to 80
+**Body Font:** Archivo at normal width
+**Label/Mono Font:** Archivo for labels; Geist Mono for inline code only
 
-**Character:** A book serif whose display cut carries the page's headings and figures and whose text cut carries the copy under check, against a compact newsroom grotesk for everything the checker operates. The optical axis lets one family run from 52px headlines to 15.8px passages.
+**Character:** A single grotesk across the whole system, varied by width and weight rather than by family. Condensed extra-bold figures read as data at a distance (the app is projected in a viva); regular width carries long reading.
 
 ### Hierarchy
-- **Display** (Source Serif 4, 600, 2.125rem to 3.25rem at sm, 1.05, -0.022em): the welcome heading and the How it works title. The no-backend state uses the same voice at 1.75rem to 2.25rem.
-- **Headline** (Source Serif 4, 600, 1.375rem to 1.625rem at sm, snug, -0.012em): the question that heads each exchange; How it works section heads at 1.5rem.
-- **Score** (Source Serif 4, 600, 2.75rem, 0.9, -0.02em, tabular): the answer confidence; the inspector's per-claim score is the same voice at 1.875rem.
-- **Wordmark** (Source Serif 4, 600, 1.3125rem, -0.015em): "Veritrace" in the sidebar; 1.125rem in the phone bar.
-- **Title** (Schibsted Grotesk, 600, 0.875rem): sheet headers such as Claim check.
-- **Copy** (Source Serif 4, 400, 1.0625rem at 1.85 on phones, 1.125rem at 1.8 from sm): the checked answer, the safe version and the streaming draft. Column held to the max-w-3xl canvas.
-- **Passage** (Source Serif 4, 400, 0.9875rem, 1.75): source passages in the inspector. Explanatory prose on How it works uses the serif at 1.0625rem, 65ch.
-- **Body** (Schibsted Grotesk, 400, 15px; 14px in lists): UI prose, example questions, document names.
-- **Label** (Schibsted Grotesk, 500 or 400, 13px, sentence case, tabular): section labels, the agent log, the proof slug, metadata, legends, rail scores.
-- **Cite** (Schibsted Grotesk, 500, 11px, tabular): citation chips, raised -0.45em into the serif line.
-- **Line number** (Schibsted Grotesk, 10.5px, tabular, pencil at 70%): galley line numbers in the margin, hidden below 640px.
+- **Display** (800, 3.25rem to 6rem by container, line-height 0.88, wdth 62): the welcome and How it works headlines only.
+- **Numeral** (800, 4rem stacked, 6.5rem two-column, 8.5rem wide; line-height 0.8; wdth 62; tabular): the answer's confidence. Smaller condensed scores repeat the voice: 3rem in the claim panel, 1.625rem in the claim list, 3.5rem for elapsed agent time.
+- **Headline** (700, 1.875rem to 2.625rem, line-height 1.05, wdth 80): the question at the top of each sheet.
+- **Title** (800, 2rem, line-height 1, wdth 70): How it works section heads; the uppercase VERITRACE wordmark uses the same cut.
+- **Reading** (400, 1.1875rem to 1.25rem, line-height 1.7, max 40rem): the answer text and the safe version.
+- **Body** (400, 15px, snug): claim text, list rows. **Small** (13px) for metadata, notes and controls.
+- **Label** (600, 11.5px, 0.08em tracking, uppercase): column and table heads (Claims, Sources searched, Documents, Confidence, Score, Claim check). A label always heads or captions the data it sits with.
+- **Figure** (700, wdth 75, tabular lining): claim numbers, counts, superscript claim references.
 
 ### Named Rules
-**The Two Voices Rule.** Serif is the voice: the copy under check, the page's headings, the wordmark and the headline figures. Sans is the apparatus: labels, controls, chips, the log, line numbers and rail scores. Never set a control or label in the serif, or copy under check in the sans.
+**The Tabular Figures Rule.** Any number that sits in a column, a scale or updates live is set with tabular lining figures.
 
-**The Tabular Rule.** Every score, count, duration, line number and page number uses tabular figures so columns and live-updating values do not jitter.
+**The Width Is Hierarchy Rule.** Change emphasis with width and weight within Archivo; never add a second display family. Geist Mono is for code and nothing else.
 
 ## Layout
 
-A three-pane desk. From 64rem (lg) the sidebar docks at 16rem on the shell ground; from 80rem (xl) the claim inspector docks at 25rem on the right. Between them the canvas is an inset framed panel (8px gutter top, bottom and right, 8px radius, 1px border), joined flush to the inspector at xl. Below each docking point the panel becomes a side sheet (25rem, max 90vw) over a dimmed backdrop; below lg a top bar carries the menu, wordmark and status.
+The shell is three bands: a 16rem black rail (documents, model status, theme), the grey canvas holding the thread, and the 26rem claim panel. A 56px top bar on the canvas states the search scope in label caps and carries the Claim check toggle. The thread is capped at 80rem and padded 12/24/32px by width; exchanges stack 32px apart.
 
-The thread runs in a centred column (max 48rem) with 16px side padding, 24px from sm. Exchanges are 48px apart; sheets pad 16px, 24px from sm; sidebar groups stack 24px apart. The composer docks at the foot of the canvas inside the same column, and the thread fades out over its last 1.5rem above it.
+Each exchange sheet sits on a twelve-column grid with 24px gutters. Columns 1 to 4 hold the margin: the "Question N" note, the confidence numeral, the scale, the verdict counts and the agent steps (sticky at 24px from the top). Columns 5 to 12 hold the question, the answer at a 40rem measure, and the numbered claim list. The composer docks on the canvas at one size everywhere: the page's full measure, inset like a sheet's content, on the home page and under answers alike. The grid is not drawn: no column guides or stripes, on the sheet or the ground.
 
-The checked answer is a two-column grid: the serif text column and a galley margin of 3.25rem (5.5rem from sm, to hold the line numbers), 12px (20px) apart. The margin is omitted when nothing was checked. Agent log rows keep fixed columns (icon, step, timing) and update in place.
+Responsive behaviour is by container, not page: below 36rem of sheet the grid collapses to one column, the numeral and scale sit side by side in one strip above the answer, and counts and steps follow the claims so the answer stays in the first screen. The rail docks from 64rem and becomes a left slide-over below. The claim panel docks from 80rem (opening by width so the sheet narrows rather than being covered) and is a right slide-over sheet below. The panel is closed until a claim is picked; an explicit toggle is remembered in localStorage.
+
+Spacing rhythm: 4/8/12px inside rows, 24px gutters, 20px (narrow) and 32px sheet padding, 40px between answer sections.
 
 ## Elevation & Depth
 
-Flat at rest. Depth is tonal: blue shell ground, canvas, white sheet, with 1px borders around sheets and 1px rules inside them. Shadows appear only on things that float above the desk or hold focus.
+Flat at rest. Sheets separate from the canvas by tone and a 2px ink head rule, not by shadow. Shadows appear only on floating layers while they are open: the slide-over sheets (12px 0 32px, 16 to 20% black, toward the content) over a 40% ink backdrop, and the citation hover card (0 8px 24px, 14% black). Focus is a 2px violet outline offset 2px; the composer swaps its ink frame for violet plus a 3px 18% violet halo.
 
 ### Shadow Vocabulary
-- **Sheet edge** (`box-shadow: 12px 0 32px rgb(0 0 0 / 0.16)`, mirrored for the right sheet): an open side sheet below its docking breakpoint, over a `rgb(10 11 14 / 0.32)` backdrop.
-- **Composer focus halo** (`box-shadow: 0 0 0 3px color-mix(in oklch, var(--foreground) 8%, transparent)`): the composer while focused, with its stroke darkening to ink at 40%.
+- **Sheet edge** (`box-shadow: -12px 0 32px rgb(0 0 0 / 0.16)`; left sheet 0.2): open slide-over panels only.
+- **Hover card** (`box-shadow: 0 8px 24px rgb(0 0 0 / 0.14)`): the citation preview while it is open.
 
 ### Named Rules
-**The Flat Desk Rule.** No shadow on a resting surface. If it does not float or hold focus, it has no shadow.
+**The Flat At Rest Rule.** Nothing casts a shadow at rest. A shadow means a layer is temporarily floating over the sheet.
 
 ## Shapes
 
-Two working radii: 8px for sheets and panels (answer card, inspector, composer, canvas frame, live log), 6px for controls (buttons, rows, tabs, tooltips, notes). Small inline chips (citations, source keys, query chips, code) take 4px; the selected rail chip 5px; the sentence fill and the matched-passage wash 3px so they hug the line. Pills (999px) are reserved for the label bar, signal bars, status dots, spinners and the rail's hover bar. Lines are 1px, except the galley margin's 3px double rule; the live log's border is dashed. Marks are drawn 2px strokes with round caps on a 16px grid; the brand tick is a 2.4px stroke on a 20px grid.
+Square corners throughout (0px on every radius step). The only round forms are the loading spinner. Status dots, stage dots, checkboxes, switches and their thumbs are square. Form is drawn with rules: a 2px ink rule opens each sheet, list, table and panel section; 1px hairlines divide rows; the composer and error notices take a full 2px ink frame. Verdict marks are drawn SVG strokes (2px, square caps, mitred joins): tick, tilde, cross.
 
 ## Components
 
 ### Buttons
-Compact and pressed by touch, with the pencil as the one action colour.
-- **Shape:** gently squared (6px), 32px tall by default, 28px small, 24px extra-small.
-- **Primary:** pencil fill, white text (dark ground text in dark mode); hover drops to pencil at 85%. The send button is a 28px pencil square that becomes the secondary tint with muted icon when disabled.
-- **Outline:** sheet fill, input stroke, hover to the tint.
-- **Ghost:** transparent, muted text, hover to tint and ink.
-- **Press / Focus:** scale 0.97 on press (dropped under reduced motion); 2px pencil focus ring offset 2px.
-- **Destructive:** red fill, used only for the one-step Delete confirmation (see The Quarantine Rule).
+Formal and flat; colour carries the meaning, not shape.
+- **Shape:** square (0px).
+- **Primary:** signal violet with white text (dark: #a59ce0 with ink text), 36px tall, 16px sides, semibold 13 to 14px; hover lightens to 85%. Disabled primary goes to wash with muted ink at full opacity.
+- **Outline:** sheet white with a near-black (ink at 70 to 100%) 1px border; hover fills with wash. Used for Stop, Add documents, Upload and the Claim check toggle.
+- **Hover / Focus:** 150ms colour transitions; press scales to 0.97; focus is a 2px violet ring offset 2px.
+- **Claim check toggle (open):** violet border, signal-soft fill, violet text.
+- **Ghost:** text only, wash on hover (rail links).
 
 ### Chips
-- **Citation chip:** 11px tabular label in pencil on the pencil wash, 4px radius, raised into the serif line; hover and active invert to a pencil fill with white text.
-- **Source key:** the same chip at 20px tall in the sources list and the inspector's source link; active inverts.
-- **Search query chip:** ink at 85% on the muted tint, 4px, wraps.
+- **Source tag:** a tiny square tag (S1, S2) in figure type, violet on signal-soft; solid violet with white text when its source is active.
+- **Query / missing-word chips:** ink on wash, square, 13px, non-interactive.
 
 ### Cards / Containers
-- **Corner Style:** 8px.
-- **Background:** sheet white on the canvas; the Searched for footer drops back to the canvas.
-- **Shadow Strategy:** none (The Flat Desk Rule).
-- **Border:** 1px border outside, 1px rules between sections.
-- **Internal Padding:** 16px, 24px from sm.
-
-### Proof Slug
-The head band of every finished answer: pencil wash at 70% with a pencil 15% rule beneath, 13px. "Proof" in pencil semibold, then "Checked HH:MM · N claims · model (provider)" in muted ink with the model name in ink. It carries real provenance, once per answer; it is not a decorative label to repeat above headings elsewhere.
+- **Corner Style:** square.
+- **Background:** sheet white on canvas grey.
+- **Shadow Strategy:** none (see Elevation).
+- **Border:** 2px ink head rule, 1px border-grey on the other three sides.
+- **Internal Padding:** 20px sides narrow, 32px wide; 24px top, 40px bottom.
 
 ### Inputs / Fields
-- **Composer:** sheet fill, input stroke, 8px, 6px inner padding, borderless textarea inside, safe-mode switch and send button in a footer row.
-- **Focus:** stroke to pencil at 60% plus a 3px pencil halo at 14%.
-- **Disabled:** sheet at 60%; the placeholder states why ("Add a document first.").
-- **Switch:** pencil when on, input stroke when off; the thumb slides on the ease-out curve.
-- **Checkboxes:** native, accent set to the pencil.
+- **Composer:** a 2px ink frame on sheet white, 8px padding, borderless transparent textareas inside, 16px text; Safe mode and Check an answer switches sit in its foot. Focus turns the frame violet with a soft violet halo. Disabled: input-grey frame on faint wash.
+- **Checkbox:** square, 1.5px muted-ink border, fills violet with a white tick when checked.
+- **Switch:** square track and thumb; violet when on, input grey when off.
 
 ### Navigation
-- **Sidebar:** brand (pencil tick, serif wordmark, subtitle), documents list, then a ruled foot with the status, How it works (ghost) and the theme toggle. Document rows hover to the tint and tick to the pencil wash; delete appears on hover.
-- **Tabs:** line variant under the answer (Checked answer / Safe version): muted text, ink text and a 2px pencil underline when active.
-- **Tooltip:** ink fill, paper text, 12px, 6px radius.
-- **Mobile:** a top bar with menu, wordmark and status; the sidebar and inspector slide in as sheets.
+- **Rail:** black, dark-scoped controls; uppercase condensed VERITRACE wordmark, a Documents list headed by a label and a passage count, rows labelled by file type (PDF, MD) rather than numbers, model status with a square dot, How it works link and a three-way square theme switch (active state inverts to ink).
+- **Top bar:** canvas grey, 56px, label-caps search scope at left, Claim check toggle at right.
+- **Tabs:** line variant only; the active tab takes a 2px violet underline, inactive text at 60% ink.
 
-### Galley Margin (signature)
-The checked answer's right-hand margin, behind a 3px double rule in pencil at 45%. Every line of the answer is numbered in 10.5px tabular pencil at 70% (hidden below 640px). Each checked sentence gets a 22px row level with the line where it runs (pushed down so rows never overlap) carrying its proof mark and its weakest claim's score in 13px tabular muted ink. Hover lays a 3px pencil bar over the rule; the selected sentence's row becomes a pencil chip (5px) with white mark and medium-weight score. The margin is a pointer shortcut; the sentences remain the keyboard targets. The inspector's mark legend sits against the same double pencil rule.
+### Threshold Scale (signature)
+A fixed 0 to 100 ramp, 8px tall, divided into three zones at 45 and 75 (flagged, inferred, stated hues at 25%), with 1px ink cut-off lines at 50%. Every claim is a 3px tick in its verdict hue at its exact score; a small ink triangle above the ramp marks the answer's confidence. The claim numbers sit in a row beneath the ticks, spread at least 20px apart (closer only when that many cannot fit), each joined to its tick by a 1px leader line: numbers that would collide are gathered into an evenly spaced run centred on their ticks, so clusters fan out and never overlap. Hover links tick, number, sentence and claim row; the selected claim's number inverts to violet. When a verdict lands, each tick slides from zero to its score in reading order (720ms ease-out, 90ms stagger).
 
-### Proof Marks
-Drawn SVG strokes (2px, round caps, 16px box) in the verdict's colour: **tick** for High confidence, **tilde** for Inferred (adapted from a proofreader's query mark: it follows, but not in these words), **×** for Possibly hallucinated. In the text, the sentence carries the matching underline: 2px at 5px offset for high and inferred, a 1.5px red line-through strike for hallucinated, still legible.
+### Checked Answer
+Reading type at 40rem. Each sentence is underlined 2px, offset 6px, in the colour of its weakest claim: solid green for stated, solid amber for inferred, dashed red for possibly hallucinated. Claim numbers follow as condensed superscripts outside the underline. Selecting a sentence tints it 13% violet and dims the rest of the answer to 38%.
 
-### Claim Inspector
-Sheet-white panel. Each claim leads with its verdict mark and label in the verdict colour, the claim in 13px, and the score in the serif at 1.875rem. Signals are 4px pill bars on the tint, filled pencil at 80%; the contradiction bar and its value turn red only at or above 0.7. The source link is a 6px row with a rule border that hovers to a pencil 40% border on the pencil wash. In the passage, the matched sentence sits on the pencil wash with a 2px pencil 60% underline.
-
-### Live Log and Agent Route
-The agent's steps in a sheet at 60% with a dashed pencil 35% border, 8px. Above the step rows sits the **route**: one stage per agent step (names from STEP_NAMES), centred on a 2px rule that fills in pencil to the last stage reached (scaleX, 500ms ease-out). Done stages are 18px pencil discs with a white tick; the live stage is a pencil ring with a centre dot and a soft pulsing halo (the one looping motion, removed under reduced motion); pending stages are hollow input-stroke rings, skipped ones dashed; a failed stage is an ink disc with ×. Judge and Compare share one stage as a fork of two 14px dots. A rewritten search draws an amber arc from Search back to Plan labelled "search rewritten". Stage names (11px) show from 640px. Step rows below keep fixed columns with live times; running steps show a pencil spinner; retries are amber.
-
-### Claim Strip
-Replaces the proportional bar under the confidence figure: one 10px block per claim in reading order, in its verdict colour, 2px radius, 3px gaps. Hovering a block lights its sentence and margin row and dims the other blocks to 30%; hovering a sentence or margin row does the same in reverse (one hover state shared by strip, text and margin). The selected sentence's blocks carry a 2px pencil outline. Pointer shortcut only; counts are repeated for assistive technology.
-
-### Passage Preview
-Hovering a citation chip (350ms open delay) opens a 22rem popover above it: a ruled head with the source key inverted in pencil, file and page, and the match score; then the passage cut to the best-supporting sentence with one sentence either side, the supporting one on the pencil wash with a pencil underline and the rest in muted ink; a foot line says selecting opens the whole passage. Touch devices skip it; tapping opens the inspector as before.
-
-### Evidence Jump
-Opening a source from a claim scrolls the matched sentence to the centre of the inspector (instant under reduced motion) and flashes its pencil wash at 28% for 1.4s, settling to the resting highlight.
-
-### Worked Example
-A labelled illustration of a marked proof, written against the Chandrayaan-3 sample (three true sentences, one false launch vehicle), rendered with the real margin component in a non-interactive mode and captioned as not a checked answer. It appears in the empty inspector, on the welcome screen below 1280px, and on How it works beside the mark legend.
-
-### Safe Version: Removed Claims
-Under the rewritten answer, against the double pencil rule, "Removed from this version" lists each possibly hallucinated sentence struck in red at 75% ink with its × mark and score. What the rewrite cut stays visible rather than disappearing.
-
-### Scoring Path (How it works)
-A figure on a sheet: signals with pencil bars sized by weight → a pencil-wash "0–100 weighted score" block → the four rules against the double pencil rule, each ending in the label's mark. Arrows in pencil 70%, vertical below 768px.
-
-### Document Rows
-Each row carries a small file-type label (PDF, MD, TXT: 9.5px semibold pencil on the pencil wash, 3px radius) before its page and passage counts. While a file is indexed the row shows its type and name over a 4px indeterminate pencil sweep (the backend reports no progress, so no percentage is invented). A newly indexed row arrives and flashes its pencil wash instead of a success toast; failures still toast.
-
-### Motion
-Ease-out `cubic-bezier(0.23, 1, 0.32, 1)` for anything answering the user; the drawer curve `cubic-bezier(0.32, 0.72, 0, 1)` for sheets. Colour changes 150ms. Marks draw once in 420ms as a verdict lands, staggered 90ms down the margin, scores fading in 260ms, 160ms behind them; the label bar and signal bars grow from the left in 520ms; arriving log rows rise 4px in 220ms. Sheets and disclosures are always-mounted CSS transitions (open 300ms, close 220ms), so they reverse mid-way. Each sentence's underline (or strike) fades in from transparent in step with its margin mark, same delay; the route's progress line grows in 500ms; the evidence flash settles over 1.4s; indexing sweeps every 1.1s. Reduced motion keeps the fades and drops everything that travels or draws.
+### Claim List and Claim Panel
+The claim list is a ruled table: number, claim text, verdict mark and label, condensed score; hover is a 6% violet wash, selected is signal-soft. The claim panel opens with a 2px ink head and a "Claim check" label plus the claim range, then per claim: a 2px ink rule, number and verdict, a 3rem condensed score, the reasoning, signal meters (ink bars, red when alarming) and a framed link to the passage, where the matched line flashes violet once.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep every hue either a verdict (green states, amber queries, red strikes, at the PRODUCT.md values) or the blue pencil.
-- **Do** make primary actions, focus and selection pencil: a pencil chip with white content, the pencil wash, or a pencil tint of 6 to 11% on text.
-- **Do** set the copy under check, headings, the wordmark and headline figures in Source Serif 4, and every label, control and small figure in Schibsted Grotesk with tabular figures.
-- **Do** use the three tones in order (blue shell ground, canvas, sheet) with 1px borders and rules, 8px for sheets and 6px for controls.
-- **Do** rule checking margins with the 3px double pencil rule and number lines in 10.5px pencil.
-- **Do** draw new marks as 2px round-capped SVG strokes in the 16px box so they can draw themselves.
-- **Do** keep panels mounted and animate them with CSS transitions so they can reverse.
+- **Do** open every sheet, list and panel section with a 2px ink rule and divide rows with 1px hairlines.
+- **Do** set every score, count and claim number in condensed Archivo with tabular lining figures.
+- **Do** place every new score on the same fixed 0 to 100 ramp against the 45 and 75 cut-offs, mirroring backend/config.yaml.
+- **Do** reuse a claim's single number everywhere the claim appears.
+- **Do** keep reading text at a 40rem measure and give spare width to the margins.
+- **Do** derive every neutral from the tonal ramp and flip to the dark ramp with the same roles.
 
 ### Don't:
-- **Don't** introduce a second apparatus hue or tint the pencil toward a verdict.
-- **Don't** use green, amber or red for selection, status, decoration or emphasis that is not a verdict.
-- **Don't** show model or connection status in green or red; the status dot is pencil or a hollow ink ring.
-- **Don't** put shadows on resting surfaces.
-- **Don't** replace the drawn marks with emoji, icon-font glyphs or coloured highlighter fills.
-- **Don't** use Geist Mono outside code.
+- **Don't** use violet on anything that cannot be pressed or is not selected.
+- **Don't** use green, amber or red for anything except verdicts.
+- **Don't** strike through a flagged sentence in the checked answer; it takes a broken red underline and stays fully legible.
+- **Don't** round corners; only the spinner is round.
+- **Don't** put shadows on anything at rest.
+- **Don't** introduce a second display typeface; Geist Mono is for code only.
+- **Don't** set a label above a heading as an eyebrow; labels head the data they describe.

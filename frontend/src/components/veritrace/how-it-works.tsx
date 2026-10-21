@@ -77,44 +77,49 @@ export function HowItWorks() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <div className="mx-auto max-w-3xl px-4 pt-6 pb-20 sm:px-6 sm:pt-10">
-        <nav className="flex items-center justify-between gap-4">
+      <div className="dark rail-scope bg-rail text-foreground">
+        <nav className="mx-auto flex h-14 max-w-4xl items-center justify-between gap-4 px-5 sm:px-8">
           <Link
             href="/"
-            className="group -mx-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground"
+            className="group -mx-2 inline-flex items-center gap-1.5 px-2 py-1 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
           >
             <ArrowLeftIcon className="size-4 transition-transform duration-150 ease-(--ease-out) group-hover:-translate-x-0.5" />
             Back to Veritrace
           </Link>
-          <span className="flex items-center gap-2 text-sm font-semibold">
-            <Mark className="size-[18px]" /> <span className="font-serif text-base">Veritrace</span>
+          <span className="flex items-center gap-2.5">
+            <Mark className="size-[18px]" />
+            <span className="text-[1.25rem] leading-none font-extrabold uppercase font-stretch-70%">Veritrace</span>
           </span>
         </nav>
+      </div>
+      <div className="mx-auto max-w-4xl px-5 pb-24 sm:px-8">
 
-        <header className="mt-12 space-y-4 sm:mt-16">
-          <h1 className="font-serif text-[2.125rem] leading-[1.05] font-semibold tracking-[-0.022em] sm:text-[3.25rem]">
+        <header className="mt-12 space-y-6 sm:mt-20">
+          <h1 className="text-[3rem] leading-[0.9] font-extrabold tracking-[-0.025em] font-stretch-62% sm:text-[5rem]">
             How Veritrace checks an answer
           </h1>
-          <p className="max-w-[62ch] font-serif text-lg leading-relaxed text-foreground/85">
+          <p className="max-w-[60ch] text-[18px] leading-relaxed text-foreground/85">
             Veritrace answers only from the documents you add. It then treats its own answer as untrusted: every
             claim is checked against the source passages, against repeated answers and by a judge, and labelled
             by what the checks found.
           </p>
         </header>
 
-        <div className="mt-14 space-y-14">
+        <div className="mt-16 space-y-20">
           <Section title="The three labels">
-            <ExampleProof className="rounded-lg border bg-sheet p-5 sm:p-6" />
-            <MarkLegend className="text-sm sm:grid sm:grid-cols-3 sm:gap-6 sm:space-y-0" />
+            <div className="grid gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+              <ExampleProof />
+              <MarkLegend className="self-start text-sm" />
+            </div>
           </Section>
 
           <Section title="The agent's steps">
-            <ol className="divide-y divide-rule border-y border-rule">
+            <ol className="divide-y divide-rule border-y-2 border-foreground">
               {STEPS.map((step, i) => (
-                <li key={step.node} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 py-3 text-[15px]">
-                  <span className="text-right text-sm text-pencil tabular-nums">{i + 1}</span>
+                <li key={step.node} className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-x-4 py-3.5 text-[15px]">
+                  <span className="figures text-[1.5rem] leading-none font-extrabold font-stretch-62%">{i + 1}</span>
                   <span>
-                    <span className="font-medium">{STEP_NAMES[step.node]}</span>
+                    <span className="font-semibold">{STEP_NAMES[step.node]}</span>
                     <span className="mt-0.5 block text-muted-foreground">{step.what}</span>
                   </span>
                 </li>
@@ -133,10 +138,10 @@ export function HowItWorks() {
               numeric={[1]}
             />
             <Prose>The score is the weighted average of the signals a claim has. Then these rules apply:</Prose>
-            <ul className="space-y-2 font-serif text-[1.0625rem] leading-relaxed">
+            <ul className="max-w-[65ch] space-y-2.5 text-[16px] leading-relaxed">
               {RULES.map((rule) => (
                 <li key={rule} className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-2">
-                  <span aria-hidden className="mt-[0.7em] size-1 rounded-full bg-foreground/50" />
+                  <span aria-hidden className="mt-[0.65em] size-1.5 bg-foreground" />
                   {rule}
                 </li>
               ))}
@@ -194,19 +199,19 @@ export function HowItWorks() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-4">
-      <h2 className="font-serif text-2xl font-semibold tracking-[-0.012em]">{title}</h2>
+    <section className="space-y-5 border-t-2 border-foreground pt-4">
+      <h2 className="text-[2rem] leading-none font-extrabold tracking-[-0.015em] font-stretch-70%">{title}</h2>
       {children}
     </section>
   );
 }
 
 function Prose({ children }: { children: React.ReactNode }) {
-  return <p className="max-w-[65ch] font-serif text-[1.0625rem] leading-relaxed text-foreground/85">{children}</p>;
+  return <p className="max-w-[65ch] text-[16px] leading-relaxed text-foreground/85">{children}</p>;
 }
 
 function Code({ children }: { children: React.ReactNode }) {
-  return <code className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[0.8em] text-foreground">{children}</code>;
+  return <code className="bg-muted px-1.5 py-0.5 font-mono text-[0.8em] text-foreground">{children}</code>;
 }
 
 function Table({
@@ -221,15 +226,15 @@ function Table({
   emphasise?: number; // index of a row to set in medium weight
 }) {
   return (
-    <div className="overflow-x-auto rounded-lg border bg-sheet">
+    <div className="overflow-x-auto border-y-2 border-foreground">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-[13px] text-muted-foreground">
+          <tr className="border-b border-foreground/80 text-left">
             {head.map((h, i) => (
               <th
                 key={h}
                 scope="col"
-                className={cn("px-4 py-2.5 font-medium whitespace-nowrap", numeric.includes(i) && "text-right")}
+                className={cn("caps px-3 py-2.5 whitespace-nowrap text-muted-foreground first:pl-0", numeric.includes(i) && "text-right")}
               >
                 {h}
               </th>
@@ -238,13 +243,13 @@ function Table({
         </thead>
         <tbody>
           {rows.map((row, r) => (
-            <tr key={row[0]} className={cn("border-b border-rule last:border-0", r === emphasise && "font-medium")}>
+            <tr key={row[0]} className={cn("border-b border-rule last:border-0", r === emphasise && "font-semibold")}>
               {row.map((cell, i) => (
                 <td
                   key={i}
                   className={cn(
-                    "px-4 py-2.5 align-top",
-                    numeric.includes(i) && "text-right whitespace-nowrap tabular-nums",
+                    "px-3 py-2.5 align-top first:pl-0",
+                    numeric.includes(i) && "figures text-right whitespace-nowrap",
                     i === 0 && "whitespace-nowrap",
                   )}
                 >
@@ -271,16 +276,16 @@ const PATH_RULES: { when: string; label: Label }[] = [
 /** Signals, weighted into a score, then rules, then a label: the scoring path at a glance. */
 function ScoringPath() {
   return (
-    <figure className="rounded-lg border bg-sheet p-5 sm:p-6">
+    <figure className="border-y-2 border-foreground py-6">
       <div className="grid items-center gap-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto_minmax(0,1.5fr)]">
         <div className="space-y-2.5">
-          <p className="text-[13px] font-medium text-muted-foreground">Signals, by weight</p>
+          <p className="caps text-muted-foreground">Signals, by weight</p>
           {SIGNALS.map((signal) => (
             <div key={signal.name} className="grid grid-cols-[6.5rem_minmax(0,1fr)_2rem] items-center gap-2 text-[13px]">
               <span>{signal.name}</span>
-              <span className="h-1.5 rounded-full bg-muted">
+              <span className="h-2 bg-muted">
                 <span
-                  className="block h-full rounded-full bg-pencil"
+                  className="block h-full bg-foreground"
                   style={{ width: `${(Number(signal.weight) / 0.65) * 100}%` }}
                 />
               </span>
@@ -289,12 +294,12 @@ function ScoringPath() {
           ))}
         </div>
         <Arrow />
-        <div className="rounded-md bg-pencil-soft px-4 py-3 text-center">
-          <p className="font-serif text-2xl leading-none font-semibold text-pencil">0–100</p>
-          <p className="mt-1 text-xs text-muted-foreground">weighted score</p>
+        <div className="bg-foreground px-4 py-3 text-center text-background">
+          <p className="figures text-[2rem] leading-none font-extrabold font-stretch-62%">0–100</p>
+          <p className="caps mt-1 text-background/75">weighted score</p>
         </div>
         <Arrow />
-        <ul className="divide-y divide-rule border-l-[3px] border-double border-pencil/45 pl-4">
+        <ul className="divide-y divide-rule">
           {PATH_RULES.map((rule) => (
             <li key={rule.when} className="flex items-start justify-between gap-3 py-2 text-[13px] first:pt-0 last:pb-0">
               <span className="text-foreground/85">{rule.when}</span>
@@ -312,7 +317,7 @@ function ScoringPath() {
 
 function Arrow() {
   return (
-    <span className="flex justify-center text-pencil/70" aria-hidden>
+    <span className="flex justify-center text-foreground" aria-hidden>
       <ArrowDownIcon className="size-4 md:hidden" />
       <ArrowRightIcon className="hidden size-4 md:block" />
     </span>

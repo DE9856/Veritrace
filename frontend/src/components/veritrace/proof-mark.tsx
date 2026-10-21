@@ -1,9 +1,9 @@
 import type { Label } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-/** The checker's marks: a tick for stated, a tilde for inferred (it follows, but not in these
- *  words) and a strike for possibly hallucinated. Drawn rather than taken from an icon font so
- *  they can draw themselves when a verdict lands. */
+/** The verdict marks: a tick for stated, a tilde for inferred (it follows, but not in these
+ *  words) and a cross for possibly hallucinated. Drawn rather than taken from an icon font so
+ *  they can draw themselves when a claim row arrives. */
 const PATHS: Record<Label, string[]> = {
   high: ["M3.5 8.5 6.6 11.6 12.5 4.5"],
   inferred: ["M2.5 9.2C4.4 6.4 6 6.4 8 8s3.6 1.6 5.5-1.2"],
@@ -33,8 +33,8 @@ export function ProofMark({
       fill="none"
       stroke="currentColor"
       strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap="square"
+      strokeLinejoin="miter"
       aria-hidden
       className={cn("size-4 shrink-0", LABEL_TONE[label], animate && "proof-mark", className)}
       style={animate ? ({ "--delay": `${delay}ms` } as React.CSSProperties) : undefined}

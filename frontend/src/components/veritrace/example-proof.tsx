@@ -4,6 +4,7 @@ import type { ClaimResult, Label, SentenceResult } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { HighlightedAnswer } from "./highlighted-answer";
+import { VerdictScale } from "./verdict-scale";
 
 // An illustration of how a proof is marked, written against the Chandrayaan-3 sample document
 // (public/samples/chandrayaan-3.md). It is not a checked answer, and the page says so.
@@ -43,14 +44,20 @@ const EXAMPLE: SentenceResult[] = [
   sentence(3, "The mission was launched aboard a PSLV rocket [S1].", "hallucinated", 0.06),
 ];
 
-/** A labelled specimen of a checked answer, for the empty inspector and the explainer page. */
+/** A labelled specimen of a checked answer, for the welcome screen, the empty claim panel and the
+ *  explainer page: the marked text and its claims on the threshold scale. */
 export function ExampleProof({ className }: { className?: string }) {
   return (
-    <figure className={cn("space-y-3", className)}>
-      <HighlightedAnswer sentences={EXAMPLE} interactive={false} />
+    <figure className={cn("space-y-5", className)}>
+      <HighlightedAnswer sentences={EXAMPLE} interactive={false} className="text-[1rem] leading-[1.75] sm:text-[1.0625rem]" />
+      <VerdictScale
+        claims={EXAMPLE.map((s, i) => ({ n: i + 1, sentence: s.index, label: s.label!, score: s.claims[0].score }))}
+        confidence={null}
+        animate={false}
+      />
       <figcaption className="text-xs leading-relaxed text-muted-foreground">
         An illustration written against the Chandrayaan-3 sample, not a checked answer. The sample says the
-        mission flew on an LVM3, so the last sentence is struck.
+        mission flew on an LVM3, so the last sentence is flagged.
       </figcaption>
     </figure>
   );

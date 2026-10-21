@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Veritrace · The Research Article</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{--slate:#1e5a6e;--slate-soft:#e7eef0;--ink:#15191c;--muted:#5d666c;--rule:#dfe4e6;--bg:#ffffff;--high:#1f7a4d;--inf:#9a6400;--hal:#b3261e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;background:var(--bg);color:var(--ink);font:15px/1.5 "Libre Franklin",sans-serif;display:flex;flex-direction:column}
+.top{height:52px;background:var(--slate);color:#fff;display:flex;align-items:center;gap:28px;padding:0 32px}.top b{font:600 20px "Source Serif 4",serif}.top span{opacity:.8;font-size:13px}
+.wrap{flex:1;display:grid;grid-template-columns:300px 1fr;min-height:0}
+.refs{border-right:1px solid var(--rule);padding:24px}.refs h3{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.ref{display:grid;grid-template-columns:26px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:13.5px}.ref b{color:var(--slate)}
+.paper{padding:36px 56px;overflow:hidden}.kick{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--slate)}
+h1{font:600 36px/1.15 "Source Serif 4",serif;margin:8px 0 18px;max-width:900px}
+.abs{display:grid;grid-template-columns:1fr 260px;gap:40px;border-top:2px solid var(--ink);padding-top:18px}
+.abs p{font:400 19px/1.75 "Source Serif 4",serif}.s1{text-decoration:line-through 1.5px var(--hal)}.s2{text-decoration:underline 2px var(--inf);text-underline-offset:5px}
+sup{font:600 11px "Libre Franklin";color:var(--slate)}
+.stat{border-left:1px solid var(--rule);padding-left:24px}.stat .n{font:600 72px/1 "Source Serif 4",serif}.stat small{color:var(--muted)}
+.fig{margin-top:30px;border-top:1px solid var(--rule);padding-top:16px}.fig h4{font-size:13px;font-weight:700;margin-bottom:14px}.fig h4 span{color:var(--muted);font-weight:400}
+.cells{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.cell{border:1px solid var(--rule);border-top:4px solid;padding:12px 14px;font-size:13.5px}.cell b{display:block;font:600 28px "Source Serif 4",serif}
+.ask{position:absolute;left:356px;right:56px;bottom:24px;border:1px solid var(--rule);border-radius:8px;padding:14px 16px;color:var(--muted);display:flex}.ask span{margin-left:auto;background:var(--slate);color:#fff;border-radius:6px;padding:4px 12px}
+</style></head><body>
+<div class="top"><b>Veritrace</b><span>Documents</span><span>How it works</span><span style="margin-left:auto">gpt-oss-120b · groq</span></div>
+<div class="wrap">
+  <aside class="refs"><h3>Sources (4)</h3>
+    <div class="ref"><b>[1]</b><span>james-webb-space-telescope.md · 1 passage</span></div>
+    <div class="ref"><b>[2]</b><span>chandrayaan-3.md · 2 passages</span></div>
+    <div class="ref"><b>[3]</b><span>Cyber-Security-and-Privacy-Study-Book.pdf · 178 passages</span></div>
+    <div class="ref"><b>[4]</b><span>TOC_Assignment1-2.docx.pdf · 1 passage</span></div></aside>
+  <section class="paper"><span class="kick">Answer · checked 22:27</span>
+    <h1>Who was James E. Webb, and why was the telescope named after him?</h1>
+    <div class="abs"><p><span class="s2">James E. Webb led NASA as its administrator from 1961 to 1968,</span> <span class="s1">guiding the agency during the early years of the Apollo program</span><sup>[1]</sup>. <span class="s1">The telescope was named to honor his leadership and contributions to NASA’s history</span><sup>[1]</sup>.</p>
+      <div class="stat"><div class="n">51</div><small>Answer confidence of 100</small></div></div>
+    <div class="fig"><h4>Figure 1. <span>Claims and their verdicts</span></h4>
+      <div class="cells"><div class="cell" style="border-top-color:var(--inf)"><b>52</b>Inferred: administrator 1961–68</div><div class="cell" style="border-top-color:var(--hal)"><b>42</b>Flagged: guided early Apollo</div><div class="cell" style="border-top-color:var(--high)"><b>91</b>High: named after Webb</div><div class="cell" style="border-top-color:var(--hal)"><b>29</b>Flagged: to honor his leadership</div></div></div>
+  </section>
+</div>
+<div class="ask">Ask about your documents…<span>Ask</span></div>
+</body></html>

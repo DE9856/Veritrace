@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Veritrace · Scale as Horizon</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;background:#f4f4f2;color:#111214;font:400 16px/1.5 Archivo,sans-serif;position:relative}
+.bars{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(17,18,20,.025) 0 88px,transparent 88px 112px);background-position-x:64px}
+nav{position:relative;height:64px;display:flex;align-items:center;gap:32px;padding:0 64px;border-bottom:1px solid #d6d6d2;font-size:14px;font-weight:500}
+nav b{font:800 26px/1 Archivo;font-stretch:70%;text-transform:uppercase;margin-right:auto}
+nav .go{background:#4a3aa8;color:#fff;padding:9px 16px;font-weight:700}
+h1{position:relative;margin:64px 64px 0;font:800 128px/.84 Archivo;font-stretch:62%;letter-spacing:-.02em;word-spacing:.08em;max-width:1200px}
+.scale{position:absolute;left:64px;right:64px;top:520px;height:150px}
+.z{position:absolute;top:40px;left:0;right:0;height:14px;background:linear-gradient(90deg,rgba(165,46,71,.2) 0 45%,rgba(148,112,28,.2) 45% 75%,rgba(18,106,64,.2) 75%)}
+.cut{position:absolute;top:34px;height:46px;width:1px;background:rgba(17,18,20,.5)}
+.t{position:absolute;top:40px;width:4px;height:34px}.lab{position:absolute;top:86px;font-size:13.5px;max-width:240px;transform:translateX(-50%)}.lab b{display:block;font:800 22px/1 Archivo;font-stretch:62%}
+.band{position:absolute;top:0;font:600 11.5px Archivo;letter-spacing:.08em;text-transform:uppercase}
+.axis{position:absolute;top:58px;font-size:11px;color:#5c5d61}
+.foot{position:absolute;left:64px;right:64px;bottom:40px;display:flex;align-items:center;gap:24px;border-top:2px solid #111214;padding-top:18px}
+.foot p{flex:1;font-size:18px;color:#5c5d61;max-width:720px}.foot span{background:#4a3aa8;color:#fff;padding:14px 22px;font-weight:700}
+</style></head><body><div class="bars"></div>
+<nav><b>Veritrace</b><span>How it works</span><span>Evaluation</span><span class="go">Open Veritrace</span></nav>
+<h1>Know which sentences to trust.</h1>
+<div class="scale">
+ <span class="band" style="left:0;color:#a52e47">Possibly hallucinated</span><span class="band" style="left:45.5%;color:#94701c">Inferred</span><span class="band" style="left:75.5%;color:#126a40">High confidence</span>
+ <div class="z"></div><div class="cut" style="left:45%"></div><div class="cut" style="left:75%"></div>
+ <div class="t" style="left:6%;background:#a52e47"></div><div class="lab" style="left:11%"><b>6</b>Launched aboard a PSLV rocket</div>
+ <div class="t" style="left:66%;background:#94701c"></div><div class="lab" style="left:62%"><b>66</b>Stopped because the lunar night cut its sunlight</div>
+ <div class="t" style="left:98%;background:#126a40"></div><div class="lab" style="left:88%"><b>98</b>Landed near the south pole on 23 August 2023</div>
+ <span class="axis" style="left:0">0</span><span class="axis" style="left:45%">45</span><span class="axis" style="left:75%">75</span><span class="axis" style="right:0">100</span>
+</div>
+<div class="foot"><p>Veritrace answers from your documents, scores every claim against them, and shows the passage behind each label.</p><span>Open Veritrace →</span></div>
+</body></html>

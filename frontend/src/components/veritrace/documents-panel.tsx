@@ -1,6 +1,6 @@
 "use client";
 
-import { FileTextIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import { CheckIcon, FileTextIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -56,26 +56,26 @@ export function DocumentsPanel({
         if (!offline) onUpload(Array.from(e.dataTransfer.files));
       }}
       className={cn(
-        "relative flex min-h-0 shrink flex-col gap-3 rounded-lg transition-colors duration-150",
-        dragging && "bg-pencil-soft outline-2 outline-offset-4 outline-pencil/50 outline-dashed",
+        "relative flex min-h-0 shrink flex-col gap-3 transition-colors duration-150",
+        dragging && "bg-signal-soft/50 outline-2 outline-offset-4 outline-signal/70 outline-dashed",
       )}
     >
-      <div className="flex items-baseline justify-between px-2">
-        <h2 id="documents-heading" className="text-[13px] font-medium text-muted-foreground">
+      <div className="flex items-baseline justify-between border-b border-border px-1 pb-2">
+        <h2 id="documents-heading" className="caps text-muted-foreground">
           Documents
         </h2>
         {documents.length > 0 && (
-          <span className="text-xs text-muted-foreground tabular-nums">
+          <span className="figures text-xs text-muted-foreground">
             {passages} {passages === 1 ? "passage" : "passages"}
           </span>
         )}
       </div>
 
-      <ul className="-mx-1 min-h-0 space-y-px overflow-y-auto px-1">
+      <ul className="-mx-1 min-h-0 divide-y divide-border/60 overflow-y-auto px-1">
         {loading &&
           [0, 1].map((i) => (
-            <li key={i} className="flex items-center gap-2.5 px-2 py-2" aria-hidden>
-              <Skeleton className="size-4 rounded-[4px]" />
+            <li key={i} className="flex items-center gap-2.5 px-1 py-2.5" aria-hidden>
+              <Skeleton className="size-4" />
               <div className="flex-1 space-y-1.5">
                 <Skeleton className="h-3 w-3/4" />
                 <Skeleton className="h-2.5 w-1/3" />
@@ -88,29 +88,35 @@ export function DocumentsPanel({
             <li
               key={doc.id}
               className={cn(
-                "group relative flex items-center gap-2.5 rounded-md px-2 py-1.5 transition-colors duration-150 hover:bg-muted",
-                ticked && "bg-pencil-soft hover:bg-pencil-soft",
+                "group relative flex items-center gap-3 px-1 py-2.5 transition-colors duration-150 hover:bg-muted",
+                ticked && "bg-signal-soft hover:bg-signal-soft",
                 fresh.includes(doc.id) && "arrive evidence-flash",
               )}
             >
               {documents.length > 1 ? (
-                <input
-                  type="checkbox"
-                  checked={ticked}
-                  onChange={() => onToggle(doc.id)}
-                  aria-label={`Search only ${doc.filename}`}
-                  className="size-4 shrink-0 cursor-pointer accent-pencil"
-                />
+                <span className="relative size-4 shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={ticked}
+                    onChange={() => onToggle(doc.id)}
+                    aria-label={`Search only ${doc.filename}`}
+                    className="peer absolute inset-0 cursor-pointer appearance-none border-[1.5px] border-muted-foreground transition-colors duration-150 checked:border-signal checked:bg-signal hover:border-foreground"
+                  />
+                  <CheckIcon
+                    aria-hidden
+                    strokeWidth={3}
+                    className="pointer-events-none absolute inset-0 m-auto size-3 text-primary-foreground opacity-0 peer-checked:opacity-100"
+                  />
+                </span>
               ) : (
                 <FileTextIcon className="size-4 shrink-0 text-muted-foreground" />
               )}
               <div className="min-w-0 flex-1">
-                <p className="line-clamp-2 text-sm leading-snug [overflow-wrap:anywhere]" title={doc.filename}>
+                <p className="truncate text-[14px] leading-snug font-medium" title={doc.filename}>
                   {doc.filename}
                 </p>
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground tabular-nums">
-                  <FileType filename={doc.filename} />
-                  {doc.pages} {doc.pages === 1 ? "page" : "pages"} · {doc.chunks}{" "}
+                <p className="figures mt-0.5 truncate text-xs text-muted-foreground">
+                  <FileType filename={doc.filename} /> · {doc.pages} {doc.pages === 1 ? "page" : "pages"} · {doc.chunks}{" "}
                   {doc.chunks === 1 ? "passage" : "passages"}
                 </p>
               </div>
@@ -118,7 +124,7 @@ export function DocumentsPanel({
                 <Button
                   size="xs"
                   variant="destructive"
-                  className="arrive"
+                  className="arrive absolute right-1"
                   onClick={() => {
                     setConfirming(null);
                     onRemove(doc);
@@ -133,7 +139,7 @@ export function DocumentsPanel({
                 <Button
                   size="icon-xs"
                   variant="ghost"
-                  className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive focus-visible:opacity-100 pointer-coarse:opacity-100"
+                  className="absolute right-1 bg-rail text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive focus-visible:opacity-100 pointer-coarse:opacity-100"
                   onClick={() => setConfirming(doc.id)}
                   aria-label={`Delete ${doc.filename}`}
                   title="Delete this document and everything stored for it"
@@ -145,17 +151,17 @@ export function DocumentsPanel({
           );
         })}
         {uploading.map((name) => (
-          <li key={name} className="arrive space-y-1.5 px-2 py-1.5" aria-live="polite">
-            <p className="flex items-center gap-1.5 text-sm">
+          <li key={name} className="arrive space-y-2 px-1 py-2.5" aria-live="polite">
+            <p className="flex items-center gap-1.5 text-[13px]">
               <FileType filename={name} />
               <span className="min-w-0 truncate text-muted-foreground">Indexing {name}</span>
             </p>
             {/* The backend reports no progress, so this sweeps rather than inventing a percentage. */}
-            <div className="indeterminate h-1 rounded-full bg-pencil-soft" />
+            <div className="indeterminate h-1 bg-signal-soft text-signal" />
           </li>
         ))}
         {!loading && documents.length === 0 && uploading.length === 0 && (
-          <li className="space-y-3 px-2 py-1 text-sm text-muted-foreground">
+          <li className="space-y-3 px-1 py-2 text-sm text-muted-foreground">
             {error ? (
               <p className="text-foreground">{error}</p>
             ) : (
@@ -166,7 +172,7 @@ export function DocumentsPanel({
       </ul>
 
       {documents.length > 1 && (
-        <p className="px-2 text-xs leading-relaxed text-muted-foreground">
+        <p className="px-1 text-xs leading-relaxed text-muted-foreground">
           {selected.length === 0
             ? "Questions search every document. Tick some to search only those."
             : `Questions search only the ${selected.length} ticked. `}
@@ -174,7 +180,7 @@ export function DocumentsPanel({
             <button
               type="button"
               onClick={onClearSelection}
-              className="font-medium text-pencil underline decoration-pencil/30 underline-offset-2 hover:decoration-pencil"
+              className="font-semibold text-signal underline decoration-signal/40 underline-offset-2 hover:decoration-signal"
             >
               Search all
             </button>
@@ -182,10 +188,10 @@ export function DocumentsPanel({
         </p>
       )}
 
-      <div className="px-1">
+      <div>
         <Button
           variant="outline"
-          className="w-full justify-start"
+          className="h-9 w-full justify-start border-foreground/70 font-semibold"
           disabled={offline}
           onClick={() => input.current?.click()}
         >
@@ -216,9 +222,5 @@ export function DocumentsPanel({
 /** The file's kind, as a small label: PDF, MD or TXT. */
 function FileType({ filename }: { filename: string }) {
   const ext = filename.slice(filename.lastIndexOf(".") + 1).toUpperCase();
-  return (
-    <span className="shrink-0 rounded-[3px] bg-pencil-soft px-1 text-[9.5px] leading-[15px] font-semibold tracking-[0.02em] text-pencil">
-      {ext}
-    </span>
-  );
+  return <span className="shrink-0 font-bold tracking-[0.04em] text-foreground/80">{ext}</span>;
 }

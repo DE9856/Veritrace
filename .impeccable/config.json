@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/model-pick.html"
+        ],
+        "createdAt": "2026-10-21T17:41:21.971Z",
+        "reason": "Claude: throwaway direction-round sketch of an unchosen alternative; never shipped"
+      },
+      {
+        "rule": "skipped-heading",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/landing-index.html"
+        ],
+        "createdAt": "2026-10-21T18:11:09.564Z",
+        "reason": "Claude: unchosen landing structure sketch; never shipped"
+      }
+    ]
+  }
+}

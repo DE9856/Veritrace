@@ -55,9 +55,9 @@ export function Composer({
         send();
       }}
       className={cn(
-        "rounded-lg border border-input bg-sheet p-1.5 transition-[border-color,box-shadow] duration-150",
-        "focus-within:border-pencil/60 focus-within:shadow-[0_0_0_3px_color-mix(in_oklch,var(--pencil)_14%,transparent)]",
-        disabledReason && "bg-sheet/60",
+        "border-2 border-foreground bg-sheet p-2 transition-[border-color,box-shadow] duration-150",
+        "focus-within:border-signal focus-within:shadow-[0_0_0_3px_color-mix(in_oklch,var(--signal)_18%,transparent)]",
+        disabledReason && "border-input bg-muted/40",
       )}
     >
       <label htmlFor="question" className="sr-only">
@@ -73,7 +73,7 @@ export function Composer({
         rows={2}
         maxLength={MAX_LENGTH}
         aria-describedby="question-hint"
-        className="max-h-48 min-h-12 resize-none border-0 bg-transparent px-2.5 text-base shadow-none focus-visible:ring-0 disabled:bg-transparent md:text-[15px] dark:bg-transparent dark:disabled:bg-transparent"
+        className="max-h-48 min-h-12 resize-none rounded-none border-0 bg-transparent px-2.5 text-base shadow-none focus-visible:ring-0 disabled:bg-transparent md:text-[16px] dark:bg-transparent dark:disabled:bg-transparent"
       />
       {checking && (
         <div className="mx-2.5 border-t border-rule pt-1">
@@ -90,7 +90,7 @@ export function Composer({
             disabled={!!disabledReason}
             rows={3}
             maxLength={MAX_ANSWER_LENGTH}
-            className="max-h-64 min-h-16 resize-none border-0 bg-transparent px-0 text-base shadow-none focus-visible:ring-0 disabled:bg-transparent md:text-[15px] dark:bg-transparent dark:disabled:bg-transparent"
+            className="max-h-64 min-h-16 resize-none rounded-none border-0 bg-transparent px-0 text-base shadow-none focus-visible:ring-0 disabled:bg-transparent md:text-[16px] dark:bg-transparent dark:disabled:bg-transparent"
           />
         </div>
       )}
@@ -139,18 +139,16 @@ export function Composer({
             </span>
           )}
           {running ? (
-            <Button type="button" size="sm" variant="outline" onClick={onStop}>
+            <Button type="button" variant="outline" className="h-9 border-foreground px-4 font-semibold" onClick={onStop}>
               <SquareIcon className="fill-current" /> Stop
             </Button>
           ) : (
             <Button
               type="submit"
-              size="icon-sm"
               disabled={!canSend}
-              aria-label={checking ? "Check answer" : "Ask"}
-              className="disabled:bg-secondary disabled:text-muted-foreground disabled:opacity-100"
+              className="h-9 gap-2 px-4 font-semibold disabled:bg-secondary disabled:text-muted-foreground disabled:opacity-100"
             >
-              <ArrowUpIcon />
+              {checking ? "Check" : "Ask"} <ArrowUpIcon />
             </Button>
           )}
         </div>

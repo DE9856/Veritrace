@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Veritrace · The Critical Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&family=Alegreya+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--cloth:#2c1830;--cloth-2:#3a2340;--cloth-ink:#efe6f0;--cloth-muted:#b9a6bd;--plum:#7a2e6e;--plum-soft:#f1e6ef;--paper:#ffffff;--desk:#f4f2f4;--ink:#1d1820;--muted:#6a6170;--rule:#e6e1e7;--high:#1f7a4d;--inf:#9a6400;--hal:#b3261e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1440px;height:900px;overflow:hidden;display:flex;background:var(--desk);color:var(--ink);font:15px/1.5 "Alegreya Sans",sans-serif}
+.rail{width:272px;background:var(--cloth);color:var(--cloth-ink);padding:24px 20px;display:flex;flex-direction:column;gap:28px}
+.brand{display:flex;flex-direction:column;gap:2px}.brand b{font:700 26px/1 "Alegreya",serif;letter-spacing:-.01em}.brand span{font:500 12px/1.3 "Alegreya Sans SC";letter-spacing:.06em;color:var(--cloth-muted)}
+.sc{font-family:"Alegreya Sans SC";letter-spacing:.07em;font-weight:500;font-size:12.5px;color:var(--cloth-muted)}
+.docs{display:flex;flex-direction:column;gap:2px}.doc{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:6px}.doc.on{background:var(--cloth-2)}
+.doc i{font:700 11px "Alegreya Sans SC";letter-spacing:.06em;color:var(--cloth);background:var(--cloth-muted);border-radius:3px;padding:0 5px;font-style:normal}
+.doc p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px}.doc small{display:block;color:var(--cloth-muted);font-size:12px}
+.add{margin-top:6px;border:1px solid #5b4361;border-radius:6px;padding:8px 12px;font-weight:500;font-size:14px}
+.foot{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--cloth-muted)}.dot{width:8px;height:8px;border-radius:50%;background:#e7c6e1}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;border-bottom:1px solid var(--rule);background:var(--paper)}
+.bar .sc{color:var(--muted)}.toggle{display:flex;gap:8px;align-items:center;border:1px solid var(--rule);border-radius:6px;padding:6px 12px;font-size:13.5px;font-weight:500}
+.page{flex:1;overflow:hidden;padding:36px 0 0}.col{width:860px;margin:0 auto}
+.q{font:500 34px/1.15 "Alegreya",serif;letter-spacing:-.012em;margin-bottom:22px}.q small{display:block;font:500 13px "Alegreya Sans SC";letter-spacing:.08em;color:var(--plum);margin-bottom:8px}
+.sheet{background:var(--paper);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.head{display:flex;gap:36px;align-items:flex-end;padding:22px 28px;border-bottom:1px solid var(--rule)}
+.num{font:500 64px/.85 "Alegreya",serif;font-feature-settings:"lnum","tnum"}.num sub{font:400 16px "Alegreya Sans";color:var(--muted);vertical-align:baseline;margin-left:4px}
+.cap{font-size:13px;color:var(--muted);margin-top:8px}.strip{flex:1}.blocks{display:flex;gap:4px;margin-bottom:10px}.blocks span{flex:1;height:12px;border-radius:2px}
+.legend{display:flex;gap:20px;font-size:13.5px}.legend b{font-feature-settings:"tnum"}
+.text{display:grid;grid-template-columns:44px 1fr;gap:0 18px;padding:24px 28px 20px}
+.ln{font:400 12px/34px "Alegreya Sans";color:var(--plum);text-align:right;opacity:.75;font-feature-settings:"tnum"}
+.body{font:400 20px/34px "Alegreya",serif}.s1{text-decoration:line-through 1.5px var(--hal)}.s2{text-decoration:underline 2px var(--inf);text-underline-offset:6px}
+.sig{font:700 11px "Alegreya Sans SC";letter-spacing:.05em;color:var(--plum);vertical-align:.5em;margin-left:2px}
+.app{border-top:3px double var(--plum);margin:0 28px;padding:14px 0 18px}.app h4{margin-bottom:8px}
+.ent{display:grid;grid-template-columns:44px 30px 1fr 64px 46px;gap:0 14px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--rule);font-size:14.5px}
+.ent .n{font-feature-settings:"tnum";color:var(--plum);font-weight:700}.ent .lem{font-family:"Alegreya",serif;font-style:italic}.ent .lem:after{content:" ]";font-style:normal;color:var(--muted)}
+.ent .v{font-weight:500}.ent .sc2{font:500 15px "Alegreya",serif;font-feature-settings:"tnum";text-align:right}
+.mk{font-weight:700;text-align:center}.h{color:var(--high)}.i{color:var(--inf)}.x{color:var(--hal)}
+.composer{width:860px;margin:18px auto 22px;background:var(--paper);border:1px solid #d9d2db;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;color:var(--muted)}
+.composer .go{margin-left:auto;background:var(--plum);color:#fff;border-radius:6px;padding:7px 14px;font-weight:500;font-size:14px}
+</style></head><body>
+<aside class="rail">
+  <div class="brand"><b>Veritrace</b><span>Hallucination-aware information assistant</span></div>
+  <div><p class="sc" style="margin-bottom:8px">Documents · 4</p>
+    <div class="docs">
+      <div class="doc on"><i>md</i><div><p>james-webb-space-telescope.md</p><small>1 page · 1 passage</small></div></div>
+      <div class="doc"><i>md</i><div><p>chandrayaan-3.md</p><small>1 page · 2 passages</small></div></div>
+      <div class="doc"><i>pdf</i><div><p>Cyber-Security-and-Privacy-Study-Book.pdf</p><small>122 pages · 178 passages</small></div></div>
+      <div class="doc"><i>pdf</i><div><p>TOC_Assignment1-2.docx.pdf</p><small>1 page · 1 passage</small></div></div>
+    </div>
+    <div class="add">Add documents</div></div>
+  <div class="foot"><span class="dot"></span>openai/gpt-oss-120b · groq</div>
+</aside>
+<main>
+  <div class="bar"><span class="sc">Question 1 of 1</span><span class="toggle">Claim check ▸ 4 claims</span></div>
+  <div class="page"><div class="col">
+    <h1 class="q"><small>Question 1</small>Who was James E. Webb, and why was the telescope named after him?</h1>
+    <div class="sheet">
+      <div class="head">
+        <div><div class="num">51<sub>/ 100</sub></div><div class="cap">Answer confidence</div></div>
+        <div class="strip"><div class="blocks"><span style="background:var(--inf)"></span><span style="background:var(--hal)"></span><span style="background:var(--high)"></span><span style="background:var(--hal)"></span></div>
+          <div class="legend"><span class="h">✓ <b>1</b> high confidence</span><span class="i">~ <b>1</b> inferred</span><span class="x">× <b>2</b> possibly hallucinated</span></div></div>
+      </div>
+      <div class="text">
+        <div class="ln">1<br>2<br>3</div>
+        <p class="body"><span class="s2">James E. Webb led NASA as its administrator from 1961 to 1968,</span> <span class="s1">guiding the agency during the early years of the Apollo program</span><span class="sig">s1</span>. <span class="s1">The telescope was named to honor his leadership and contributions to NASA’s history</span><span class="sig">s1</span>.</p>
+      </div>
+      <div class="app"><h4 class="sc" style="color:var(--plum)">Apparatus · 4 claims</h4>
+        <div class="ent"><span class="n">1·1</span><span class="mk i">~</span><span><span class="lem">led NASA as its administrator from 1961 to 1968</span> follows from <span class="sig" style="vertical-align:0">s1</span>, not in these words</span><span class="v i">Inferred</span><span class="sc2">52</span></div>
+        <div class="ent"><span class="n">1·2</span><span class="mk x">×</span><span><span class="lem">guiding the agency during the early years of Apollo</span> no passage supports it</span><span class="v x">Flagged</span><span class="sc2">42</span></div>
+        <div class="ent"><span class="n">2·1</span><span class="mk h">✓</span><span><span class="lem">the telescope was named after James E. Webb</span> stated in <span class="sig" style="vertical-align:0">s1</span></span><span class="v h">High</span><span class="sc2">91</span></div>
+        <div class="ent"><span class="n">2·2</span><span class="mk x">×</span><span><span class="lem">to honor his leadership and contributions</span> the documents do not say why</span><span class="v x">Flagged</span><span class="sc2">29</span></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="composer">Ask about your documents…<span style="font-size:13px">Safe mode · Check an answer</span><span class="go">Ask</span></div>
+</main>
+</body></html>
