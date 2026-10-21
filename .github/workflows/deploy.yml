@@ -1,0 +1,91 @@
+# Tests every push to master, then updates the EC2 instance if it is running
+# (docs/deployment.md, "Deploys from GitHub"). A stopped instance is skipped: it pulls
+# the latest master itself when it next starts (deploy/ec2/update.sh).
+name: Test and deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # lets the deploy job sign in to AWS without stored keys (OIDC)
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check . && ruff format --check .
+      - run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+
+  deploy:
+    needs: [backend, frontend]
+    # Skipped until the AWS side is set up (the EC2_INSTANCE_ID variable).
+    if: vars.EC2_INSTANCE_ID != ''
+    runs-on: ubuntu-latest
+    env:
+      INSTANCE: ${{ vars.EC2_INSTANCE_ID }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Update the instance
+        run: |
+          state="$(aws ec2 describe-instances --instance-ids "$INSTANCE" \
+            --query 'Reservations[0].Instances[0].State.Name' --output text)"
+          if [[ "$state" != running ]]; then
+            echo "::notice::The instance is $state, so nothing was deployed. It updates itself when it next starts."
+            exit 0
+          fi
+
+          id="$(aws ssm send-command --instance-ids "$INSTANCE" \
+            --document-name AWS-RunShellScript --timeout-seconds 3000 \
+            --comment "Veritrace ${GITHUB_SHA::7}" \
+            --parameters 'commands=["sudo -u ubuntu -H /home/ubuntu/Veritrace/deploy/ec2/update.sh"],executionTimeout=["2700"]' \
+            --query Command.CommandId --output text)"
+
+          # The aws ssm waiter gives up after 100 s; a rebuild can take much longer.
+          while :; do
+            sleep 15
+            status="$(aws ssm get-command-invocation --command-id "$id" --instance-id "$INSTANCE" \
+              --query Status --output text 2>/dev/null || echo Pending)"
+            case "$status" in Pending | InProgress | Delayed) ;; *) break ;; esac
+          done
+
+          aws ssm get-command-invocation --command-id "$id" --instance-id "$INSTANCE" \
+            --query '[StandardOutputContent, StandardErrorContent]' --output text
+          [[ "$status" == Success ]] || { echo "::error::The update ended with status $status."; exit 1; }

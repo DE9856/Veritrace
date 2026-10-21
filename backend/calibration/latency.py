@@ -7,7 +7,7 @@ question used, which tells how many questions fit in a daily token cap.
 
 Run from backend/:
     LLM_PROVIDER=groq python -m calibration.latency
-    LLM_PROVIDER=ollama python -m calibration.latency
+    LLM_PROVIDER=gemini python -m calibration.latency
 """
 
 import asyncio

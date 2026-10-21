@@ -1,0 +1,14 @@
+# One address for the whole app. SITE_ADDRESS comes from deploy/ec2/.env, written by
+# setup.sh: a hostname such as 3-12-34-56.sslip.io gets a Let's Encrypt certificate;
+# ":80" serves plain HTTP (for trying the stack on a laptop).
+{$SITE_ADDRESS} {
+	# The API, including the streamed answers. Caddy flushes text/event-stream at once
+	# and has no read timeout, so a question that takes minutes is not cut off.
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

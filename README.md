@@ -6,7 +6,7 @@ Veritrace answers questions from your own documents and labels every claim in it
 
 ## Status
 
-All six phases are built. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step and shows how every claim was checked. It runs on Groq (`openai/gpt-oss-120b`) with Gemini (`gemini-3.5-flash`) as the fallback, or fully offline on a local Ollama model. It is run locally for the presentation; [`docs/demo.md`](docs/demo.md) has the checklist and demo questions.
+All six phases are built. Veritrace is a LangGraph agent that plans its searches, retries with new queries when the evidence is weak, answers with citations, splits the answer into atomic claims, and labels every claim as high confidence, inferred, or potentially hallucinated. The web app streams each agent step and shows how every claim was checked. It runs on Groq (`openai/gpt-oss-120b`), with a second Groq key and then Gemini (`gemini-3.5-flash`) as fallbacks. It deploys to one AWS EC2 instance ([`docs/deployment.md`](docs/deployment.md)); [`docs/demo.md`](docs/demo.md) has the demo checklist and questions.
 
 ## Quick start
 
@@ -15,8 +15,7 @@ All six phases are built. Veritrace is a LangGraph agent that plans its searches
 With the backend and frontend set up as below:
 
 ```bash
-./start.sh          # Groq, with Gemini as fallback
-./start.sh ollama   # fully offline on the local model
+./start.sh          # Groq, then the backup Groq key, then Gemini
 ./start.sh gemini   # Gemini first, Groq as fallback
 ```
 
@@ -24,7 +23,7 @@ This starts the backend on port 8000 and the frontend on port 3000, indexes the 
 
 ## Run the backend
 
-Requires Python 3.12 (via [uv](https://docs.astral.sh/uv/)) and [Ollama](https://ollama.com).
+Requires Python 3.12 (via [uv](https://docs.astral.sh/uv/)).
 
 ```bash
 cd backend
@@ -32,10 +31,7 @@ uv venv --python 3.12
 source .venv/bin/activate
 uv pip install torch --index-url https://download.pytorch.org/whl/cpu
 uv pip install -r requirements-dev.txt   # runtime plus pytest and ruff
-cp .env.example .env   # then set LLM_PROVIDER=groq and paste GROQ_API_KEY (and GEMINI_API_KEY)
-
-# Only for LLM_PROVIDER=ollama (fully offline):
-ollama pull qwen3:4b-instruct
+cp .env.example .env   # then paste GROQ_API_KEY (and GROQ_BACKUP_API_KEY, GEMINI_API_KEY)
 uvicorn app.main:app --reload
 ```
 
@@ -86,7 +82,7 @@ The labels are checked against hand labels on a dev set (used to design the rule
 ```bash
 cd backend
 # Collect the raw signals once per model (reruns resume where they stopped)
-export LLM_PROVIDER=ollama              # or groq
+export LLM_PROVIDER=groq                # or gemini
 python -m calibration.collect_signals --out ${LLM_PROVIDER}_dev_signals.json
 python -m calibration.collect_signals --claims test_claims.yaml --out ${LLM_PROVIDER}_test_signals.json
 python -m calibration.collect_signals --claims fresh_claims.yaml --out ${LLM_PROVIDER}_fresh_signals.json
@@ -108,10 +104,10 @@ On Groq, collecting every set uses more than the free tier's 200,000 tokens a da
 
 ```bash
 cd backend
-pytest        # uses a fake embedder and LLM, so Ollama does not need to be running
+pytest        # uses a fake embedder and LLM, so no API keys are needed
 ruff check .
 ```
 
 ## Docker
 
-The backend also runs in a container; see [`docs/docker.md`](docs/docker.md).
+The backend also runs in a container; see [`docs/docker.md`](docs/docker.md). The deployment runs the backend, the frontend and Caddy with Docker Compose on EC2; see [`docs/deployment.md`](docs/deployment.md).

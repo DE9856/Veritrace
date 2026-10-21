@@ -1,12 +1,14 @@
 # Veritrace backend in a container (see docs/docker.md).
-# The LLM is called over the network (Groq, with Gemini as fallback); the embedding
+# The LLM is called over the network (Groq, the backup Groq key, then Gemini); the embedding
 # and NLI models run on the CPU inside the container.
 
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=120 \
+    PIP_RETRIES=10
 
 # Run as an unprivileged user.
 RUN useradd --create-home --uid 1000 user
@@ -31,11 +33,14 @@ name = 'MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli'; \
 AutoTokenizer.from_pretrained(name); AutoModelForSequenceClassification.from_pretrained(name)"
 
 COPY --chown=user . .
+# Created here so a volume mounted on it is owned by the user (deploy/ec2/docker-compose.yml).
+RUN mkdir -p /home/user/data
 
-# Defaults; backend/.env passed with --env-file overrides any of them. The container's
-# disk is fresh on every run, so the sample documents are indexed at startup.
+# Defaults; backend/.env passed with --env-file overrides any of them. Without a volume
+# the container's disk is fresh on every run, so the sample documents are indexed at
+# startup when the store is empty.
 ENV LLM_PROVIDER=groq \
-    LLM_FALLBACK=gemini \
+    LLM_FALLBACK=groq_backup,gemini \
     CONSISTENCY_SAMPLES=2 \
     SEED_SAMPLES=true \
     DATA_DIR=/home/user/data \

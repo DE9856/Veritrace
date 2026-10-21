@@ -320,11 +320,56 @@ async def test_fallback_does_not_splice_a_half_streamed_answer():
 
 def test_factory_wraps_gemini_with_groq_when_both_keys_are_set():
     settings = Settings(
-        _env_file=None, llm_provider="gemini", gemini_api_key="g-key", groq_api_key="q-key"
+        _env_file=None,
+        llm_provider="gemini",
+        llm_fallback="groq",
+        gemini_api_key="g-key",
+        groq_api_key="q-key",
     )
     provider = build_provider(settings)
     assert isinstance(provider, FallbackProvider)
     assert (provider.primary.name, provider.fallback.name) == ("gemini", "groq")
+
+
+def test_factory_chains_fallbacks_in_order():
+    settings = Settings(
+        _env_file=None,
+        llm_provider="groq",
+        llm_fallback="groq_backup, gemini",
+        groq_api_key="q1",
+        groq_backup_api_key="q2",
+        gemini_api_key="g",
+    )
+    provider = build_provider(settings)
+    assert provider.primary.name == "groq"
+    assert (provider.fallback.primary.name, provider.fallback.fallback.name) == (
+        "groq_backup",
+        "gemini",
+    )
+    headers = provider.fallback.primary._client.headers
+    assert headers["Authorization"] == "Bearer q2"
+
+
+def test_factory_skips_a_fallback_without_a_key():
+    settings = Settings(
+        _env_file=None,
+        llm_provider="groq",
+        llm_fallback="groq_backup,gemini",
+        groq_api_key="q1",
+        gemini_api_key="g",
+    )
+    provider = build_provider(settings)
+    assert (provider.primary.name, provider.fallback.name) == ("groq", "gemini")
+
+
+async def test_chain_reaches_the_last_provider_when_both_groq_keys_are_limited():
+    groq = Scripted("groq", RateLimitError("daily", retry_after_s=5000))
+    backup = Scripted("groq_backup", RateLimitError("daily", retry_after_s=5000))
+    provider = FallbackProvider(groq, FallbackProvider(backup, Scripted("gemini")))
+    assert await provider.generate("q") == "from gemini"
+    assert provider.name == "gemini"
+    assert await provider.generate("q") == "from gemini"
+    assert (groq.calls, backup.calls) == (1, 1)  # both breakers stay open
 
 
 def test_factory_without_a_fallback_key_returns_gemini_alone():
@@ -349,8 +394,8 @@ def test_asyncio_is_used_for_waiting():
 
 
 def test_empty_keys_from_the_example_env_file_mean_no_fallback():
-    settings = Settings(_env_file=None, llm_provider="ollama", groq_api_key="")
-    assert type(build_provider(settings)).__name__ == "OllamaProvider"
+    settings = Settings(_env_file=None, groq_api_key="q", groq_backup_api_key="", gemini_api_key="")
+    assert isinstance(build_provider(settings), OpenAICompatibleProvider)
 
 
 # ---------------------------------------------------------------- circuit breaker

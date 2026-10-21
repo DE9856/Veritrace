@@ -19,14 +19,6 @@ def test_no_citations():
     assert extract_citations("The provided documents don't contain this.", {"S1"}) == ([], [])
 
 
-def test_strips_reasoning_with_or_without_opening_tag():
-    from app.providers.ollama import _THINK_BLOCK
-
-    assert _THINK_BLOCK.sub("", "<think>plan</think>\n\nAnswer [S1].").strip() == "Answer [S1]."
-    assert _THINK_BLOCK.sub("", "plan... </think>\n\nAnswer [S1].").strip() == "Answer [S1]."
-    assert _THINK_BLOCK.sub("", "Answer [S1].") == "Answer [S1]."
-
-
 class SplitStream:
     """Streams a padded citation split across pieces, as gpt-oss on Groq does."""
 

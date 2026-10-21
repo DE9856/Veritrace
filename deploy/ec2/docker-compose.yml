@@ -1,0 +1,46 @@
+# Veritrace on one server: Caddy (HTTPS) in front of the frontend and the backend.
+# Run from deploy/ec2/ (setup.sh does this):  docker compose up -d --build
+
+services:
+  backend:
+    build: ../../backend
+    env_file: ../../backend/.env # the API keys; never baked into the image
+    environment:
+      DATA_DIR: /home/user/data
+      SEED_SAMPLES: "true"
+    volumes:
+      - backend-data:/home/user/data # documents and the vector store survive restarts
+    restart: unless-stopped
+    healthcheck:
+      # /openapi.json, not /api/health: health asks the LLM provider every time.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/openapi.json')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 120s # loading the embedding and NLI models
+
+  frontend:
+    build: ../../frontend
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.10
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?run setup.sh, or set SITE_ADDRESS in deploy/ec2/.env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data # certificates; kept so restarts do not ask Let's Encrypt again
+      - caddy-config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  backend-data:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,17 @@
+# Pulls and rebuilds Veritrace each time the instance starts. setup.sh installs it, with
+# USER and REPO filled in. The containers start on their own meanwhile (restart:
+# unless-stopped), so the site serves the previous version until the rebuild is done.
+[Unit]
+Description=Update Veritrace from GitHub at boot
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=USER
+ExecStart=REPO/deploy/ec2/update.sh
+TimeoutStartSec=45min
+
+[Install]
+WantedBy=multi-user.target

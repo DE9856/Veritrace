@@ -23,7 +23,7 @@ Other RAG assistants cite their sources. Veritrace checks the claims and shows t
 ## Operating Context
 
 - Runs locally: FastAPI backend on port 8000, Next.js frontend on port 3000, started with `./start.sh`. It is not deployed.
-- Models: Groq `openai/gpt-oss-120b` as the main model with Gemini `gemini-3.5-flash` as the fallback, or fully offline on Ollama `qwen3:4b-instruct`. Free tiers only, so rate limits are part of normal use. The header status dot shows which model is serving and why.
+- Models: Groq `openai/gpt-oss-120b` as the main model, a second Groq key as the first fallback and Gemini `gemini-3.5-flash` as the last. Free tiers only, so rate limits are part of normal use. The header status dot shows which model is serving and why.
 - A question takes from several seconds to about a minute, because the agent steps stream in live over SSE.
 - Two sample documents ship with it (Chandrayaan-3 and the James Webb Space Telescope) and can be added with one action.
 - Presentation flow and demo questions: `docs/demo.md`.

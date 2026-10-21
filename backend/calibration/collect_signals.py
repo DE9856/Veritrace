@@ -190,8 +190,7 @@ async def collect(settings: Settings, claims_file: Path, out: Path) -> list[dict
 
 
 def model_name(settings: Settings) -> str:
-    provider = settings.llm_provider
-    return settings.ollama_model if provider == "ollama" else getattr(settings, f"{provider}_model")
+    return getattr(settings, f"{settings.llm_provider}_model")
 
 
 def main() -> None:

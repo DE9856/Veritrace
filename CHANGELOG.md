@@ -5,6 +5,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+Deployment on AWS EC2: hosted models only.
+
+### Added
+- `deploy/ec2/`: Docker Compose with Caddy in front of the frontend and the backend on one EC2 instance, HTTPS through a free sslip.io hostname, and `setup.sh` (installs Docker, adds swap, works out the hostname, builds and starts). Documents and the vector store are kept in a volume across restarts. `docs/deployment.md` has the steps.
+- Updates follow `master`: the instance pulls and rebuilds at every boot (`update.sh`, `veritrace-update.service`), and `.github/workflows/deploy.yml` runs the backend tests and frontend checks on every push, then updates the instance through AWS Systems Manager if it is running (OIDC, no stored keys or open SSH port).
+- `frontend/Dockerfile`: a standalone Next.js build. An empty `NEXT_PUBLIC_API_URL` means the page's own origin.
+- `LLM_FALLBACK` takes a comma-separated list, tried in order; a fallback whose key is empty is skipped. The default is `groq_backup,gemini`.
+- `groq_backup`: a second Groq account (`GROQ_BACKUP_API_KEY`) with the same model and its own quota, tried before Gemini.
+
+### Removed
+- The local Ollama provider (`qwen3:4b-instruct`), `./start.sh ollama` and the `ollama` dependency. `LLM_PROVIDER` now defaults to `groq`. The saved qwen3 evaluation signals and results in `docs/evaluation.md` are kept as measured.
+
 ## [0.10.0] - 2026-10-21
 
 Phase 9: confidence calibration (is the score a probability?) and synthetic hallucinations (detection by kind of error).

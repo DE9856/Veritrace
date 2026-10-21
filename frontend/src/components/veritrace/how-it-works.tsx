@@ -150,8 +150,8 @@ export function HowItWorks() {
           <Section title="Models">
             <Table head={["Role", "Model"]} rows={models.map((m) => [m.role, m.name])} />
             <Prose>
-              The main model is Groq&apos;s gpt-oss-120b, with Gemini as fallback when Groq is rate limited.
-              Everything also runs offline on qwen3:4b-instruct through Ollama.
+              The main model is Groq&apos;s gpt-oss-120b. When it is rate limited, a second Groq key takes over,
+              then Gemini.
             </Prose>
           </Section>
 

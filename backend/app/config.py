@@ -25,12 +25,12 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BACKEND_DIR / ".env", extra="ignore")
 
     # LLM
-    llm_provider: str = "ollama"
-    ollama_host: str = "http://localhost:11434"
-    ollama_model: str = "qwen3:4b-instruct"
+    llm_provider: str = "groq"
     llm_temperature: float = 0.2
     llm_timeout_s: float = 180.0
-    llm_fallback: str = "groq"  # used when the primary is rate limited, if its key is set
+    # Comma-separated, tried in order when the providers before are rate limited. A name
+    # whose key is not set is skipped.
+    llm_fallback: str = "groq_backup,gemini"
 
     # Gemini (LLM_PROVIDER=gemini). Keys are SecretStr so they never appear in logs.
     gemini_api_key: SecretStr | None = None
@@ -42,6 +42,8 @@ class Settings(BaseSettings):
 
     # Groq, the fallback (or LLM_PROVIDER=groq). Any OpenAI-compatible API works here.
     groq_api_key: SecretStr | None = None
+    # A second Groq account (LLM_FALLBACK=groq_backup), with its own daily quota
+    groq_backup_api_key: SecretStr | None = None
     # Groq retired the Llama 3.3 models. gpt-oss-120b answered in 1-2 s and handles JSON
     # mode; qwen3.8-27b is faster but failed JSON validation in testing.
     groq_model: str = "openai/gpt-oss-120b"

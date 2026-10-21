@@ -2,7 +2,9 @@ import { EventStreamContentType, fetchEventSource } from "@microsoft/fetch-event
 
 import type { ChatRequest, ChatResponse, DocumentInfo, Health, StatusEvent } from "./types";
 
+// An empty value means the page's own origin: on the server, Caddy sends /api to the backend.
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+const BACKEND = API_URL || "this site";
 
 export class ApiError extends Error {}
 
@@ -11,7 +13,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     response = await fetch(`${API_URL}${path}`, init);
   } catch {
-    throw new ApiError(`Cannot reach the Veritrace backend at ${API_URL}. Is it running?`);
+    throw new ApiError(`Cannot reach the Veritrace backend at ${BACKEND}. Is it running?`);
   }
   if (!response.ok) {
     let detail = response.statusText;
@@ -81,7 +83,7 @@ export async function streamChat(
         // Never retry: a retry would run the whole agent again.
         throw error instanceof FatalStreamError
           ? error
-          : new FatalStreamError(`Lost the connection to the backend at ${API_URL}.`);
+          : new FatalStreamError(`Lost the connection to the backend at ${BACKEND}.`);
       },
     });
   } catch (error) {

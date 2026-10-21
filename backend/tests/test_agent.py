@@ -102,12 +102,12 @@ def test_stream_reports_llm_failure_as_an_error_event(client, provider):
     async def broken(*args, **kwargs):
         from app.providers.base import LLMError
 
-        raise LLMError("Ollama request failed: connection refused")
+        raise LLMError("Groq request failed: connection refused")
         yield  # makes this an async generator
 
     provider.stream = broken
     events = parse_sse(client.post("/api/chat/stream", json={"question": "q"}).text)
-    assert events[-1] == ("error", {"message": "Ollama request failed: connection refused"})
+    assert events[-1] == ("error", {"message": "Groq request failed: connection refused"})
 
 
 def test_graph_endpoint_returns_the_compiled_graph(client):

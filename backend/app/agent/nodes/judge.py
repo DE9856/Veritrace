@@ -27,7 +27,7 @@ class _Item(BaseModel):
     id: int
     verdict: JudgeVerdict
     # The model ignores "at most 15 words" in the prompt, and long reasons made the judge
-    # slow. maxLength goes into the JSON grammar Ollama decodes with; it is not validated
+    # slow. maxLength goes into the JSON schema sent to the model; it is not validated
     # here, so a provider that ignores it cannot make the whole judgement fail.
     reason: str = Field(json_schema_extra={"maxLength": 120})
 

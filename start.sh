@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Starts the Veritrace backend (port 8000) and frontend (port 3000) together.
 #
-#   ./start.sh            use the provider set in backend/.env (Groq, Gemini as fallback)
-#   ./start.sh ollama     fully offline on the local Ollama model (no internet needed)
+#   ./start.sh            use the provider set in backend/.env (Groq, then the backup Groq key, then Gemini)
 #   ./start.sh gemini     Gemini first (20 requests a day on the free tier), Groq as fallback
 #
 # Ctrl+C stops both.
@@ -43,20 +42,9 @@ trap cleanup INT TERM EXIT
 
 case "$PROVIDER" in
   "") ;;
-  ollama)
-    export LLM_PROVIDER=ollama LLM_FALLBACK=""
-    if ! curl -sf http://localhost:11434/api/version >/dev/null; then
-      echo "Starting Ollama..."
-      ollama serve >/dev/null 2>&1 &
-      PIDS+=($!)
-      for _ in $(seq 20); do curl -sf http://localhost:11434/api/version >/dev/null && break; sleep 0.5; done
-    fi
-    model="$(grep -E '^OLLAMA_MODEL=' "$BACKEND/.env" | cut -d= -f2)"
-    ollama list | grep -q "^${model:-qwen3:4b-instruct}" || die "run 'ollama pull ${model:-qwen3:4b-instruct}' first."
-    ;;
   gemini) export LLM_PROVIDER=gemini LLM_FALLBACK=groq ;;
-  groq) export LLM_PROVIDER=groq LLM_FALLBACK=gemini ;;
-  *) die "unknown provider '$PROVIDER'; use ollama, gemini or groq." ;;
+  groq) export LLM_PROVIDER=groq LLM_FALLBACK=groq_backup,gemini ;;
+  *) die "unknown provider '$PROVIDER'; use groq or gemini." ;;
 esac
 
 echo "Starting the backend on http://localhost:8000 ..."

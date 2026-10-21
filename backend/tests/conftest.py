@@ -1,5 +1,5 @@
 """Test doubles: a bag-of-words embedder, a word-overlap NLI model and a scripted LLM,
-so tests need no downloaded models and no Ollama."""
+so tests need no downloaded models and no API keys."""
 
 import hashlib
 import math

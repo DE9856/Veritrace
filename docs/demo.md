@@ -6,15 +6,13 @@ How to run Veritrace for the presentation, which questions to ask, and what to d
 
 - [ ] `cd backend && .venv/bin/pytest -q`: all tests pass.
 - [ ] `./start.sh`, then open http://localhost:3000 and ask question 1 below. This also confirms the Groq key works.
-- [ ] `./start.sh ollama` and ask one question, so the offline backup is known to work and the model is downloaded (`ollama pull qwen3:4b-instruct` if not).
-- [ ] Charge the laptop. Ollama on battery is slower.
-- [ ] Go easy on Groq in the 24 hours before the presentation. Its free tier allows 200,000 tokens per rolling 24 hours, and every question spends tokens on the answer, the resampled answers and the judge. Rehearse on `./start.sh ollama`, which has no limit, and keep Groq for a final check.
+- [ ] Go easy on Groq in the 24 hours before the presentation. Its free tier allows 200,000 tokens per rolling 24 hours, and every question spends tokens on the answer, the resampled answers and the judge. Rehearse sparingly and keep the quota for the presentation.
 
 ## On the day
 
 1. Start about five minutes early: `./start.sh`. The first start takes about 20 seconds to load the embedding and NLI models; wait for `Veritrace is running`.
 2. Open http://localhost:3000. The status dot in the header should be green and name `openai/gpt-oss-120b`. The documents panel should list the two sample documents (Chandrayaan-3 and the James Webb Space Telescope); if it is empty, choose **Add the two sample documents**.
-3. Leave about a minute between questions where you can. Groq's free tier allows 8000 tokens a minute and a question uses a few thousand. If the limit is hit, the app waits for it to reset instead of failing, so a question can take a minute. If the daily cap is hit instead, Gemini takes over for about three questions; after that, switch to `./start.sh ollama`.
+3. Leave about a minute between questions where you can. Groq's free tier allows 8000 tokens a minute and a question uses a few thousand. If the limit is hit, the app waits for it to reset instead of failing, so a question can take a minute. If the daily cap is hit instead, the backup Groq key takes over, then Gemini for about three more questions.
 
 ## Questions to ask
 
@@ -36,11 +34,11 @@ To show uploads, drag in any PDF, `.txt` or `.md` file and ask about it. Keep it
 
 | Problem | What to do |
 |---|---|
-| No internet, or Groq is down | Ctrl+C, then `./start.sh ollama`. Everything runs offline; the first question takes about a minute while the model loads, later ones about 15 seconds. |
+| Groq is down | Gemini takes over when Groq returns rate limits; for other Groq errors, Ctrl+C, then `./start.sh gemini`. |
 | Status dot is amber or red | Hover over it for the reason. Amber means the model is not reachable; red means the backend is not running. |
 | Status dot says "rate limited" | The fallback model is serving; questions still work. |
 | `port 8000 is already in use` | An earlier run is still going: `pkill -f "uvicorn app.main"`, or close the other terminal. |
-| A question fails with a rate-limit error | Groq's and Gemini's quotas are both used up. Ctrl+C, then `./start.sh ollama`. |
+| A question fails with a rate-limit error | Both Groq keys and Gemini are out of quota. Wait for Groq's quota to recover. |
 | Documents panel is empty | Choose **Add the two sample documents**, or restart: `SEED_SAMPLES=true` indexes them when the store is empty. |
 
 To show the model fallback on purpose, start with `./start.sh gemini`. Gemini's free tier runs out after about three questions; the status dot then shows Groq serving and when Gemini resets.
