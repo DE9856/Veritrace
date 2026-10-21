@@ -8,12 +8,17 @@ import type { DocumentInfo } from "@/lib/types";
 
 export const ACCEPTED = [".pdf", ".txt", ".md"];
 
+// Shipped in public/samples, so they can be added with one action.
+const SAMPLES = ["chandrayaan-3.md", "james-webb-space-telescope.md"];
+
 /** The knowledge base: list, upload and delete documents. */
 export function useDocuments(onChange?: () => void) {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // Documents indexed in the last few seconds; the list highlights them instead of a toast.
+  const [fresh, setFresh] = useState<string[]>([]);
 
   const refresh = useCallback(async () => {
     try {
@@ -53,9 +58,8 @@ export function useDocuments(onChange?: () => void) {
         setUploading((u) => [...u, file.name]);
         try {
           const doc = await api.upload(file);
-          toast.success(`Added ${doc.filename}`, {
-            description: `${doc.pages} ${doc.pages === 1 ? "page" : "pages"}, ${doc.chunks} passages indexed.`,
-          });
+          setFresh((f) => [...f, doc.id]);
+          setTimeout(() => setFresh((f) => f.filter((id) => id !== doc.id)), 2600);
         } catch (e) {
           toast.error(`${file.name} was not added`, {
             description: e instanceof Error ? e.message : String(e),
@@ -88,5 +92,20 @@ export function useDocuments(onChange?: () => void) {
     [refresh, onChange],
   );
 
-  return { documents, loading, uploading, error, upload, remove, refresh };
+  const addSamples = useCallback(async () => {
+    try {
+      const files = await Promise.all(
+        SAMPLES.map(async (name) => {
+          const response = await fetch(`/samples/${name}`);
+          if (!response.ok) throw new Error(response.statusText);
+          return new File([await response.blob()], name, { type: "text/markdown" });
+        }),
+      );
+      await upload(files);
+    } catch {
+      toast.error("Could not load the sample documents.");
+    }
+  }, [upload]);
+
+  return { documents, loading, uploading, error, fresh, upload, remove, refresh, addSamples };
 }

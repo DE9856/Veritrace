@@ -2,17 +2,19 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Veritrace: an evidence workbench. Slate neutrals with a blue bias, one ink-blue accent,
-   and three label colours (stated / inferred / flagged) that carry the meaning of the app.
-   Same palette as docs/project-overview.html. */
+/* Veritrace: a checker's proof. The copy under check sits on white sheets; the checking apparatus
+   (the ruled margin, line numbers, selection, actions, focus) is drawn in the editor's blue pencil
+   on a pale blue-tinted shell. The three verdicts (green stated, amber inferred, red flagged) keep
+   the meaning they have in docs/project-overview.html, and nothing else uses those hues. */
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-body);
-  --font-heading: var(--font-display);
+  --font-sans: var(--font-ui);
+  --font-heading: var(--font-ui);
+  --font-serif: var(--font-copy);
   --font-mono: var(--font-code);
 
   --color-high: var(--high);
@@ -22,6 +24,11 @@
   --color-halluc: var(--halluc);
   --color-halluc-soft: var(--halluc-soft);
   --color-surface: var(--surface);
+  --color-sheet: var(--sheet);
+  --color-rule: var(--rule);
+  --color-canvas: var(--canvas);
+  --color-pencil: var(--pencil);
+  --color-pencil-soft: var(--pencil-soft);
 
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -39,35 +46,47 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+
+  /* Two radii only: 8px for sheets and panels, 6px for controls. */
+  --radius-sm: calc(var(--radius) * 0.75);
+  --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: 999px;
+
+  /* Motion: strong ease-out for anything responding to the user, the drawer curve for sheets. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 :root {
-  --background: #f6f7f9;
-  --surface: #ffffff;
-  --foreground: #1b2230;
+  --background: #edf1f8; /* the shell: sidebar ground, tinted toward the pencil */
+  --surface: #edf1f8;
+  --canvas: #f6f8fc; /* the working area between shell and sheets */
+  --sheet: #ffffff; /* the answer and the inspector */
+  --foreground: #121826;
   --card: #ffffff;
-  --card-foreground: #1b2230;
+  --card-foreground: #121826;
   --popover: #ffffff;
-  --popover-foreground: #1b2230;
-  --primary: #1d5c86;
+  --popover-foreground: #121826;
+  --pencil: #2343c4; /* the editor's blue pencil */
+  --pencil-soft: #e6ecfc;
+  --primary: var(--pencil);
   --primary-foreground: #ffffff;
-  --secondary: #eef1f5;
-  --secondary-foreground: #1b2230;
-  --muted: #eef1f5;
-  --muted-foreground: #5b6577;
-  --accent: #e3eef6;
-  --accent-foreground: #1b2230;
+  --secondary: #e2e7f1;
+  --secondary-foreground: #121826;
+  --muted: #eaeef6;
+  --muted-foreground: #535d72;
+  --accent: #e6ecfc;
+  --accent-foreground: #121826;
   --destructive: #b3261e;
-  --border: #dde1e8;
-  --input: #dde1e8;
-  --ring: #1d5c86;
+  --border: #d6ddea;
+  --rule: #e5eaf3;
+  --input: #cbd3e3;
+  --ring: var(--pencil);
   --radius: 0.5rem;
 
   --high: #1f7a4d;
@@ -79,25 +98,30 @@
 }
 
 .dark {
-  --background: #11151c;
-  --surface: #181d26;
-  --foreground: #e4e8ef;
-  --card: #181d26;
-  --card-foreground: #e4e8ef;
-  --popover: #1e2430;
-  --popover-foreground: #e4e8ef;
-  --primary: #6fb2e0;
-  --primary-foreground: #0c1822;
-  --secondary: #1e2430;
-  --secondary-foreground: #e4e8ef;
-  --muted: #1e2430;
-  --muted-foreground: #98a2b3;
-  --accent: #1b2b3a;
-  --accent-foreground: #e4e8ef;
+  --background: #0e131d;
+  --surface: #0e131d;
+  --canvas: #121826;
+  --sheet: #171e2c;
+  --foreground: #e7eaf1;
+  --card: #171e2c;
+  --card-foreground: #e7eaf1;
+  --popover: #1d2535;
+  --popover-foreground: #e7eaf1;
+  --pencil: #8fa8ff;
+  --pencil-soft: #1d2747;
+  --primary: var(--pencil);
+  --primary-foreground: #0e131d;
+  --secondary: #232c3e;
+  --secondary-foreground: #e7eaf1;
+  --muted: #1e2636;
+  --muted-foreground: #9aa3b5;
+  --accent: #1d2747;
+  --accent-foreground: #e7eaf1;
   --destructive: #f08a80;
-  --border: #2a313d;
-  --input: #2a313d;
-  --ring: #6fb2e0;
+  --border: #283246;
+  --rule: #212a3b;
+  --input: #323d54;
+  --ring: var(--pencil);
 
   --high: #5fcf94;
   --high-soft: #16301f;
@@ -111,15 +135,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01" 0;
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
-  }
-  html {
-    @apply font-sans;
   }
   h1,
   h2,
@@ -127,37 +153,242 @@
     @apply font-heading;
     text-wrap: balance;
   }
+  /* Source Serif's display cut at large sizes, its text cut in running copy. */
+  .font-serif {
+    font-optical-sizing: auto;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--pencil) 22%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  /* Thin, ink-toned scrollbars instead of the browser's grey slab. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+  }
+  input,
+  textarea {
+    caret-color: var(--foreground);
+  }
 }
 
 @layer components {
-  /* A sentence in a checked answer, coloured by the label of its weakest claim. */
+  /* A sentence in a checked answer, underlined in the colour of its weakest claim. The margin
+     rail beside it carries the mark and the score; hover and selection fill it. */
   .sentence {
-    @apply rounded-[3px] border-b-2 px-0.5 transition-colors;
+    @apply rounded-[3px];
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+    text-decoration-skip-ink: none;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
+    transition: background-color 150ms ease;
   }
   .sentence[data-label="high"] {
-    @apply border-high bg-high-soft;
+    text-decoration-color: color-mix(in oklch, var(--high) 70%, transparent);
   }
   .sentence[data-label="inferred"] {
-    @apply border-inferred bg-inferred-soft;
+    text-decoration-color: var(--inferred);
   }
+  /* A proofer's strike: still legible, but plainly marked for removal. */
   .sentence[data-label="hallucinated"] {
-    @apply border-halluc bg-halluc-soft;
+    text-decoration-line: line-through;
+    text-decoration-color: color-mix(in oklch, var(--halluc) 85%, transparent);
+    text-decoration-thickness: 1.5px;
   }
   .sentence[data-label="none"] {
-    @apply border-transparent;
+    text-decoration-line: none;
+  }
+  /* Hover and selection are the pencil's, never a verdict tint: those hues stay the verdicts'. */
+  .sentence[role="button"][data-hover="true"] {
+    background-color: color-mix(in oklch, var(--pencil) 6%, transparent);
   }
   .sentence[aria-pressed="true"] {
-    @apply outline-2 outline-offset-1 outline-foreground;
+    background-color: color-mix(in oklch, var(--pencil) 11%, transparent);
+  }
+  .sentence[role="button"]:focus-visible {
+    outline-offset: 1px;
+  }
+
+  /* A proof mark draws itself once, when its verdict lands. */
+  .proof-mark path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: mark-draw 420ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+  }
+  .proof-mark-score {
+    animation: fade-in 260ms ease both;
+    animation-delay: calc(var(--delay, 0ms) + 160ms);
+  }
+
+  /* A sentence's underline (or strike) lands with its margin mark when the verdict arrives. */
+  .sentence-land {
+    animation: underline-in 420ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  /* The passage line a claim was checked against, highlighted once when the source opens. */
+  .evidence-flash {
+    animation: evidence-flash 1400ms var(--ease-out) both;
+  }
+
+  /* Work with no measurable progress (a document being indexed): a sweep, not a fake percentage. */
+  .indeterminate {
+    position: relative;
+    overflow: hidden;
+  }
+  .indeterminate::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    border-radius: inherit;
+    background: var(--pencil);
+    animation: sweep 1100ms var(--ease-in-out) infinite;
+  }
+
+  /* The agent's current stage on the route. */
+  .stage-live {
+    animation: stage-live 1600ms ease-in-out infinite;
+  }
+
+  /* Rows that arrive while the agent works, and the parts of a finished answer. */
+  .arrive {
+    animation: arrive 220ms var(--ease-out) both;
+  }
+  .grow-x {
+    transform-origin: left center;
+    animation: grow-x 520ms var(--ease-out) both;
+    animation-delay: var(--delay, 0ms);
+  }
+  .fade-swap {
+    animation: fade-in 160ms ease both;
+  }
+
+  /* A disclosure that animates its height without measuring it. */
+  .disclosure {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 220ms var(--ease-out);
+  }
+  .disclosure[data-open="true"] {
+    grid-template-rows: 1fr;
+  }
+  .disclosure > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Side sheets below the docking breakpoints: always mounted, so opening and closing are
+     transitions that can be reversed mid-way. */
+  .sheet-backdrop {
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .sheet-panel {
+    transition: transform 300ms var(--ease-drawer);
+  }
+  .sheet-panel[data-side="left"] {
+    transform: translateX(-100%);
+  }
+  .sheet-panel[data-side="right"] {
+    transform: translateX(100%);
+  }
+  [data-sheet-open="true"] .sheet-backdrop {
+    opacity: 1;
+  }
+  [data-sheet-open="true"] .sheet-panel {
+    transform: translateX(0);
+  }
+  [data-sheet-open="false"] .sheet-panel {
+    transition-duration: 220ms;
   }
 }
 
+@keyframes mark-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes underline-in {
+  from {
+    text-decoration-color: transparent;
+  }
+}
+@keyframes evidence-flash {
+  0%,
+  35% {
+    background-color: color-mix(in oklch, var(--pencil) 28%, transparent);
+  }
+}
+@keyframes sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+@keyframes stage-live {
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--pencil) 18%, transparent);
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Reduced motion keeps the fades that explain a change and drops everything that travels. */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  .proof-mark path {
+    animation: none;
+  }
+  .arrive,
+  .grow-x {
+    animation-name: fade-in;
+  }
+  .indeterminate::after {
+    animation: none;
+    width: 100%;
+    opacity: 0.35;
+  }
+  .stage-live {
+    animation: none;
+  }
+  .sheet-panel {
+    transition: none;
+  }
+  .disclosure {
+    transition: none;
+  }
+  [data-slot="tooltip-content"],
+  [data-slot="hover-card-content"] {
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-exit-scale: 1;
+  }
+  [data-slot="button"]:active {
+    transform: none;
   }
 }

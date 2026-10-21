@@ -1,0 +1,585 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T09:50:58+00:00",
+  "title": "Design System: Veritrace",
+  "extensions": {
+    "colorMeta": {
+      "pencil": {
+        "role": "primary",
+        "displayName": "Editor's Blue Pencil",
+        "canonical": "#2343c4",
+        "oklch": "oklch(45.2% 0.203 266.6)",
+        "dark": "#8fa8ff",
+        "tonalRamp": [
+          "#010133",
+          "#070d71",
+          "#1b3595",
+          "#3758bb",
+          "#567be1",
+          "#779fff",
+          "#99c4ff",
+          "#d1eeff"
+        ],
+        "onColor": {
+          "light": "#ffffff",
+          "dark": "#0e131d"
+        }
+      },
+      "pencil-soft": {
+        "role": "primary",
+        "displayName": "Pencil Wash",
+        "canonical": "#e6ecfc",
+        "oklch": "oklch(94.3% 0.023 269.4)",
+        "dark": "#1d2747",
+        "tonalRamp": [
+          "#090b11",
+          "#212530",
+          "#3d424e",
+          "#5c616e",
+          "#7d8290",
+          "#9fa5b4",
+          "#c3c9d8",
+          "#ebeef8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Proofing Ink",
+        "canonical": "#121826",
+        "oklch": "oklch(21.0% 0.029 266.1)",
+        "dark": "#e7eaf1",
+        "tonalRamp": [
+          "#080b13",
+          "#1e2534",
+          "#3b4252",
+          "#596172",
+          "#7a8295",
+          "#9ca5b8",
+          "#c0c9dd",
+          "#e9effb"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#535d72",
+        "oklch": "oklch(47.8% 0.036 265.0)",
+        "dark": "#9aa3b5",
+        "tonalRamp": [
+          "#070b14",
+          "#1c2537",
+          "#394256",
+          "#576176",
+          "#788299",
+          "#9aa5bd",
+          "#bec9e2",
+          "#e7effe"
+        ]
+      },
+      "shell-ground": {
+        "role": "neutral",
+        "displayName": "Blue Shell Ground",
+        "canonical": "#edf1f8",
+        "oklch": "oklch(95.7% 0.010 261.8)",
+        "dark": "#0e131d",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#22252a",
+          "#3f4248",
+          "#5e6167",
+          "#7f8289",
+          "#a1a5ac",
+          "#c5c9d0",
+          "#eceff3"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "canonical": "#f6f8fc",
+        "oklch": "oklch(97.9% 0.006 264.5)",
+        "dark": "#121826",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#242528",
+          "#404245",
+          "#5f6165",
+          "#808286",
+          "#a3a5a9",
+          "#c7c9cd",
+          "#edeef1"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "dark": "#171e2c",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "tint-secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Tint",
+        "canonical": "#e2e7f1",
+        "oklch": "oklch(92.7% 0.015 264.5)",
+        "dark": "#232c3e",
+        "tonalRamp": [
+          "#090b0f",
+          "#21252c",
+          "#3e424a",
+          "#5d616a",
+          "#7e828b",
+          "#a0a5ae",
+          "#c4c9d3",
+          "#ebeef5"
+        ]
+      },
+      "tint-muted": {
+        "role": "neutral",
+        "displayName": "Tint",
+        "canonical": "#eaeef6",
+        "oklch": "oklch(94.8% 0.012 264.5)",
+        "dark": "#1e2636",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#22252b",
+          "#3f4248",
+          "#5e6168",
+          "#7f828a",
+          "#a1a5ad",
+          "#c5c9d1",
+          "#eceef3"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Border",
+        "canonical": "#d6ddea",
+        "oklch": "oklch(89.6% 0.019 263.0)",
+        "dark": "#283246",
+        "tonalRamp": [
+          "#090b10",
+          "#20252f",
+          "#3d424d",
+          "#5b616d",
+          "#7c838e",
+          "#9fa5b2",
+          "#c3c9d6",
+          "#eaeff7"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "#e5eaf3",
+        "oklch": "oklch(93.6% 0.013 262.4)",
+        "dark": "#212a3b",
+        "tonalRamp": [
+          "#090b0f",
+          "#22252c",
+          "#3e4249",
+          "#5d6169",
+          "#7e828b",
+          "#a1a5ae",
+          "#c4c9d2",
+          "#eceff4"
+        ]
+      },
+      "input-stroke": {
+        "role": "neutral",
+        "displayName": "Input Stroke",
+        "canonical": "#cbd3e3",
+        "oklch": "oklch(86.6% 0.024 264.4)",
+        "dark": "#323d54",
+        "tonalRamp": [
+          "#080b11",
+          "#1f2531",
+          "#3c424f",
+          "#5a616f",
+          "#7b8291",
+          "#9ea5b4",
+          "#c1c9d9",
+          "#eaeff8"
+        ]
+      },
+      "verdict-high": {
+        "role": "tertiary",
+        "displayName": "Stated Green",
+        "canonical": "#1f7a4d",
+        "oklch": "oklch(51.5% 0.110 156.8)",
+        "dark": "#5fcf94",
+        "tonalRamp": [
+          "#001005",
+          "#002e17",
+          "#00512c",
+          "#157347",
+          "#409667",
+          "#65ba89",
+          "#95dcb1",
+          "#ccfcdd"
+        ]
+      },
+      "verdict-inferred": {
+        "role": "tertiary",
+        "displayName": "Query Amber",
+        "canonical": "#9a6400",
+        "oklch": "oklch(54.8% 0.117 72.5)",
+        "dark": "#e9b44c",
+        "tonalRamp": [
+          "#150800",
+          "#3a1d00",
+          "#623600",
+          "#895400",
+          "#ad7522",
+          "#d2984a",
+          "#f1bf7f",
+          "#ffe8bd"
+        ]
+      },
+      "verdict-inferred-soft": {
+        "role": "tertiary",
+        "displayName": "Query Amber Wash",
+        "canonical": "#fbedcc",
+        "oklch": "oklch(94.9% 0.046 87.8)",
+        "dark": "#33280f",
+        "tonalRamp": [
+          "#0e0b04",
+          "#2b2415",
+          "#4b4129",
+          "#6c6043",
+          "#8e8163",
+          "#b1a485",
+          "#d4c8ad",
+          "#f6eedb"
+        ]
+      },
+      "verdict-halluc": {
+        "role": "tertiary",
+        "displayName": "Strike Red",
+        "canonical": "#b3261e",
+        "oklch": "oklch(50.1% 0.178 28.7)",
+        "dark": "#f08a80",
+        "tonalRamp": [
+          "#1f0000",
+          "#4e0000",
+          "#820000",
+          "#b0221b",
+          "#d84c3f",
+          "#ff7161",
+          "#ffa090",
+          "#ffd4c7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Welcome heading and How it works title. 2.125rem below sm, 3.25rem from sm; display cut via opsz."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The question heading each exchange (1.375rem below sm); How it works section heads at 1.5rem."
+      },
+      "score": {
+        "displayName": "Score",
+        "purpose": "Answer confidence figure; the inspector claim score uses it at 1.875rem."
+      },
+      "wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "\"Veritrace\" in the sidebar; 1.125rem in the phone bar."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Sheet headers such as Claim check."
+      },
+      "copy": {
+        "displayName": "Copy under check",
+        "purpose": "The checked answer, safe version and streaming draft. 1.0625rem at 1.85 below sm."
+      },
+      "passage": {
+        "displayName": "Passage",
+        "purpose": "Source passages in the inspector."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "UI prose, example questions, document names."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "13px sentence-case section labels, agent log, proof slug, metadata, legends, rail scores."
+      },
+      "cite": {
+        "displayName": "Cite",
+        "purpose": "Citation chips raised into the serif line."
+      },
+      "line-number": {
+        "displayName": "Line number",
+        "purpose": "Galley line numbers in the margin, pencil at 70%, hidden below 640px."
+      },
+      "code": {
+        "displayName": "Code",
+        "purpose": "Code only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet-edge-left",
+        "value": "12px 0 32px rgb(0 0 0 / 0.16)",
+        "purpose": "Open left side sheet below 64rem, over a rgb(10 11 14 / 0.32) backdrop."
+      },
+      {
+        "name": "sheet-edge-right",
+        "value": "-12px 0 32px rgb(0 0 0 / 0.16)",
+        "purpose": "Open right (inspector) sheet below 80rem."
+      },
+      {
+        "name": "composer-focus",
+        "value": "0 0 0 3px color-mix(in oklch, var(--foreground) 8%, transparent)",
+        "purpose": "Composer focus halo; the only shadow on a docked surface."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Anything responding to the user: marks, arrivals, bars, disclosures, switch thumb."
+      },
+      {
+        "name": "ease-drawer",
+        "value": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "purpose": "Side sheets."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Defined; reserved for on-screen movement between two states."
+      },
+      {
+        "name": "color-change",
+        "value": "150ms",
+        "purpose": "Hover, selection and inversion colour transitions."
+      },
+      {
+        "name": "mark-draw",
+        "value": "420ms ease-out, 90ms stagger",
+        "purpose": "Proof marks draw once when a verdict lands, staggered down the margin; score fades in 260ms, 160ms after its mark."
+      },
+      {
+        "name": "label-bar-grow",
+        "value": "520ms ease-out",
+        "purpose": "Verdict distribution bar and signal bars grow from the left."
+      },
+      {
+        "name": "arrive",
+        "value": "220ms ease-out, 4px rise",
+        "purpose": "Agent log rows and finished-answer parts."
+      },
+      {
+        "name": "disclosure",
+        "value": "220ms ease-out (grid rows)",
+        "purpose": "Height animation without measuring."
+      },
+      {
+        "name": "sheet",
+        "value": "300ms open / 220ms close, drawer curve; backdrop 200ms",
+        "purpose": "Always-mounted, interruptible CSS transitions."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.97), 150ms",
+        "purpose": "Button press feedback."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Keep fades; drop mark drawing, travel, sheet slides, press scale and tooltip translate."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "40rem"
+      },
+      {
+        "name": "lg",
+        "value": "64rem",
+        "purpose": "Sidebar docks; below it, a top bar and a left sheet."
+      },
+      {
+        "name": "xl",
+        "value": "80rem",
+        "purpose": "Inspector docks; below it, a right sheet."
+      }
+    ],
+    "fonts": [
+      {
+        "name": "Source Serif 4",
+        "variable": "--font-copy",
+        "axes": [
+          "opsz"
+        ],
+        "opticalSizing": "auto",
+        "purpose": "Voice: copy under check, headings, wordmark, headline figures."
+      },
+      {
+        "name": "Schibsted Grotesk",
+        "variable": "--font-ui",
+        "purpose": "Apparatus: labels, controls, chips, log, line numbers."
+      },
+      {
+        "name": "Geist Mono",
+        "variable": "--font-code",
+        "purpose": "Code only."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Pencil fill for the one main action.",
+      "html": "<button class=\"ds-btn-primary\">Add the two sample documents</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border-radius:6px;border:1px solid transparent;font:500 14px/1 var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);cursor:pointer;transition:background-color 150ms cubic-bezier(0.23,1,0.32,1),color 150ms cubic-bezier(0.23,1,0.32,1),transform 150ms cubic-bezier(0.23,1,0.32,1);background:var(--pencil, #2343c4);color:var(--primary-foreground, #fff);} .ds-btn-primary:hover{background:color-mix(in oklch, var(--pencil, #2343c4) 85%, transparent);} .ds-btn-primary:focus-visible{outline:2px solid var(--ring, #2343c4);outline-offset:2px;} .ds-btn-primary:active{transform:scale(0.97);}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action on a sheet-white fill with the input stroke.",
+      "html": "<button class=\"ds-btn-outline\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3v12\"/><path d=\"m17 8-5-5-5 5\"/><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/></svg>Add documents</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border-radius:6px;border:1px solid transparent;font:500 14px/1 var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);cursor:pointer;transition:background-color 150ms cubic-bezier(0.23,1,0.32,1),color 150ms cubic-bezier(0.23,1,0.32,1),transform 150ms cubic-bezier(0.23,1,0.32,1);background:var(--sheet, #fff);color:var(--foreground, #121826);border-color:var(--input, #cbd3e3);} .ds-btn-outline:hover{background:var(--muted, #eaeef6);} .ds-btn-outline:focus-visible{outline:2px solid var(--ring, #2343c4);outline-offset:2px;} .ds-btn-outline:active{transform:scale(0.97);}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Sidebar foot and sheet-close actions; muted until hovered.",
+      "html": "<button class=\"ds-btn-ghost\">How it works</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border-radius:6px;border:1px solid transparent;font:500 14px/1 var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);cursor:pointer;transition:background-color 150ms cubic-bezier(0.23,1,0.32,1),color 150ms cubic-bezier(0.23,1,0.32,1),transform 150ms cubic-bezier(0.23,1,0.32,1);height:28px;font-size:13px;background:transparent;color:var(--muted-foreground, #535d72);} .ds-btn-ghost:hover{background:var(--muted, #eaeef6);color:var(--foreground, #121826);} .ds-btn-ghost:focus-visible{outline:2px solid var(--ring, #2343c4);outline-offset:2px;}"
+    },
+    {
+      "name": "Composer",
+      "kind": "input",
+      "refersTo": "composer",
+      "description": "The question field docked at the canvas foot; pencil send button and switch, ink focus halo.",
+      "html": "<form class=\"ds-composer\"><textarea class=\"ds-composer-field\" rows=\"2\" placeholder=\"Ask about your documents…\"></textarea><div class=\"ds-composer-foot\"><label class=\"ds-composer-safe\"><span class=\"ds-switch\"></span>Safe mode</label><button type=\"button\" class=\"ds-composer-send\" aria-label=\"Ask\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m5 12 7-7 7 7\"/><path d=\"M12 19V5\"/></svg></button></div></form>",
+      "css": ".ds-composer{width:100%;max-width:560px;border:1px solid var(--input, #cbd3e3);border-radius:8px;background:var(--sheet, #fff);padding:6px;transition:border-color 150ms,box-shadow 150ms;} .ds-composer:focus-within{border-color:color-mix(in oklch, var(--foreground, #121826) 40%, transparent);box-shadow:0 0 0 3px color-mix(in oklch, var(--foreground, #121826) 8%, transparent);} .ds-composer-field{display:block;width:100%;border:0;background:transparent;resize:none;padding:6px 10px;font:400 15px/1.5 var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);color:var(--foreground, #121826);outline:none;caret-color:var(--foreground, #121826);} .ds-composer-foot{display:flex;align-items:center;justify-content:space-between;padding:4px 0 0 10px;} .ds-composer-safe{display:flex;align-items:center;gap:8px;font:400 13px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);color:var(--muted-foreground, #535d72);} .ds-switch{width:32px;height:18px;border-radius:999px;background:var(--input, #cbd3e3);position:relative;} .ds-switch::after{content:\"\";position:absolute;top:1px;left:1px;width:16px;height:16px;border-radius:999px;background:var(--background, #edf1f8);} .ds-composer-send{width:28px;height:28px;border:0;border-radius:6px;display:grid;place-items:center;background:var(--pencil, #2343c4);color:var(--primary-foreground, #fff);cursor:pointer;} .ds-composer-send:hover{background:color-mix(in oklch, var(--pencil, #2343c4) 85%, transparent);} .ds-composer-send:focus-visible{outline:2px solid var(--ring, #2343c4);outline-offset:2px;}"
+    },
+    {
+      "name": "Citation Chip",
+      "kind": "chip",
+      "refersTo": "cite-chip",
+      "description": "Source key in pencil on the pencil wash, raised into the serif line; hover and active invert to a pencil fill.",
+      "html": "<p class=\"ds-cite-line\">Webb led NASA from 1961 to 1968<button class=\"ds-cite\">S1</button> and the telescope bears his name<button class=\"ds-cite ds-cite-active\">S2</button>.</p>",
+      "css": ".ds-cite-line{font:400 18px/1.8 var(--font-copy, \"Source Serif 4\", Georgia, serif);color:var(--foreground, #121826);} .ds-cite{display:inline-flex;margin:0 2px;transform:translateY(-0.45em);border:0;border-radius:4px;padding:0 4px;font:500 11px/16px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);font-variant-numeric:tabular-nums;background:var(--pencil-soft, #e6ecfc);color:var(--pencil, #2343c4);cursor:pointer;transition:background-color 150ms,color 150ms;} .ds-cite:hover,.ds-cite-active{background:var(--pencil, #2343c4);color:var(--primary-foreground, #fff);} .ds-cite:focus-visible{outline:2px solid var(--ring, #2343c4);outline-offset:2px;}"
+    },
+    {
+      "name": "Document Row",
+      "kind": "nav",
+      "refersTo": "document-row",
+      "description": "Sidebar document entry; hover to the tint, ticked rows on the pencil wash with a pencil checkbox.",
+      "html": "<ul class=\"ds-docs\"><li class=\"ds-doc\"><input type=\"checkbox\"><div><p class=\"ds-doc-name\">chandrayaan-3.md</p><p class=\"ds-doc-meta\">1 page · 2 passages</p></div></li><li class=\"ds-doc ds-doc-ticked\"><input type=\"checkbox\" checked><div><p class=\"ds-doc-name\">james-webb-space-telescope.md</p><p class=\"ds-doc-meta\">1 page · 1 passage</p></div></li></ul>",
+      "css": ".ds-docs{list-style:none;margin:0;padding:12px;width:240px;background:var(--background, #edf1f8);} .ds-doc{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px;transition:background-color 150ms;} .ds-doc:hover{background:var(--muted, #eaeef6);} .ds-doc-ticked,.ds-doc-ticked:hover{background:var(--pencil-soft, #e6ecfc);} .ds-doc input{width:16px;height:16px;accent-color:var(--pencil, #2343c4);} .ds-doc p{margin:0;} .ds-doc-name{font:400 14px/1.35 var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);color:var(--foreground, #121826);} .ds-doc-meta{font:400 12px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);color:var(--muted-foreground, #535d72);font-variant-numeric:tabular-nums;}"
+    },
+    {
+      "name": "Answer Sheet with Galley Margin",
+      "kind": "card",
+      "refersTo": "answer-sheet",
+      "description": "The signature: proof slug, serif confidence figure, serif copy underlined by verdict, and a double-ruled pencil margin with line numbers, drawn marks and scores; the selected row becomes a pencil chip.",
+      "html": "<article class=\"ds-sheet\"><header class=\"ds-slug\"><span class=\"ds-slug-proof\">Proof</span><span class=\"ds-slug-meta\">Checked 15:15 · 3 claims · <span class=\"ds-slug-model\">qwen3:4b-instruct</span> (ollama)</span></header><div class=\"ds-sheet-body\"><div class=\"ds-score\"><span class=\"ds-score-num\">66</span><span class=\"ds-score-of\">/ 100</span></div><div class=\"ds-bar\"><span class=\"ds-bar-high\" style=\"flex-grow:1\"></span><span class=\"ds-bar-inf\" style=\"flex-grow:1\"></span><span class=\"ds-bar-hal\" style=\"flex-grow:1\"></span></div><div class=\"ds-proof\"><p class=\"ds-copy\"><span class=\"ds-s ds-s-high ds-s-pressed\">Webb led NASA from 1961 to 1968.</span> <span class=\"ds-s ds-s-inf\">The telescope honours his leadership role.</span> <span class=\"ds-s ds-s-hal\">He designed its gold mirror himself.</span></p><div class=\"ds-rail\"><span class=\"ds-ln\" style=\"top:16px\">1</span><span class=\"ds-ln\" style=\"top:48px\">2</span><span class=\"ds-ln\" style=\"top:80px\">3</span><div class=\"ds-row\" style=\"top:5px\"><span class=\"ds-chip ds-chip-active\"><svg class=\"ds-mark ds-high\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3.5 8.5 6.6 11.6 12.5 4.5\" pathLength=\"1\"/></svg><span>96</span></span></div><div class=\"ds-row\" style=\"top:37px\"><span class=\"ds-chip\"><svg class=\"ds-mark ds-inferred\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M2.5 9.2C4.4 6.4 6 6.4 8 8s3.6 1.6 5.5-1.2\" pathLength=\"1\"/></svg><span>45</span></span></div><div class=\"ds-row\" style=\"top:69px\"><span class=\"ds-chip\"><svg class=\"ds-mark ds-halluc\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 4l8 8\" pathLength=\"1\"/><path d=\"M12 4l-8 8\" pathLength=\"1\"/></svg><span>12</span></span></div></div></div></div></article>",
+      "css": ".ds-sheet{max-width:640px;background:var(--sheet, #fff);border:1px solid var(--border, #d6ddea);border-radius:8px;color:var(--foreground, #121826);overflow:hidden;} .ds-slug{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;padding:8px 24px;background:color-mix(in srgb, var(--pencil-soft, #e6ecfc) 70%, transparent);border-bottom:1px solid color-mix(in srgb, var(--pencil, #2343c4) 15%, transparent);font:400 13px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);} .ds-slug-proof{font-weight:600;color:var(--pencil, #2343c4);} .ds-slug-meta{color:var(--muted-foreground, #535d72);font-variant-numeric:tabular-nums;} .ds-slug-model{color:color-mix(in srgb, var(--foreground, #121826) 85%, transparent);} .ds-sheet-body{padding:24px;} .ds-score{display:flex;align-items:baseline;gap:6px;} .ds-score-num{font:600 44px/0.9 var(--font-copy, \"Source Serif 4\", Georgia, serif);letter-spacing:-0.02em;font-variant-numeric:tabular-nums;font-optical-sizing:auto;} .ds-score-of{font:400 14px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);color:var(--muted-foreground, #535d72);} .ds-bar{display:flex;gap:2px;height:8px;border-radius:999px;overflow:hidden;margin:14px 0 20px;transform-origin:left center;animation:ds-grow 520ms cubic-bezier(0.23,1,0.32,1) both;} .ds-bar-high{background:var(--high, #1f7a4d);} .ds-bar-inf{background:var(--inferred, #9a6400);} .ds-bar-hal{background:var(--halluc, #b3261e);} .ds-proof{display:grid;grid-template-columns:minmax(0,1fr) 5.5rem;column-gap:20px;} .ds-copy{margin:0;font:400 18px/1.8 var(--font-copy, \"Source Serif 4\", Georgia, serif);} .ds-s{border-radius:3px;text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:5px;text-decoration-skip-ink:none;transition:background-color 150ms;cursor:pointer;} .ds-s:hover{background:color-mix(in oklch, var(--pencil, #2343c4) 6%, transparent);} .ds-s-pressed{background:color-mix(in oklch, var(--pencil, #2343c4) 11%, transparent);} .ds-s-high{text-decoration-color:color-mix(in oklch, var(--high, #1f7a4d) 70%, transparent);} .ds-s-inf{text-decoration-color:var(--inferred, #9a6400);} .ds-s-hal{text-decoration-line:line-through;text-decoration-thickness:1.5px;text-decoration-color:color-mix(in oklch, var(--halluc, #b3261e) 85%, transparent);} .ds-rail{position:relative;border-left:3px double color-mix(in srgb, var(--pencil, #2343c4) 45%, transparent);} .ds-ln{position:absolute;left:8px;transform:translateY(-50%);font:400 10.5px/1 var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);font-variant-numeric:tabular-nums;color:color-mix(in srgb, var(--pencil, #2343c4) 70%, transparent);} .ds-row{position:absolute;left:0;height:22px;padding-left:32px;display:flex;align-items:center;} .ds-chip{display:flex;align-items:center;gap:6px;height:22px;margin-left:-4px;padding:0 4px;border-radius:5px;font:400 13px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);font-variant-numeric:tabular-nums;color:var(--muted-foreground, #535d72);transition:background-color 150ms;} .ds-chip-active{background:var(--pencil, #2343c4);color:var(--primary-foreground, #fff);font-weight:500;} .ds-chip-active .ds-mark{color:var(--primary-foreground, #fff);} .ds-mark{width:16px;height:16px;flex-shrink:0;} .ds-mark path{stroke-dasharray:1;animation:ds-draw 420ms cubic-bezier(0.23,1,0.32,1) both;} .ds-row:nth-of-type(2) .ds-mark path{animation-delay:90ms;} .ds-row:nth-of-type(3) .ds-mark path{animation-delay:180ms;} .ds-high{color:var(--high, #1f7a4d);} .ds-inferred{color:var(--inferred, #9a6400);} .ds-halluc{color:var(--halluc, #b3261e);} @keyframes ds-draw{from{stroke-dashoffset:1;}} @keyframes ds-grow{from{transform:scaleX(0);}} @media (prefers-reduced-motion: reduce){.ds-mark path{animation:none;} .ds-bar{animation:none;}}"
+    },
+    {
+      "name": "Signal Bars",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Inspector signals: pencil bars at 80%; the contradiction bar and value turn red only at or above 0.7.",
+      "html": "<dl class=\"ds-signals\"><dt>Entailment</dt><dd class=\"ds-track\"><div class=\"ds-fill\" style=\"width:100%\"></div></dd><dd class=\"ds-val\">1.00</dd><dt>Contradiction</dt><dd class=\"ds-track\"><div class=\"ds-fill ds-alarm\" style=\"width:82%\"></div></dd><dd class=\"ds-val ds-val-alarm\">0.82</dd><dt>Passage match</dt><dd class=\"ds-track\"><div class=\"ds-fill\" style=\"width:74%\"></div></dd><dd class=\"ds-val\">0.74</dd></dl>",
+      "css": ".ds-signals{display:grid;grid-template-columns:auto minmax(0,1fr) 2.25rem;align-items:center;gap:8px 12px;width:340px;margin:0;font:400 13px var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);color:var(--foreground, #121826);} .ds-signals dt{color:var(--muted-foreground, #535d72);} .ds-signals dd{margin:0;} .ds-track{height:4px;border-radius:999px;background:var(--muted, #eaeef6);overflow:hidden;} .ds-fill{height:100%;border-radius:999px;background:color-mix(in srgb, var(--pencil, #2343c4) 80%, transparent);transform-origin:left center;animation:ds-grow 520ms cubic-bezier(0.23,1,0.32,1) both;} .ds-alarm{background:var(--halluc, #b3261e);} .ds-val{text-align:right;font-variant-numeric:tabular-nums;} .ds-val-alarm{color:var(--halluc, #b3261e);font-weight:500;} @keyframes ds-grow{from{transform:scaleX(0);}}"
+    },
+    {
+      "name": "Model Status",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Status dot: filled pencil when serving, hollow ink ring when not. Never green or red.",
+      "html": "<div class=\"ds-status\"><span class=\"ds-dot\"></span><div><p class=\"ds-status-model\">qwen3:4b-instruct</p><p class=\"ds-status-sub\">ollama</p></div></div><div class=\"ds-status\"><span class=\"ds-dot ds-dot-off\"></span><div><p class=\"ds-status-model\">No model serving</p><p class=\"ds-status-sub\">rate limited</p></div></div>",
+      "css": ".ds-status{display:flex;align-items:flex-start;gap:10px;padding:6px 8px;font-family:var(--font-ui, \"Schibsted Grotesk\", system-ui, sans-serif);} .ds-status p{margin:0;} .ds-dot{margin-top:6px;width:8px;height:8px;border-radius:999px;background:var(--pencil, #2343c4);flex-shrink:0;box-sizing:border-box;} .ds-dot-off{background:transparent;border:1.5px solid var(--foreground, #121826);} .ds-status-model{font-size:13px;font-weight:500;color:var(--foreground, #121826);} .ds-status-sub{font-size:12px;color:var(--muted-foreground, #535d72);}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Editor's Blue Pencil",
+    "overview": "**Creative North Star: \"The Editor's Blue Pencil\"**\n\nEvery answer is a galley proof on a fact-checker's desk, and the checker works in blue pencil. The copy under check is set in a book serif on a white sheet. Around it, everything the checker does is drawn in one committed blue: the double-ruled margin with its galley line numbers, the selection, the citations, the actions, the focus ring, the status dot. Each sentence earns a mark in that margin at its right edge: a tick when a passage states it, a tilde when it follows but not in those words, a strike when it is unsupported. The proof is the product; the pencil is the hand that checks it.\n\nThe world is a pale blue-tinted shell, a lighter canvas and white sheets, with ink text and two kinds of colour only: the pencil, which is the apparatus, and the three verdicts, which keep the fixed meaning PRODUCT.md gives them. Source Serif 4 speaks for the page (headings, the wordmark, the headline figures, the copy under check) and Schibsted Grotesk, a newsroom grotesk, does the working parts with tabular figures. Density is that of a working desk: 13px labels, 1px rules, sheets that sit flat. The category default this refuses is a chat bubble with coloured highlights; the previous ink-only chrome on Geist was rejected by the user as reading like a stock kit.\n\nLight and dark are both first-class (system default). Dark mode is the same desk under a lamp: a near-black blue ground, slightly raised sheets, the pencil lifted to a light periwinkle and the verdicts lifted to stay legible. Its values live alongside the light ones in `frontend/src/app/globals.css` and in the sidecar.",
+    "keyCharacteristics": [
+      "Two kinds of colour: the blue pencil for the apparatus, green/amber/red for verdicts only.",
+      "Two voices: Source Serif 4 for the page's voice and the copy under check, Schibsted Grotesk for the apparatus.",
+      "A galley margin beside every checked answer: a double pencil rule, numbered lines, drawn proof marks and scores.",
+      "Three surface tones: blue-tinted ground, canvas, white sheet. Depth by tone and 1px rules, not shadow.",
+      "Marks draw once when a verdict lands; everything else is quick and interruptible."
+    ],
+    "rules": [
+      {
+        "name": "The Quarantine Rule",
+        "body": "A hue on screen is either a verdict or the pencil. Green, amber and red mean stated, inferred and flagged (or a failure that means the same thing); the pencil means the checker is acting. No third hue. The red Delete confirmation in the documents list is a known exception, recorded as fact, not a pattern to extend.",
+        "section": "colors"
+      },
+      {
+        "name": "The Blue Pencil Rule",
+        "body": "The pencil is the single apparatus hue: actions, focus, selection, citations, the margin, status, progress. It never marks a verdict, and its fills stay small (chips, buttons, the selected rail mark); larger areas take the pencil wash or the blue-tinted neutrals.",
+        "section": "colors"
+      },
+      {
+        "name": "The Pencil Selection Rule",
+        "body": "Selection is pencil: a pencil chip with white content (selected rail mark, active citation, active source key), the pencil wash for chosen things (ticked documents), an 11% pencil tint on a pressed sentence and 6% on hover. Never a verdict tint, never ink.",
+        "section": "colors"
+      },
+      {
+        "name": "The Pencil Status Rule",
+        "body": "The model status dot is filled pencil when a model is serving, a hollow 1.5px ink ring when it is not, a pulsing muted dot while checking. Status is never green or red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Serif is the voice: the copy under check, the page's headings, the wordmark and the headline figures. Sans is the apparatus: labels, controls, chips, the log, line numbers and rail scores. Never set a control or label in the serif, or copy under check in the sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Every score, count, duration, line number and page number uses tabular figures so columns and live-updating values do not jitter.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Desk Rule",
+        "body": "No shadow on a resting surface. If it does not float or hold focus, it has no shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep every hue either a verdict (green states, amber queries, red strikes, at the PRODUCT.md values) or the blue pencil.",
+      "**Do** make primary actions, focus and selection pencil: a pencil chip with white content, the pencil wash, or a pencil tint of 6 to 11% on text.",
+      "**Do** set the copy under check, headings, the wordmark and headline figures in Source Serif 4, and every label, control and small figure in Schibsted Grotesk with tabular figures.",
+      "**Do** use the three tones in order (blue shell ground, canvas, sheet) with 1px borders and rules, 8px for sheets and 6px for controls.",
+      "**Do** rule checking margins with the 3px double pencil rule and number lines in 10.5px pencil.",
+      "**Do** draw new marks as 2px round-capped SVG strokes in the 16px box so they can draw themselves.",
+      "**Do** keep panels mounted and animate them with CSS transitions so they can reverse."
+    ],
+    "donts": [
+      "**Don't** introduce a second apparatus hue or tint the pencil toward a verdict.",
+      "**Don't** use green, amber or red for selection, status, decoration or emphasis that is not a verdict.",
+      "**Don't** show model or connection status in green or red; the status dot is pencil or a hollow ink ring.",
+      "**Don't** put shadows on resting surfaces.",
+      "**Don't** replace the drawn marks with emoji, icon-font glyphs or coloured highlighter fills.",
+      "**Don't** use Geist Mono outside code."
+    ]
+  }
+}

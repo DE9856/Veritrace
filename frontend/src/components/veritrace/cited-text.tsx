@@ -1,45 +1,84 @@
 "use client";
 
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { bestSentence } from "@/lib/evidence";
+import type { SourceChunk } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const CITATION = /\[(S\d+(?:\s*[,;]\s*S\d+)*)\]/g;
 
-/** Plain answer text with every [S1] / [S2, S3] citation turned into a button. */
+/** Plain answer text with every [S1] / [S2, S3] citation turned into a button, or into a plain
+ *  marker where there is nothing to open (a draft still streaming, a quoted claim). Given the
+ *  sources, hovering a citation previews the passage line that best supports this text. */
 export function CitedText({
   text,
   onCite,
   activeSource,
+  sources,
 }: {
   text: string;
-  onCite: (label: string) => void;
+  onCite?: (label: string) => void;
   activeSource?: string | null;
+  sources?: SourceChunk[];
 }) {
   const parts: React.ReactNode[] = [];
   let last = 0;
   for (const match of text.matchAll(CITATION)) {
     const start = match.index ?? 0;
-    if (start > last) parts.push(text.slice(last, start).replace(/\s+$/, ""));
+    if (start > last) parts.push(plain(text.slice(last, start).replace(/\s+$/, ""), last));
     for (const label of match[1].split(/\s*[,;]\s*/)) {
       parts.push(
-        <CitationChip key={`${start}-${label}`} label={label} onCite={onCite} active={activeSource === label} />,
+        onCite ? (
+          <CitationChip
+            key={`${start}-${label}`}
+            label={label}
+            onCite={onCite}
+            active={activeSource === label}
+            source={sources?.find((s) => s.label === label)}
+            context={text}
+          />
+        ) : (
+          <span
+            key={`${start}-${label}`}
+            className="mx-0.5 inline-flex -translate-y-[0.45em] rounded-[4px] bg-pencil-soft px-1 font-sans text-pencil text-[11px] leading-4 font-medium tabular-nums"
+          >
+            {label}
+          </span>
+        ),
       );
     }
     last = start + match[0].length;
   }
-  if (last < text.length) parts.push(text.slice(last));
+  if (last < text.length) parts.push(plain(text.slice(last), last));
   return <>{parts}</>;
+}
+
+/** A run of text; a run of bare punctuation (the full stop after a citation) is kept out of the
+ *  sentence's underline, so no lone dot gets underlined. */
+function plain(text: string, key: number): React.ReactNode {
+  return /^[\s.,;:!?)\]]+$/.test(text) ? (
+    <span key={`p${key}`} className="inline-block whitespace-pre">
+      {text}
+    </span>
+  ) : (
+    text
+  );
 }
 
 export function CitationChip({
   label,
   onCite,
   active,
+  source,
+  context,
 }: {
   label: string;
   onCite: (label: string) => void;
   active?: boolean;
+  source?: SourceChunk;
+  context?: string; // the sentence the citation sits in, to find the line that supports it
 }) {
-  return (
+  const chip = (
     <button
       type="button"
       onClick={(event) => {
@@ -47,14 +86,60 @@ export function CitationChip({
         onCite(label);
       }}
       className={cn(
-        "mx-0.5 inline-flex -translate-y-1.5 items-center rounded px-1 font-mono text-[10px] leading-4 font-medium",
-        "bg-accent text-primary hover:bg-primary hover:text-primary-foreground",
-        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-        active && "bg-primary text-primary-foreground",
+        "mx-0.5 inline-flex -translate-y-[0.45em] items-center rounded-[4px] px-1 font-sans text-[11px] leading-4 font-medium tabular-nums",
+        "bg-pencil-soft text-pencil transition-colors duration-150 hover:bg-pencil hover:text-primary-foreground",
+        active && "bg-pencil text-primary-foreground",
       )}
       aria-label={`Open source ${label}`}
     >
       {label}
     </button>
+  );
+  if (!source) return chip;
+  return (
+    <HoverCard openDelay={350} closeDelay={80}>
+      <HoverCardTrigger asChild>{chip}</HoverCardTrigger>
+      <HoverCardContent side="top" className="w-[22rem] p-0 font-sans">
+        <PassagePreview source={source} context={context} />
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
+/** The passage behind a citation, trimmed to the line that best supports the cited text. */
+function PassagePreview({ source, context }: { source: SourceChunk; context?: string }) {
+  const { sentences, best } = bestSentence(source.text, context);
+  const excerpt =
+    best >= 0 ? sentences.slice(Math.max(0, best - 1), best + 2) : [source.text.slice(0, 240).trimEnd() + "…"];
+  const focus = best >= 0 ? Math.min(best, 1) : -1;
+  return (
+    <div>
+      <div className="flex items-baseline gap-2 border-b border-rule px-3.5 py-2 text-xs">
+        <span className="rounded-[4px] bg-pencil px-1 font-medium text-primary-foreground tabular-nums">
+          {source.label}
+        </span>
+        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+          {source.filename}, p. {source.page}
+        </span>
+        <span className="text-muted-foreground tabular-nums">match {source.similarity.toFixed(2)}</span>
+      </div>
+      <p className="px-3.5 py-3 font-serif text-[0.9375rem] leading-relaxed">
+        {excerpt.map((sentence, i) => (
+          <span
+            key={i}
+            className={
+              i === focus
+                ? "rounded-[2px] bg-pencil-soft text-foreground underline decoration-pencil/60 decoration-2 underline-offset-4"
+                : "text-muted-foreground"
+            }
+          >
+            {sentence}{" "}
+          </span>
+        ))}
+      </p>
+      <p className="border-t border-rule px-3.5 py-1.5 text-xs text-muted-foreground">
+        Select the citation to open the whole passage.
+      </p>
+    </div>
   );
 }

@@ -1,12 +1,17 @@
 "use client";
 
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 
 import { useHealth } from "@/hooks/use-health";
-import { LABEL_BAR, LABEL_HINT, LABEL_TEXT, STEP_NAMES } from "@/lib/labels";
-import type { Label } from "@/lib/types";
+import { STEP_NAMES } from "@/lib/labels";
 import { cn } from "@/lib/utils";
+
+import { Mark } from "./header";
+import { ExampleProof } from "./example-proof";
+import { MarkLegend } from "./inspector";
+import { ProofMark } from "./proof-mark";
+import type { Label } from "@/lib/types";
 
 const STEPS: { node: string; what: string }[] = [
   { node: "analyze", what: "Rewrites the question into search queries." },
@@ -71,95 +76,103 @@ export function HowItWorks() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <div className="mx-auto max-w-3xl space-y-10 px-4 py-6 sm:py-10">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeftIcon className="size-4" /> Back to Veritrace
-        </Link>
+      <div className="mx-auto max-w-3xl px-4 pt-6 pb-20 sm:px-6 sm:pt-10">
+        <nav className="flex items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="group -mx-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground"
+          >
+            <ArrowLeftIcon className="size-4 transition-transform duration-150 ease-(--ease-out) group-hover:-translate-x-0.5" />
+            Back to Veritrace
+          </Link>
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <Mark className="size-[18px]" /> <span className="font-serif text-base">Veritrace</span>
+          </span>
+        </nav>
 
-        <header className="space-y-3">
-          <h1 className="text-3xl font-semibold sm:text-4xl">How Veritrace checks an answer</h1>
-          <p className="max-w-[65ch] text-muted-foreground">
+        <header className="mt-12 space-y-4 sm:mt-16">
+          <h1 className="font-serif text-[2.125rem] leading-[1.05] font-semibold tracking-[-0.022em] sm:text-[3.25rem]">
+            How Veritrace checks an answer
+          </h1>
+          <p className="max-w-[62ch] font-serif text-lg leading-relaxed text-foreground/85">
             Veritrace answers only from the documents you add. It then treats its own answer as untrusted: every
             claim is checked against the source passages, against repeated answers and by a judge, and labelled
             by what the checks found.
           </p>
         </header>
 
-        <Section title="The three labels">
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {(["high", "inferred", "hallucinated"] as Label[]).map((label) => (
-              <li key={label} className="rounded-lg border bg-card p-3">
-                <div className={cn("mb-2 h-1 w-8 rounded-full", LABEL_BAR[label])} />
-                <p className="text-sm font-medium">{LABEL_TEXT[label]}</p>
-                <p className="text-sm text-muted-foreground">{LABEL_HINT[label]}</p>
-              </li>
-            ))}
-          </ul>
-        </Section>
+        <div className="mt-14 space-y-14">
+          <Section title="The three labels">
+            <ExampleProof className="rounded-lg border bg-sheet p-5 sm:p-6" />
+            <MarkLegend className="text-sm sm:grid sm:grid-cols-3 sm:gap-6 sm:space-y-0" />
+          </Section>
 
-        <Section title="The agent's steps">
-          <ol className="space-y-2">
-            {STEPS.map((step, i) => (
-              <li key={step.node} className="flex gap-3 text-sm">
-                <span className="w-5 shrink-0 text-right font-mono text-muted-foreground">{i + 1}</span>
-                <span>
-                  <span className="font-medium">{STEP_NAMES[step.node]}</span>
-                  <span className="text-muted-foreground"> · {step.what}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-          <p className="text-sm text-muted-foreground">
-            The judge and consistency steps run in parallel. Each step and its time show live above every answer.
-          </p>
-        </Section>
+          <Section title="The agent's steps">
+            <ol className="divide-y divide-rule border-y border-rule">
+              {STEPS.map((step, i) => (
+                <li key={step.node} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3 py-3 text-[15px]">
+                  <span className="text-right text-sm text-pencil tabular-nums">{i + 1}</span>
+                  <span>
+                    <span className="font-medium">{STEP_NAMES[step.node]}</span>
+                    <span className="mt-0.5 block text-muted-foreground">{step.what}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <Prose>
+              The judge and consistency steps run in parallel. Each step and its time show live above every answer.
+            </Prose>
+          </Section>
 
-        <Section title="From signals to a label">
-          <Table
-            head={["Signal", "Weight", "What it measures"]}
-            rows={SIGNALS.map((s) => [s.name, s.weight, s.what])}
-          />
-          <p className="text-sm text-muted-foreground">
-            The score is the weighted average of the signals a claim has. Then these rules apply:
-          </p>
-          <ul className="list-disc space-y-1 pl-5 text-sm">
-            {RULES.map((rule) => (
-              <li key={rule}>{rule}</li>
-            ))}
-          </ul>
-          <p className="text-sm text-muted-foreground">
-            A sentence takes the label of its weakest claim. The answer&apos;s confidence is the average claim
-            score, weighted by claim length. Weights and thresholds are in <code>backend/config.yaml</code>.
-          </p>
-        </Section>
+          <Section title="From signals to a label">
+            <ScoringPath />
+            <Table
+              head={["Signal", "Weight", "What it measures"]}
+              rows={SIGNALS.map((s) => [s.name, s.weight, s.what])}
+              numeric={[1]}
+            />
+            <Prose>The score is the weighted average of the signals a claim has. Then these rules apply:</Prose>
+            <ul className="space-y-2 font-serif text-[1.0625rem] leading-relaxed">
+              {RULES.map((rule) => (
+                <li key={rule} className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-2">
+                  <span aria-hidden className="mt-[0.7em] size-1 rounded-full bg-foreground/50" />
+                  {rule}
+                </li>
+              ))}
+            </ul>
+            <Prose>
+              A sentence takes the label of its weakest claim. The answer&apos;s confidence is the average claim
+              score, weighted by claim length. Weights and thresholds are in <Code>backend/config.yaml</Code>.
+            </Prose>
+          </Section>
 
-        <Section title="Models">
-          <Table head={["Role", "Model"]} rows={models.map((m) => [m.role, m.name])} mono={1} />
-          <p className="text-sm text-muted-foreground">
-            The main model is Groq&apos;s gpt-oss-120b, with Gemini as fallback when Groq is rate limited.
-            Everything also runs offline on qwen3:4b-instruct through Ollama.
-          </p>
-        </Section>
+          <Section title="Models">
+            <Table head={["Role", "Model"]} rows={models.map((m) => [m.role, m.name])} />
+            <Prose>
+              The main model is Groq&apos;s gpt-oss-120b, with Gemini as fallback when Groq is rate limited.
+              Everything also runs offline on qwen3:4b-instruct through Ollama.
+            </Prose>
+          </Section>
 
-        <Section title="How well it works">
-          <p className="text-sm text-muted-foreground">
-            Measured on {EVALUATION.claims} hand-labelled claims the rules were never tuned on, with{" "}
-            <span className="font-mono">{EVALUATION.model}</span>. Hallucination F1 is how well it finds the
-            hallucinated claims.
-          </p>
-          <Table
-            head={["Method", "Accuracy", "Macro-F1", "Hallucination F1"]}
-            rows={EVALUATION.rows.map((r) => [r.name, r.accuracy, r.macroF1, r.halF1])}
-          />
-          <p className="text-sm text-muted-foreground">
-            It catches 14 of the 15 hallucinated claims and never calls a claim the documents state
-            hallucinated. The judge and self-consistency baselines cannot say inferred at all. Its most common
-            mistake is labelling a correct paraphrase inferred. Full results, with an ablation of each signal: <code>docs/evaluation.md</code>.
-          </p>
-        </Section>
+          <Section title="How well it works">
+            <Prose>
+              Measured on {EVALUATION.claims} hand-labelled claims the rules were never tuned on, with{" "}
+              {EVALUATION.model}. Hallucination F1 is how well it finds the hallucinated claims.
+            </Prose>
+            <Table
+              head={["Method", "Accuracy", "Macro-F1", "Hallucination F1"]}
+              rows={EVALUATION.rows.map((r) => [r.name, r.accuracy, r.macroF1, r.halF1])}
+              numeric={[1, 2, 3]}
+              emphasise={0}
+            />
+            <Prose>
+              It catches 14 of the 15 hallucinated claims and never calls a claim the documents state
+              hallucinated. The judge and self-consistency baselines cannot say inferred at all. Its most common
+              mistake is labelling a correct paraphrase inferred. Full results, with an ablation of each signal:{" "}
+              <Code>docs/evaluation.md</Code>.
+            </Prose>
+          </Section>
+        </div>
       </div>
     </div>
   );
@@ -167,31 +180,60 @@ export function HowItWorks() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-xl font-semibold">{title}</h2>
+    <section className="space-y-4">
+      <h2 className="font-serif text-2xl font-semibold tracking-[-0.012em]">{title}</h2>
       {children}
     </section>
   );
 }
 
-function Table({ head, rows, mono }: { head: string[]; rows: string[][]; mono?: number }) {
+function Prose({ children }: { children: React.ReactNode }) {
+  return <p className="max-w-[65ch] font-serif text-[1.0625rem] leading-relaxed text-foreground/85">{children}</p>;
+}
+
+function Code({ children }: { children: React.ReactNode }) {
+  return <code className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[0.8em] text-foreground">{children}</code>;
+}
+
+function Table({
+  head,
+  rows,
+  numeric = [],
+  emphasise,
+}: {
+  head: string[];
+  rows: string[][];
+  numeric?: number[];
+  emphasise?: number; // index of a row to set in medium weight
+}) {
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card">
+    <div className="overflow-x-auto rounded-lg border bg-sheet">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-xs text-muted-foreground">
-            {head.map((h) => (
-              <th key={h} className="px-3 py-2 font-medium">
+          <tr className="border-b text-left text-[13px] text-muted-foreground">
+            {head.map((h, i) => (
+              <th
+                key={h}
+                scope="col"
+                className={cn("px-4 py-2.5 font-medium whitespace-nowrap", numeric.includes(i) && "text-right")}
+              >
                 {h}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row[0]} className="border-b last:border-0">
+          {rows.map((row, r) => (
+            <tr key={row[0]} className={cn("border-b border-rule last:border-0", r === emphasise && "font-medium")}>
               {row.map((cell, i) => (
-                <td key={i} className={cn("px-3 py-2 align-top", i === mono && "font-mono text-xs")}>
+                <td
+                  key={i}
+                  className={cn(
+                    "px-4 py-2.5 align-top",
+                    numeric.includes(i) && "text-right whitespace-nowrap tabular-nums",
+                    i === 0 && "whitespace-nowrap",
+                  )}
+                >
                   {cell}
                 </td>
               ))}
@@ -200,5 +242,65 @@ function Table({ head, rows, mono }: { head: string[]; rows: string[][]; mono?: 
         </tbody>
       </table>
     </div>
+  );
+}
+
+// The path in backend/config.yaml, summarised: thresholds are high 0.75, inferred 0.45,
+// contradiction 0.7 and strong entailment 0.85, as the rules below spell out in full.
+const PATH_RULES: { when: string; label: Label }[] = [
+  { when: "The judge says contradicted, or NLI contradiction is 0.7 or more", label: "hallucinated" },
+  { when: "No passage supports it (entailment under 0.45) and the judge cannot derive it", label: "hallucinated" },
+  { when: "Score 0.75 or more, or entailment 0.85 or more with the resamples agreeing", label: "high" },
+  { when: "Anything else supported, and any high claim that adds new numbers or words", label: "inferred" },
+];
+
+/** Signals, weighted into a score, then rules, then a label: the scoring path at a glance. */
+function ScoringPath() {
+  return (
+    <figure className="rounded-lg border bg-sheet p-5 sm:p-6">
+      <div className="grid items-center gap-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto_minmax(0,1.5fr)]">
+        <div className="space-y-2.5">
+          <p className="text-[13px] font-medium text-muted-foreground">Signals, by weight</p>
+          {SIGNALS.map((signal) => (
+            <div key={signal.name} className="grid grid-cols-[6.5rem_minmax(0,1fr)_2rem] items-center gap-2 text-[13px]">
+              <span>{signal.name}</span>
+              <span className="h-1.5 rounded-full bg-muted">
+                <span
+                  className="block h-full rounded-full bg-pencil"
+                  style={{ width: `${(Number(signal.weight) / 0.65) * 100}%` }}
+                />
+              </span>
+              <span className="text-right text-muted-foreground tabular-nums">{signal.weight}</span>
+            </div>
+          ))}
+        </div>
+        <Arrow />
+        <div className="rounded-md bg-pencil-soft px-4 py-3 text-center">
+          <p className="font-serif text-2xl leading-none font-semibold text-pencil">0–100</p>
+          <p className="mt-1 text-xs text-muted-foreground">weighted score</p>
+        </div>
+        <Arrow />
+        <ul className="divide-y divide-rule border-l-[3px] border-double border-pencil/45 pl-4">
+          {PATH_RULES.map((rule) => (
+            <li key={rule.when} className="flex items-start justify-between gap-3 py-2 text-[13px] first:pt-0 last:pb-0">
+              <span className="text-foreground/85">{rule.when}</span>
+              <ProofMark label={rule.label} className="mt-0.5" />
+            </li>
+          ))}
+        </ul>
+      </div>
+      <figcaption className="mt-4 text-xs text-muted-foreground">
+        A summary of the path; the table and rules below give it in full.
+      </figcaption>
+    </figure>
+  );
+}
+
+function Arrow() {
+  return (
+    <span className="flex justify-center text-pencil/70" aria-hidden>
+      <ArrowDownIcon className="size-4 md:hidden" />
+      <ArrowRightIcon className="hidden size-4 md:block" />
+    </span>
   );
 }

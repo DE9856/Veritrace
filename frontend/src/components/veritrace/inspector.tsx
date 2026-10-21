@@ -1,14 +1,18 @@
 "use client";
 
-import { ArrowLeftIcon, FileTextIcon, MousePointerClickIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LABEL_BAR, LABEL_HINT, LABEL_PILL, LABEL_TEXT, percent } from "@/lib/labels";
+import { bestSentence } from "@/lib/evidence";
+import { LABEL_HINT, LABEL_TEXT, percent } from "@/lib/labels";
 import type { ChatResponse, ClaimResult, Label, SentenceResult, SourceChunk } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { CitedText } from "./cited-text";
+import { ExampleProof } from "./example-proof";
+import { LABEL_TONE, ProofMark } from "./proof-mark";
 
 export type Selection =
   | { exchangeId: string; kind: "sentence"; index: number }
@@ -20,6 +24,9 @@ export type LocalSelection = Selection extends infer S
     ? Omit<S, "exchangeId">
     : never
   : never;
+
+// Mirrors contradiction_threshold in backend/config.yaml: above it, NLI alone flags a claim.
+const STRONG_CONTRADICTION = 0.7;
 
 export function Inspector({
   response,
@@ -38,7 +45,7 @@ export function Inspector({
     const sentence = response.sentences.find((s) => s.index === selection.index);
     if (!sentence) return <InspectorEmpty />;
     return (
-      <Panel title="Claim check" onClose={onClose}>
+      <Panel title="Claim check" onClose={onClose} swapKey={`s${selection.exchangeId}${sentence.index}`}>
         <SentenceDetails
           sentence={sentence}
           sources={response.sources}
@@ -56,6 +63,7 @@ export function Inspector({
     <Panel
       title={`Source ${source.label}`}
       onClose={onClose}
+      swapKey={`p${selection.exchangeId}${source.label}${selection.claim ?? ""}`}
       onBack={
         selection.fromSentence !== undefined
           ? () => onSelect({ exchangeId: selection.exchangeId, kind: "sentence", index: selection.fromSentence! })
@@ -71,28 +79,33 @@ function Panel({
   title,
   onClose,
   onBack,
+  swapKey,
   children,
 }: {
   title: string;
   onClose: () => void;
   onBack?: () => void;
+  swapKey: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center gap-1 border-b px-3 py-2">
+    <div className="flex h-full min-h-0 flex-col bg-sheet">
+      <div className="flex h-12 shrink-0 items-center gap-1 border-b border-rule px-3">
         {onBack && (
           <Button variant="ghost" size="icon-sm" onClick={onBack} aria-label="Back to the claim check">
             <ArrowLeftIcon />
           </Button>
         )}
-        <h2 className="flex-1 px-1 text-sm font-medium">{title}</h2>
+        <h2 className="flex-1 px-1 text-sm font-semibold">{title}</h2>
         <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close the inspector">
           <XIcon />
         </Button>
       </div>
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="space-y-4 p-4">{children}</div>
+      <ScrollArea className="min-h-0 flex-1 [&_[data-slot=scroll-area-viewport]>div]:!block">
+        {/* Keyed so each new selection fades in instead of snapping. */}
+        <div key={swapKey} className="fade-swap space-y-5 p-5">
+          {children}
+        </div>
       </ScrollArea>
     </div>
   );
@@ -100,34 +113,48 @@ function Panel({
 
 function InspectorEmpty() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted-foreground">
-      <MousePointerClickIcon className="size-6 opacity-60" />
-      <p className="max-w-[28ch]">
-        Select a highlighted sentence to see how each of its claims was checked, or a citation to read the
-        source passage.
-      </p>
-      <div className="mt-2 flex flex-col gap-1.5 text-left text-xs">
-        {(["high", "inferred", "hallucinated"] as Label[]).map((label) => (
-          <div key={label} className="flex items-center gap-2">
-            <span className={cn("size-2.5 rounded-full", LABEL_BAR[label])} />
-            <span className="font-medium text-foreground">{LABEL_TEXT[label]}</span>
-            <span>{LABEL_HINT[label]}</span>
-          </div>
-        ))}
+    <div className="flex h-full flex-col bg-sheet">
+      <div className="flex h-12 shrink-0 items-center border-b border-rule px-4">
+        <h2 className="text-sm font-semibold">Claim check</h2>
+      </div>
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-5 text-sm">
+        <p className="max-w-[34ch] text-muted-foreground">
+          Select a sentence, or its mark in the margin, to see how each of its claims was checked. Select a
+          citation to read the source passage.
+        </p>
+        <section aria-labelledby="reading-heading" className="space-y-3">
+          <h3 id="reading-heading" className="font-serif text-lg font-semibold tracking-[-0.01em]">
+            How to read a proof
+          </h3>
+          <ExampleProof />
+        </section>
+        <MarkLegend />
       </div>
     </div>
   );
 }
 
-export function LabelPill({ label, className }: { label: Label; className?: string }) {
+/** The three labels, each shown as the mark that stands for it, set against the same ruled pencil
+ *  margin the answers carry. */
+export function MarkLegend({ className }: { className?: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-0.5 font-mono text-[10.5px] font-medium tracking-wide uppercase",
-        LABEL_PILL[label],
-        className,
-      )}
-    >
+    <dl className={cn("space-y-3 border-l-[3px] border-double border-pencil/45 pl-4", className)}>
+      {(["high", "inferred", "hallucinated"] as Label[]).map((label) => (
+        <div key={label} className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-3">
+          <ProofMark label={label} className="mt-0.5" />
+          <dt className="font-medium">{LABEL_TEXT[label]}</dt>
+          <dd className="col-start-2 text-muted-foreground">{LABEL_HINT[label]}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+/** A label as the checker writes it: its mark and its name, in its colour. */
+export function LabelTag({ label, className }: { label: Label; className?: string }) {
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 text-[13px] font-medium", LABEL_TONE[label], className)}>
+      <ProofMark label={label} className="size-3.5" />
       {LABEL_TEXT[label]}
     </span>
   );
@@ -144,58 +171,81 @@ function SentenceDetails({
 }) {
   return (
     <>
-      <div className="space-y-2">
-        {sentence.label && <LabelPill label={sentence.label} />}
-        <p className="text-[0.95rem] leading-relaxed">
-          <CitedText text={sentence.text} onCite={(label) => onOpenSource(label, sentence.text)} />
+      <div className="space-y-2.5">
+        {sentence.label && <LabelTag label={sentence.label} />}
+        <p className="font-serif text-[1.0625rem] leading-relaxed">
+          <CitedText
+            text={sentence.text}
+            onCite={(label) => onOpenSource(label, sentence.text)}
+            sources={sources}
+          />
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-[13px] text-muted-foreground">
           {sentence.claims.length === 1
             ? "This sentence makes one claim."
             : `This sentence makes ${sentence.claims.length} claims. It takes the label of the weakest one.`}
         </p>
       </div>
-      {sentence.claims.map((claim, i) => (
-        <ClaimCard
-          key={i}
-          claim={claim}
-          source={sources.find((s) => s.label === claim.evidence_label)}
-          onOpenSource={onOpenSource}
-        />
-      ))}
+      <ol className="divide-y divide-rule border-t border-rule">
+        {sentence.claims.map((claim, i) => (
+          <ClaimCheck
+            key={i}
+            single={sentence.claims.length === 1}
+            claim={claim}
+            source={sources.find((s) => s.label === claim.evidence_label)}
+            onOpenSource={onOpenSource}
+          />
+        ))}
+      </ol>
     </>
   );
 }
 
-function ClaimCard({
+function ClaimCheck({
   claim,
+  single,
   source,
   onOpenSource,
 }: {
   claim: ClaimResult;
+  single: boolean; // the sentence is this one claim, so its label and text are already shown above
   source: SourceChunk | undefined;
   onOpenSource: (label: string, claim: string) => void;
 }) {
   const s = claim.signals;
-  return (
-    <article className="space-y-3 rounded-lg border bg-card p-3">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm leading-snug font-medium">{claim.text}</p>
-        <div className="shrink-0 text-right">
-          <div className="font-mono text-lg leading-none tabular-nums">{percent(claim.score)}</div>
-          <div className="text-[10px] tracking-wide text-muted-foreground uppercase">score</div>
-        </div>
-      </div>
-      <LabelPill label={claim.label} />
-      <p className="text-sm text-muted-foreground">{claim.reason}</p>
+  const facts = [
+    s.self_label && ["Writer's tag", s.self_label.toLowerCase()],
+    s.judge && ["Judge", s.judge],
+    ["NLI verdict", claim.verdict],
+  ].filter(Boolean) as [string, string][];
 
-      <dl className="grid grid-cols-[auto_1fr_auto] items-center gap-x-2 gap-y-1.5 text-xs">
+  return (
+    <li className="space-y-3.5 py-4">
+      <div className="flex items-start justify-between gap-4">
+        {single ? (
+          <p className="text-[13px] leading-relaxed text-muted-foreground">{claim.reason}</p>
+        ) : (
+          <div className="space-y-1.5">
+            <LabelTag label={claim.label} />
+            <p className="text-sm leading-snug font-medium">{claim.text}</p>
+          </div>
+        )}
+        <p className="shrink-0 text-right">
+          <span className="block font-serif text-[1.875rem] leading-none font-semibold tracking-[-0.02em] tabular-nums">
+            {percent(claim.score)}
+          </span>
+          <span className="text-xs text-muted-foreground">score</span>
+        </p>
+      </div>
+      {!single && <p className="text-[13px] leading-relaxed text-muted-foreground">{claim.reason}</p>}
+
+      <dl className="grid grid-cols-[auto_minmax(0,1fr)_2.25rem] items-center gap-x-3 gap-y-2 text-[13px]">
         <Signal name="Entailment" value={s.entailment} hint="How strongly the best passage supports it (NLI)" />
         <Signal
           name="Contradiction"
           value={s.contradiction}
           hint="Strongest conflict with any passage (NLI)"
-          tone="bad"
+          alarm={s.contradiction >= STRONG_CONTRADICTION}
         />
         {s.consistency !== null && (
           <Signal name="Consistency" value={s.consistency} hint="How often resampled answers repeat it" />
@@ -203,38 +253,43 @@ function ClaimCard({
         <Signal name="Passage match" value={s.retrieval} hint="How closely the supporting passage matches it" />
       </dl>
 
-      <div className="flex flex-wrap gap-1.5 text-[11px]">
-        {s.self_label && <Tag>model said {s.self_label.toLowerCase()}</Tag>}
-        {s.judge && <Tag>judge: {s.judge}</Tag>}
-        <Tag>NLI: {claim.verdict}</Tag>
-      </div>
+      <dl className="flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
+        {facts.map(([name, value]) => (
+          <div key={name} className="flex gap-1.5">
+            <dt className="text-muted-foreground">{name}</dt>
+            <dd className="font-medium first-letter:uppercase">{value}</dd>
+          </div>
+        ))}
+      </dl>
+
       {s.new_terms.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          Words not in the passage:{" "}
+        <div className="flex flex-wrap items-baseline gap-1.5 text-[13px]">
+          <span className="text-muted-foreground">Words not in the passage</span>
           {s.new_terms.map((term) => (
-            <span key={term} className="mr-1 rounded bg-muted px-1 font-mono text-foreground">
+            <span key={term} className="rounded-[4px] bg-muted px-1.5 py-px text-foreground">
               {term}
             </span>
           ))}
-        </p>
+        </div>
       )}
 
       {source && (
         <button
           type="button"
           onClick={() => onOpenSource(source.label, claim.text)}
-          className="flex w-full items-center gap-2 rounded-md border bg-muted/40 px-2.5 py-2 text-left text-xs hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          className="group flex w-full items-center gap-2.5 rounded-md border border-rule px-3 py-2 text-left text-[13px] transition-colors duration-150 hover:border-pencil/40 hover:bg-pencil-soft/50"
         >
-          <FileTextIcon className="size-3.5 shrink-0 text-primary" />
+          <span className="inline-flex h-5 min-w-6 items-center justify-center rounded-[4px] bg-pencil-soft px-1 text-[11px] font-medium text-pencil tabular-nums">
+            {source.label}
+          </span>
           <span className="min-w-0 flex-1 truncate">
-            <span className="font-mono text-primary">{source.label}</span> · {source.filename}, page {source.page}
+            {source.filename}, page {source.page}
+            <span className="text-muted-foreground"> · {claim.evidence_cited ? "cited" : "not cited"}</span>
           </span>
-          <span className="shrink-0 text-muted-foreground">
-            {claim.evidence_cited ? "cited" : "not cited"}
-          </span>
+          <ArrowRightIcon className="size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-(--ease-out) group-hover:translate-x-0.5" />
         </button>
       )}
-    </article>
+    </li>
   );
 }
 
@@ -242,79 +297,61 @@ function Signal({
   name,
   value,
   hint,
-  tone = "good",
+  alarm = false,
 }: {
   name: string;
   value: number;
   hint: string;
-  tone?: "good" | "bad";
+  alarm?: boolean;
 }) {
   return (
     <>
       <dt className="text-muted-foreground" title={hint}>
         {name}
       </dt>
-      <dd className="h-1.5 overflow-hidden rounded-full bg-muted" title={hint}>
+      <dd className="h-1 overflow-hidden rounded-full bg-muted" title={hint}>
         <div
-          className={cn("h-full rounded-full", tone === "bad" ? "bg-halluc/70" : "bg-primary")}
-          style={{ width: `${Math.max(2, value * 100)}%` }}
+          className={cn("grow-x h-full rounded-full", alarm ? "bg-halluc" : "bg-pencil/80")}
+          style={{ width: `${Math.max(1.5, value * 100)}%` }}
         />
       </dd>
-      <dd className="w-8 text-right font-mono tabular-nums">{value.toFixed(2)}</dd>
+      <dd className={cn("text-right tabular-nums", alarm && "font-medium text-halluc")}>{value.toFixed(2)}</dd>
     </>
   );
-}
-
-function Tag({ children }: { children: React.ReactNode }) {
-  return <span className="rounded border px-1.5 py-0.5 text-muted-foreground">{children}</span>;
-}
-
-const STOP = new Set("the a an and or of in on at to for from by with was were is are that this its".split(" "));
-
-const contentWords = (text: string) =>
-  new Set(
-    text
-      .toLowerCase()
-      .match(/[a-z0-9]+/g)
-      ?.filter((w) => w.length > 2 && !STOP.has(w)) ?? [],
-  );
-
-/** Split a passage into sentences and find the one that shares most words with the claim. */
-function bestSentence(text: string, claim: string | undefined): { sentences: string[]; best: number } {
-  const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/);
-  if (!claim) return { sentences, best: -1 };
-  const words = contentWords(claim);
-  let best = -1;
-  let bestShare = 0.25; // below this, nothing is worth pointing at
-  sentences.forEach((sentence, i) => {
-    const shared = [...contentWords(sentence)].filter((w) => words.has(w)).length;
-    const share = shared / Math.max(words.size, 1);
-    if (share > bestShare) [best, bestShare] = [i, share];
-  });
-  return { sentences, best };
 }
 
 function SourceDetails({ source, claim }: { source: SourceChunk; claim?: string }) {
   // Mark the sentence that best matches the claim, so the reader finds the support quickly.
   const { sentences, best } = bestSentence(source.text, claim);
+  const match = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    match.current?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+  }, [source.label, claim]);
   return (
     <>
       <div className="space-y-1">
-        <p className="font-heading text-base leading-tight">{source.title}</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-base leading-snug font-semibold">{source.title}</p>
+        <p className="text-[13px] text-muted-foreground tabular-nums">
           {source.filename} · page {source.page} · match {source.similarity.toFixed(2)}
         </p>
       </div>
       {claim && (
-        <p className="rounded-md bg-muted px-2.5 py-2 text-xs">
-          <span className="text-muted-foreground">Checking: </span>
-          {claim}
-        </p>
+        <div className="rounded-md bg-muted px-3 py-2.5 text-[13px]">
+          <p className="mb-0.5 text-muted-foreground">Checking</p>
+          <p className="leading-snug">
+            <CitedText text={claim} />
+          </p>
+        </div>
       )}
-      <p className="text-sm leading-relaxed whitespace-pre-line">
+      <p className="font-serif text-[0.9875rem] leading-[1.75] whitespace-pre-line">
         {sentences.map((sentence, i) =>
           i === best ? (
-            <mark key={i} className="rounded-sm bg-accent px-0.5 text-foreground ring-1 ring-primary/30">
+            <mark
+              key={i}
+              ref={match}
+              className="evidence-flash rounded-[3px] bg-pencil-soft px-0.5 text-foreground underline decoration-pencil/60 decoration-2 underline-offset-4"
+            >
               {sentence}{" "}
             </mark>
           ) : (
@@ -325,9 +362,9 @@ function SourceDetails({ source, claim }: { source: SourceChunk; claim?: string 
         )}
       </p>
       {best >= 0 && (
-        <p className="text-xs text-muted-foreground">
-          The highlighted sentence shares the most words with the claim. The verdict itself comes from the NLI
-          model, which reads the passage in short windows.
+        <p className="text-[13px] text-muted-foreground">
+          The marked sentence shares the most words with the claim. The verdict itself comes from the NLI model,
+          which reads the passage in short windows.
         </p>
       )}
     </>

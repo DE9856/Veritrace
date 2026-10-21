@@ -8,6 +8,7 @@ import type { ChatResponse } from "@/lib/types";
 export interface Step {
   node: string;
   message: string;
+  at: number; // when the browser received it; the gap to the next step is this step's time
 }
 
 export type ExchangeStatus = "running" | "done" | "error" | "stopped";
@@ -59,7 +60,7 @@ export function useChat() {
       await streamChat(
         { question, safe_mode: safeMode, document_ids: scope?.ids },
         {
-          onStatus: (step) => update(id, (e) => ({ steps: [...e.steps, step] })),
+          onStatus: (step) => update(id, (e) => ({ steps: [...e.steps, { ...step, at: Date.now() }] })),
           onDraft: (text) => update(id, () => ({ draft: text })),
           onVerdict: (response) => {
             finished = true;
