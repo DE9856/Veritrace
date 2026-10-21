@@ -28,10 +28,13 @@ import yaml
 
 from app.config import BACKEND_DIR, Settings
 from app.verification.novelty import novelty
-from calibration.tune import ALL_SIGNALS, LABELS, predict, search
+from calibration import reliability as rel
+from calibration.tune import ALL_SIGNALS, LABELS, predict, score_record, search
 
 HERE = Path(__file__).parent
 REPORT = BACKEND_DIR.parent / "docs" / "evaluation.md"
+FIGURES: dict[str, str] = {}  # docs/figures/<name>: SVG, written with the report
+SELECTIVE_THRESHOLDS = (0.5, 0.7, 0.9, 0.95)
 PROVIDERS = ("groq", "ollama")
 
 # Ablation: which signals each row lets score_claim use. NLI is always on.
@@ -232,6 +235,9 @@ def model_section(provider: str) -> list[str]:
                 )
         w("")
 
+    out.extend(calibration_section(provider, dev, test, fresh, current))
+    out.extend(synthetic_section(provider, current))
+
     w("### Ablation (test, current settings)\n")
     w(
         "Each row lets the scorer use only some signals; NLI entailment, contradiction and "
@@ -280,6 +286,169 @@ def model_section(provider: str) -> list[str]:
     unlabelled = dev_missing + test_missing + fresh_missing
     if unlabelled:
         w(f"_{len(unlabelled)} claims from answers are not labelled yet and are left out._\n")
+    return out
+
+
+KIND_NAMES = {
+    "date": "Wrong date",
+    "number": "Wrong number",
+    "count": "Wrong count or ordinal",
+    "entity": "Swapped name",
+    "negation": "Flipped negation",
+    "original": "Unchanged (control)",
+}
+
+
+def synthetic_section(provider: str, current: Settings) -> list[str]:
+    """Detection by kind of error, on true claims with one fact changed (synthetic.py)."""
+    path = HERE / f"{provider}_synthetic_signals.json"
+    if not path.exists():
+        return []
+    records = [with_current_novelty(r) for r in load(path.name)["claims"]]
+    out: list[str] = []
+    w = out.append
+    w("### Synthetic hallucinations\n")
+    w(
+        "True claims with one fact changed by fixed rules (`calibration/synthetic.py`, no "
+        "model): a date moved, a number or count changed, a name swapped for a confusable "
+        "one from the documents, a negation flipped. Two sources: the documents' own "
+        "sentences, and the hand-labelled high claims (paraphrases, as a model writes them). "
+        "The unchanged claims are the controls. Consistency is off, since a synthetic claim "
+        "has no question of its own to resample. Caught means labelled hallucinated.\n"
+    )
+    w(
+        "| Source | Change | Claims | Caught | Labelled inferred | Labelled high "
+        "| NLI alone caught | Judge alone caught |\n|---|---|---|---|---|---|---|---|"
+    )
+    groups: dict[tuple[str, str], list[dict]] = {}
+    for r in records:
+        groups.setdefault((r["source"], r["kind"]), []).append(r)
+    order = list(KIND_NAMES)
+    for source, kind in sorted(groups, key=lambda k: (k[0], order.index(k[1]))):
+        group = groups[(source, kind)]
+        labels = Counter(predict(r, current) for r in group)
+        nli = sum(predict(r, current, frozenset()) == "hallucinated" for r in group)
+        judged = sum(judge_only(r) == "hallucinated" for r in group)
+        w(
+            f"| {source.capitalize()} | {KIND_NAMES[kind]} | {len(group)} | "
+            f"{labels['hallucinated']} | {labels['inferred']} | {labels['high']} | {nli} | "
+            f"{judged} |"
+        )
+    corrupted = [r for r in records if r["kind"] != "original"]
+    controls = [r for r in records if r["kind"] == "original"]
+    caught = sum(predict(r, current) == "hallucinated" for r in corrupted)
+    flagged = sum(predict(r, current) == "hallucinated" for r in controls)
+    w("")
+    w(
+        f"Overall: {caught} of {len(corrupted)} corrupted claims caught "
+        f"({caught / len(corrupted):.0%}); {flagged} of {len(controls)} unchanged claims "
+        "wrongly flagged. For the unchanged claims, the caught columns count false alarms.\n"
+    )
+    missed = [r for r in corrupted if predict(r, current) != "hallucinated"]
+    if missed:
+        w("Corrupted claims it misses:\n")
+        w("| Claim | Change | Predicted | Signals |\n|---|---|---|---|")
+        for r in missed:
+            w(
+                f"| {r['claim']} | {KIND_NAMES[r['kind']].lower()} | {predict(r, current)} | "
+                f"E={r['entailment']:.2f} C={r['contradiction']:.2f} judge={r['judge']} |"
+            )
+        w("")
+    return out
+
+
+def calibration_section(provider, dev, test, fresh, current) -> list[str]:
+    """Is the score a probability? Fit Platt scaling on dev, check it on test and fresh,
+    and show what hiding the least confident claims buys."""
+
+    def points(records, calibrated: bool) -> list[tuple[float, bool]]:
+        out = []
+        for r in records:
+            result = score_record(r, current)
+            confidence = result.support_probability if calibrated else result.score
+            out.append((confidence, r["label"] != "hallucinated"))
+        return out
+
+    slope, intercept = rel.fit_platt(points(dev, calibrated=False))
+    out: list[str] = []
+    w = out.append
+    w("### Confidence calibration\n")
+    w(
+        "Is the score a probability? A claim counts as supported when its hand label is high "
+        "or inferred. The score is mapped to a calibrated chance of support with Platt "
+        "scaling, sigmoid(slope x score + intercept), fitted on dev "
+        f"(`calibration/reliability.py`). Fitted now: slope {slope:.2f}, intercept "
+        f"{intercept:.2f}; `config.yaml` has {current.support_slope:.2f} and "
+        f"{current.support_intercept:.2f}. ECE is the gap between confidence and the share "
+        f"supported, averaged over {rel.BINS} equal-width bins (lower is better), with a 95% "
+        "bootstrap interval; Brier is the mean squared error of the confidence.\n"
+    )
+    w(
+        "| Set | Claims | ECE, raw score | ECE, calibrated | Brier, raw | Brier, calibrated |\n"
+        "|---|---|---|---|---|---|"
+    )
+    for name, records in (("Dev (fitted on)", dev), ("Test", test), ("Fresh", fresh)):
+        if not records:
+            continue
+        raw, cal = points(records, False), points(records, True)
+        (rl, rh), (cl, ch) = rel.ece_interval(raw), rel.ece_interval(cal)
+        w(
+            f"| {name} | {len(records)} | {rel.ece(raw):.3f} ({rl:.2f}-{rh:.2f}) | "
+            f"{rel.ece(cal):.3f} ({cl:.2f}-{ch:.2f}) | {rel.brier(raw):.3f} | "
+            f"{rel.brier(cal):.3f} |"
+        )
+    w("")
+
+    held_out, held_name = (fresh, "fresh") if fresh else (test, "test")
+    raw_bins = rel.bins(points(held_out, False))
+    cal_bins = rel.bins(points(held_out, True))
+    w(f"Reliability on {held_name}, by bin of the raw score and of the calibrated chance:\n")
+    w(
+        "| Bin | Raw: claims | Raw: mean score | Raw: supported | Calibrated: claims "
+        "| Calibrated: mean | Calibrated: supported |\n|---|---|---|---|---|---|---|"
+    )
+    by_low = {round(b.low, 1): b for b in cal_bins}
+    for low in sorted({round(b.low, 1) for b in raw_bins} | set(by_low)):
+        r = next((b for b in raw_bins if round(b.low, 1) == low), None)
+        c = by_low.get(low)
+        cells = [
+            f"{r.count} | {r.mean_confidence:.2f} | {r.supported:.0%}" if r else "– | – | –",
+            f"{c.count} | {c.mean_confidence:.2f} | {c.supported:.0%}" if c else "– | – | –",
+        ]
+        w(f"| {low:.1f}-{low + 0.2:.1f} | {cells[0]} | {cells[1]} |")
+    w("")
+    figure = f"reliability_{provider}.svg"
+    FIGURES[figure] = rel.reliability_svg(
+        [("Raw score", raw_bins), ("Calibrated", cal_bins)],
+        f"{held_name.capitalize()} set, {len(held_out)} claims; each point is a bin",
+    )
+    w(f"![Reliability diagram on {held_name}](figures/{figure})\n")
+
+    w(f"### Selective answering ({held_name})\n")
+    w(
+        "Show only the claims whose calibrated chance of support is at least a threshold: "
+        "fewer claims are shown, and fewer of them are wrong. The rest would be hidden or "
+        "marked as unverified.\n"
+    )
+    w(
+        "| Chance of support at least | Claims shown | Shown claims hallucinated "
+        "| Hallucinations still shown | Supported claims hidden |\n|---|---|---|---|---|"
+    )
+    cal = points(held_out, True)
+    cuts = [rel.selective(cal, t) for t in SELECTIVE_THRESHOLDS]
+    w(f"| (show all) | 100% | {rel.selective(cal, 0.0).risk:.0%} | – | – |")
+    for c in cuts:
+        w(
+            f"| {c.threshold:.0%} | {c.coverage:.0%} | {c.risk:.0%} | "
+            f"{c.hallucinations_shown} of {c.hallucinations} | "
+            f"{c.supported_hidden} of {c.supported} |"
+        )
+    w("")
+    figure = f"coverage_{provider}.svg"
+    FIGURES[figure] = rel.coverage_svg(
+        rel.risk_coverage(cal), cuts, f"{held_name.capitalize()} set, {len(held_out)} claims"
+    )
+    w(f"![Risk-coverage curve on {held_name}](figures/{figure})\n")
     return out
 
 
@@ -362,6 +531,11 @@ def main() -> None:
     if args.write:
         REPORT.write_text(report + "\n")
         print(f"\nWrote {REPORT.relative_to(BACKEND_DIR.parent)}")
+        figures = REPORT.parent / "figures"
+        figures.mkdir(exist_ok=True)
+        for name, svg in FIGURES.items():
+            (figures / name).write_text(svg)
+            print(f"Wrote {(figures / name).relative_to(BACKEND_DIR.parent)}")
 
 
 if __name__ == "__main__":

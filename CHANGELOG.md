@@ -5,6 +5,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-21
+
+Phase 9: confidence calibration (is the score a probability?) and synthetic hallucinations (detection by kind of error).
+
+### Added
+- Each claim has a `support_probability`: the calibrated chance that it is supported (stated or inferred), from Platt scaling of the score, sigmoid(6.27 x score - 2.07), fitted on the 84 dev claims. Labels still come from the raw score and its thresholds. The inspector shows it under the score.
+- `calibration/reliability.py` and a calibration section in `docs/evaluation.md`: reliability by score bin, ECE with a 95% bootstrap interval, Brier score, the Platt fit, and selective answering (show only claims above a chance of support) with a risk-coverage curve. The report writes two SVG figures to `docs/figures/` (light and dark mode, no plotting library).
+- `calibration/synthetic.py`: true claims with one fact changed by fixed rules, no model (a date moved, a number or count changed, a name swapped for a confusable one, a negation flipped), from two sources: the documents' sentences and the hand-labelled paraphrases. 86 corrupted claims and 85 unchanged controls in `synthetic_claims.yaml`, each read once; 5 that came out arguable or unclear are dropped in the code. `docs/evaluation.md` reports detection by source and kind, and against NLI alone and the judge alone.
+- `collect_signals.py` runs with consistency off (`CONSISTENCY_SAMPLES=0`) and keeps a synthetic claim's kind and source.
+
+### Fixed
+- With Groq's daily token quota spent, every call retried twice (30 s waits) before falling back, and Groq was tried again a minute later, so a question took 3 to 6 minutes. A daily limit ("tokens per day"), or any limit whose "try again in 1m45s" is longer than 30 s, now fails over at once, and the fallback skips Groq until the given reset time.
+- `STARTUP.md` and `docs/demo.md`: what slow questions mean (a spent Groq quota), that long documents use several times more tokens per question, and that calibration runs on Groq share the app's quota.
+
+### Results (qwen3:4b-instruct)
+- The raw score is underconfident: on fresh, claims scored 0.6-0.9 were all supported. Calibration error on fresh falls from 0.153 to 0.081 (95% intervals 0.10-0.23 and 0.04-0.15, which overlap: 37 claims are few); Brier from 0.076 to 0.047. On test, ECE 0.090 to 0.058.
+- Isotonic regression fit dev better but jumps to exactly 0 and 1 from 84 claims, so Platt scaling (two parameters, never certain) was kept.
+- Selective answering on fresh: showing only claims with at least a 50% chance shows 62% of claims, none of the 12 hallucinations, and hides 2 of the 25 supported claims. The sets are a third hallucinated by design, so these rates are not those of real answers.
+- Synthetic hallucinations: 80 of 86 caught (93%), none of the 85 unchanged claims flagged. Every wrong date, number, count and negation is caught; swapped names are the weak spot (28 of 34), and harder in a model's wording (16 of 20) than in the documents' (12 of 14).
+- Four of the six misses are the judge's: it calls the swapped claim "stated", which rescues an NLI contradiction of 0.99-1.00 (three claims), or its "contradicted" is ignored on a claim NLI accepted (one). Not letting "stated" rescue a strong NLI contradiction was tried and rejected: it lowers dev accuracy from 85.7% to 84.5%, because NLI also strongly contradicts correct deductions with rough arithmetic ("worked for roughly two weeks"), and the judge's rescue keeps those inferred.
+
+## [0.9.0] - 2026-10-21
+
+Phase 8: check mode, the judge's "stated" verdict, the novelty rework and a fresh held-out set.
+
 ### Added
 - `STARTUP.md`: one-time setup, starting and stopping (with `start.sh` or by hand), quota limits and fixes for common problems.
 - Frontend: a "How it works" page (`/how-it-works`) with the agent's steps, the signals and their weights, the labelling rules, the models in use and the evaluation results.

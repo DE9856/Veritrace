@@ -173,14 +173,37 @@ class OpenAICompatibleProvider:
         )
 
 
+# The longest server-given wait worth spending inside one call. A longer one, or any
+# daily limit, fails over to the fallback at once, and the fallback skips this provider
+# until the limit resets: retrying a spent daily quota only wasted about a minute a call.
+MAX_RETRY_WAIT_S = 30.0
+# Groq: "Please try again in 1m45.408s" (also "12.5s", "500ms", "2h3m").
+_TRY_AGAIN = re.compile(r"try again in ((?:\d+(?:\.\d+)?(?:ms|h|m|s))+)")
+_UNIT_SECONDS = {"h": 3600.0, "m": 60.0, "s": 1.0, "ms": 0.001}
+
+
+def retry_wait(response: httpx.Response) -> float | None:
+    """Seconds until a rate limit resets: the retry-after header, or the wait the
+    message gives."""
+    header = response.headers.get("retry-after")
+    if header and re.fullmatch(r"\d+(\.\d+)?", header):
+        return float(header)
+    if match := _TRY_AGAIN.search(response.text):
+        parts = re.findall(r"(\d+(?:\.\d+)?)(ms|h|m|s)", match.group(1))
+        return sum(float(value) * _UNIT_SECONDS[unit] for value, unit in parts)
+    return None
+
+
 def _raise_for_status(name: str, response: httpx.Response, *, retryable: bool = True) -> None:
     if response.status_code < 400:
         return
     message = f"{name} error {response.status_code}: {response.text[:300]}"
     if response.status_code == 429:
-        error: Exception = RateLimitError(message)
-        delay = response.headers.get("retry-after")
-        wait = float(delay) if delay and re.fullmatch(r"\d+(\.\d+)?", delay) else None
+        wait = retry_wait(response)
+        error: Exception = RateLimitError(message, retry_after_s=wait)
+        daily = re.search(r"per day|\((?:TPD|RPD)\)", response.text, re.IGNORECASE)
+        if daily or (wait is not None and wait > MAX_RETRY_WAIT_S):
+            raise error
         raise Retryable(error, delay=wait) if retryable else error
     if response.status_code >= 500:
         raise Retryable(LLMError(message)) if retryable else LLMError(message)

@@ -81,7 +81,7 @@ Open http://localhost:3000, choose **Add the two sample documents**, and ask one
 
 ## Calibration and evaluation
 
-The labels are checked against hand labels on a dev set (used to design the rules and tune the settings) and two held-out sets (only scored): test, and fresh, written in 0.9.0 after test's errors had been read to find what to fix. Results, with an ablation of each signal and the latency per question, are in [docs/evaluation.md](docs/evaluation.md).
+The labels are checked against hand labels on a dev set (used to design the rules and tune the settings) and two held-out sets (only scored): test, and fresh, written in 0.9.0 after test's errors had been read to find what to fix. Results, with an ablation of each signal, the calibration of the confidence score (reliability diagram, selective answering) and the latency per question, are in [docs/evaluation.md](docs/evaluation.md).
 
 ```bash
 cd backend
@@ -96,6 +96,10 @@ python -m calibration.latency           # seconds (and tokens, on Groq) per ques
 python -m calibration.evaluate --write  # instant: writes docs/evaluation.md
 python -m calibration.tune              # instant: grid search on the older signals.json
 python -m calibration.rejudge ${LLM_PROVIDER}_dev_signals.json  # after changing the judge prompt
+
+# Synthetic hallucinations: true claims with one fact changed (no model needed to make them)
+python -m calibration.synthetic         # writes synthetic_claims.yaml
+CONSISTENCY_SAMPLES=0 python -m calibration.collect_signals --claims synthetic_claims.yaml --out ${LLM_PROVIDER}_synthetic_signals.json
 ```
 
 On Groq, collecting every set uses more than the free tier's 200,000 tokens a day, so it takes several days: `calibration/run_groq.sh` runs the steps in order and resumes after each quota reset.

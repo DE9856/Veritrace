@@ -54,6 +54,73 @@ Confusion matrix on fresh, current settings:
 - Hand-written claims (36): accuracy 81%, macro-F1 0.78, hallucination F1 0.89.
 - From answers claims (1): accuracy 100%, macro-F1 0.33, hallucination F1 0.00.
 
+### Confidence calibration
+
+Is the score a probability? A claim counts as supported when its hand label is high or inferred. The score is mapped to a calibrated chance of support with Platt scaling, sigmoid(slope x score + intercept), fitted on dev (`calibration/reliability.py`). Fitted now: slope 6.27, intercept -2.07; `config.yaml` has 6.27 and -2.07. ECE is the gap between confidence and the share supported, averaged over 5 equal-width bins (lower is better), with a 95% bootstrap interval; Brier is the mean squared error of the confidence.
+
+| Set | Claims | ECE, raw score | ECE, calibrated | Brier, raw | Brier, calibrated |
+|---|---|---|---|---|---|
+| Dev (fitted on) | 84 | 0.093 (0.06-0.15) | 0.024 (0.02-0.09) | 0.073 | 0.068 |
+| Test | 67 | 0.090 (0.06-0.14) | 0.058 (0.04-0.10) | 0.048 | 0.031 |
+| Fresh | 37 | 0.153 (0.10-0.23) | 0.081 (0.04-0.15) | 0.076 | 0.047 |
+
+Reliability on fresh, by bin of the raw score and of the calibrated chance:
+
+| Bin | Raw: claims | Raw: mean score | Raw: supported | Calibrated: claims | Calibrated: mean | Calibrated: supported |
+|---|---|---|---|---|---|---|
+| 0.0-0.2 | 14 | 0.03 | 14% | 13 | 0.13 | 8% |
+| 0.2-0.4 | – | – | – | 1 | 0.21 | 100% |
+| 0.4-0.6 | 2 | 0.47 | 100% | – | – | – |
+| 0.6-0.8 | 9 | 0.75 | 100% | 2 | 0.70 | 100% |
+| 0.8-1.0 | 12 | 0.93 | 100% | 21 | 0.96 | 100% |
+
+![Reliability diagram on fresh](figures/reliability_ollama.svg)
+
+### Selective answering (fresh)
+
+Show only the claims whose calibrated chance of support is at least a threshold: fewer claims are shown, and fewer of them are wrong. The rest would be hidden or marked as unverified.
+
+| Chance of support at least | Claims shown | Shown claims hallucinated | Hallucinations still shown | Supported claims hidden |
+|---|---|---|---|---|
+| (show all) | 100% | 32% | – | – |
+| 50% | 62% | 0% | 0 of 12 | 2 of 25 |
+| 70% | 59% | 0% | 0 of 12 | 3 of 25 |
+| 90% | 57% | 0% | 0 of 12 | 4 of 25 |
+| 95% | 32% | 0% | 0 of 12 | 13 of 25 |
+
+![Risk-coverage curve on fresh](figures/coverage_ollama.svg)
+
+### Synthetic hallucinations
+
+True claims with one fact changed by fixed rules (`calibration/synthetic.py`, no model): a date moved, a number or count changed, a name swapped for a confusable one from the documents, a negation flipped. Two sources: the documents' own sentences, and the hand-labelled high claims (paraphrases, as a model writes them). The unchanged claims are the controls. Consistency is off, since a synthetic claim has no question of its own to resample. Caught means labelled hallucinated.
+
+| Source | Change | Claims | Caught | Labelled inferred | Labelled high | NLI alone caught | Judge alone caught |
+|---|---|---|---|---|---|---|---|
+| Document | Wrong date | 13 | 13 | 0 | 0 | 13 | 13 |
+| Document | Wrong number | 7 | 7 | 0 | 0 | 7 | 7 |
+| Document | Wrong count or ordinal | 6 | 6 | 0 | 0 | 6 | 6 |
+| Document | Swapped name | 14 | 12 | 2 | 0 | 14 | 12 |
+| Document | Flipped negation | 3 | 3 | 0 | 0 | 3 | 3 |
+| Document | Unchanged (control) | 33 | 0 | 0 | 33 | 0 | 0 |
+| Paraphrase | Wrong date | 12 | 12 | 0 | 0 | 12 | 12 |
+| Paraphrase | Wrong number | 8 | 8 | 0 | 0 | 8 | 8 |
+| Paraphrase | Wrong count or ordinal | 3 | 3 | 0 | 0 | 3 | 3 |
+| Paraphrase | Swapped name | 20 | 16 | 2 | 2 | 14 | 17 |
+| Paraphrase | Unchanged (control) | 52 | 0 | 2 | 50 | 0 | 1 |
+
+Overall: 80 of 86 corrupted claims caught (93%); 0 of 85 unchanged claims wrongly flagged. For the unchanged claims, the caught columns count false alarms.
+
+Corrupted claims it misses:
+
+| Claim | Change | Predicted | Signals |
+|---|---|---|---|
+| Its lander module carried the lander and rover to lunar orbit. | swapped name | inferred | E=0.12 C=1.00 judge=stated |
+| On 3 September 2023 the Pragyan rover performed a hop experiment, firing its engines to rise about 40 centimetres and land again about 30 to 40 centimetres away. | swapped name | inferred | E=0.00 C=1.00 judge=stated |
+| The LIBS instrument on the Vikram lander confirmed sulphur near the lunar south pole. | swapped name | high | E=0.85 C=0.18 judge=stated |
+| The lander module brought the lander and rover to lunar orbit. | swapped name | inferred | E=0.15 C=0.99 judge=stated |
+| LIBS recorded how the temperature of the lunar topsoil changes down to about 10 centimetres deep. | swapped name | inferred | E=0.99 C=0.10 judge=contradicted |
+| Besides water ice, LIBS picked up iron, calcium and aluminium. | swapped name | high | E=0.99 C=0.00 judge=stated |
+
 ### Ablation (test, current settings)
 
 Each row lets the scorer use only some signals; NLI entailment, contradiction and passage match are always on. Missing weights are renormalised, as in the app.

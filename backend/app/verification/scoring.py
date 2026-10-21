@@ -26,6 +26,7 @@ needs_judgement). For the second kind it only decides between high and inferred:
 has confirmed them, so a judge's "contradicted" does not overrule it.
 """
 
+import math
 from dataclasses import dataclass, field
 
 from app.config import Settings
@@ -122,6 +123,12 @@ def weighted_score(ev: ClaimEvidence, settings: Settings) -> float:
     return sum(w * v for w, v in parts) / sum(w for w, _ in parts)
 
 
+def support_probability(score: float, settings: Settings) -> float:
+    """The score mapped to a calibrated chance that the claim is supported (Platt
+    scaling, fitted on the dev claims; see config.yaml)."""
+    return 1 / (1 + math.exp(-(settings.support_slope * score + settings.support_intercept)))
+
+
 def is_novel(ev: ClaimEvidence, settings: Settings) -> bool:
     return bool(ev.new_numbers) or ev.novelty_share >= settings.novelty_threshold
 
@@ -196,9 +203,11 @@ def score_claim(ev: ClaimEvidence, settings: Settings) -> ClaimResult:
             f"(contradiction {contra:.2f}), likely because it describes something else."
         )
 
+    score = max(0.0, min(1.0, score))
     return ClaimResult(
         text=ev.text,
-        score=round(max(0.0, min(1.0, score)), 4),
+        score=round(score, 4),
+        support_probability=round(support_probability(score, settings), 4),
         label=label,
         verdict=nli_verdict(entail, contra),
         signals=ClaimSignals(

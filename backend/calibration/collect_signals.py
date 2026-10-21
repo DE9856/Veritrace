@@ -159,6 +159,8 @@ async def collect(settings: Settings, claims_file: Path, out: Path) -> list[dict
                 "question": question,
                 "claim": text,
                 "label": item["label"],
+                # Synthetic claims (synthetic.py) say how they were made.
+                **{k: item[k] for k in ("kind", "source", "original") if k in item},
                 "entailment": ev.support.entailment,
                 "neutral": ev.support.neutral,
                 "contradiction": ev.max_contradiction,
@@ -176,9 +178,10 @@ async def collect(settings: Settings, claims_file: Path, out: Path) -> list[dict
             }
         )
         r = records[-1]
+        cons = "-" if consistency is None else f"{consistency:.2f}"
         print(
             f"[{n:2}/{len(dev)}] {time.perf_counter() - start:4.1f}s  {item['label']:12} "
-            f"E={r['entailment']:.2f} C={r['contradiction']:.2f} cons={consistency:.2f} "
+            f"E={r['entailment']:.2f} C={r['contradiction']:.2f} cons={cons} "
             f"judge={r['judge']}  {text}",
             flush=True,
         )

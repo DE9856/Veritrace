@@ -17,7 +17,7 @@ from collections import Counter
 from pathlib import Path
 
 from app.config import DEFAULT_CONFIG_YAML, Settings
-from app.schemas import SourceChunk
+from app.schemas import ClaimResult, SourceChunk
 from app.verification.nli import NLIScores
 from app.verification.scoring import ClaimEvidence, needs_judgement, score_claim
 
@@ -62,7 +62,10 @@ def document(record: dict) -> str:
     return "jwst" if any(w in text for w in JWST_WORDS) else "chandrayaan"
 
 
-def predict(record: dict, settings: Settings, signals: frozenset[str] = ALL_SIGNALS) -> str:
+def score_record(
+    record: dict, settings: Settings, signals: frozenset[str] = ALL_SIGNALS
+) -> ClaimResult:
+    """Score a saved record as the app would: the label and the confidence score."""
     entail, contra = record["entailment"], record["contradiction"]
     novel = "novelty" in signals
     ev = ClaimEvidence(
@@ -85,7 +88,11 @@ def predict(record: dict, settings: Settings, signals: frozenset[str] = ALL_SIGN
     # settings would have sent the claim to the judge.
     if "judge" in signals and needs_judgement(ev, settings):
         ev.judge, ev.judge_reason = record["judge"], record["judge_reason"]
-    return score_claim(ev, settings).label
+    return score_claim(ev, settings)
+
+
+def predict(record: dict, settings: Settings, signals: frozenset[str] = ALL_SIGNALS) -> str:
+    return score_record(record, settings, signals).label
 
 
 def evaluate(records: list[dict], settings: Settings) -> tuple[float, float, Counter]:

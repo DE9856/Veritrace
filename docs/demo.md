@@ -40,7 +40,7 @@ To show uploads, drag in any PDF, `.txt` or `.md` file and ask about it. Keep it
 | Status dot is amber or red | Hover over it for the reason. Amber means the model is not reachable; red means the backend is not running. |
 | Status dot says "rate limited" | The fallback model is serving; questions still work. |
 | `port 8000 is already in use` | An earlier run is still going: `pkill -f "uvicorn app.main"`, or close the other terminal. |
-| A question fails with a rate-limit error | Groq's per-minute limit and Gemini's daily quota were both used up. Wait a minute and ask again. |
+| A question fails with a rate-limit error | Groq's and Gemini's quotas are both used up. Ctrl+C, then `./start.sh ollama`. |
 | Documents panel is empty | Choose **Add the two sample documents**, or restart: `SEED_SAMPLES=true` indexes them when the store is empty. |
 
 To show the model fallback on purpose, start with `./start.sh gemini`. Gemini's free tier runs out after about three questions; the status dot then shows Groq serving and when Gemini resets.

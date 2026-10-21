@@ -101,6 +101,10 @@ class Settings(BaseSettings):
     # A claim with a number, or at least this share of words, missing from its supporting
     # passage is a deduction: inferred, not high (see verification/novelty.py).
     novelty_threshold: float = 0.2
+    # Chance a claim is supported = sigmoid(slope * score + intercept): Platt scaling of
+    # the score, fitted on the dev claims by calibration/evaluate.py (see config.yaml).
+    support_slope: float = 6.27
+    support_intercept: float = -2.07
 
     # API
     cors_origins: list[str] = ["http://localhost:3000"]

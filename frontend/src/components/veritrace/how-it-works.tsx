@@ -173,6 +173,18 @@ export function HowItWorks() {
               Full results, with an ablation of each signal:{" "}
               <Code>docs/evaluation.md</Code>.
             </Prose>
+            <Prose>
+              The score is not itself a probability: claims scored 0.6 to 0.9 turned out supported almost every time.
+              So each claim also shows a calibrated chance of being supported, fitted on the dev claims (Platt
+              scaling). On the fresh claims it roughly halves the calibration error, from 0.15 to 0.08. Showing only the
+              claims with at least a 50% chance would have hidden all 12 hallucinations and 2 of the 25 supported
+              claims.
+            </Prose>
+            <Prose>
+              To test it on more hallucinations than anyone would label by hand, true claims had one fact changed by
+              fixed rules: a date moved, a number changed, a name swapped, a negation flipped. It catches 80 of the 86
+              and flags none of the 85 unchanged claims. Swapped names are the hardest: 28 of 34.
+            </Prose>
           </Section>
         </div>
       </div>

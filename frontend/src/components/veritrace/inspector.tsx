@@ -235,6 +235,12 @@ function ClaimCheck({
             {percent(claim.score)}
           </span>
           <span className="text-xs text-muted-foreground">score</span>
+          <span
+            className="mt-1.5 block text-xs text-muted-foreground tabular-nums"
+            title="Calibrated on hand-labelled claims: of the claims with this score, this share turned out to be stated or inferred by the documents."
+          >
+            {percent(claim.support_probability)} likely supported
+          </span>
         </p>
       </div>
       {!single && <p className="text-[13px] leading-relaxed text-muted-foreground">{claim.reason}</p>}

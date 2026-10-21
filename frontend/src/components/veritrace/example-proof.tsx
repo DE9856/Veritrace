@@ -11,6 +11,7 @@ const claim = (text: string, label: Label, score: number): ClaimResult => ({
   text,
   label,
   score,
+  support_probability: 1 / (1 + Math.exp(-(6.27 * score - 2.07))), // the backend's calibration
   verdict: label === "hallucinated" ? "contradiction" : "entailment",
   evidence_label: "S1",
   evidence_id: null,

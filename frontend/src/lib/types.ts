@@ -39,6 +39,7 @@ export interface ClaimSignals {
 export interface ClaimResult {
   text: string;
   score: number;
+  support_probability: number; // calibrated chance the claim is supported (stated or inferred)
   label: Label;
   verdict: "entailment" | "neutral" | "contradiction";
   signals: ClaimSignals;

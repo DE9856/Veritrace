@@ -85,6 +85,12 @@ class ClaimSignals(BaseModel):
 class ClaimResult(BaseModel):
     text: str
     score: float = Field(ge=0, le=1)
+    support_probability: float = Field(
+        ge=0,
+        le=1,
+        description="Calibrated chance the claim is supported (stated or inferred): the "
+        "share of dev claims with this score that were.",
+    )
     label: Label
     verdict: NLIVerdict
     signals: ClaimSignals

@@ -201,6 +201,56 @@ async def test_groq_honours_retry_after(no_sleep):
     assert no_sleep == [3.0]
 
 
+TPD_LIMIT = (
+    '{"error":{"message":"Rate limit reached for model `openai/gpt-oss-120b` on tokens per '
+    "day (TPD): Limit 200000, Used 199716, Requested 528. Please try again in 1m45.408s."
+    '","type":"tokens","code":"rate_limit_exceeded"}}'
+)
+
+
+async def test_groq_daily_limit_fails_over_at_once_with_the_reset_time(no_sleep):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(429, text=TPD_LIMIT)
+
+    with pytest.raises(RateLimitError) as raised:
+        await groq(handler).generate("q")
+    assert len(calls) == 1 and no_sleep == []  # no retries spent on a daily quota
+    assert raised.value.retry_after_s == pytest.approx(105.408)
+
+
+async def test_groq_long_wait_is_not_spent_inside_the_call(no_sleep):
+    responses = iter([httpx.Response(429, text="Please try again in 2m3s.")])
+    with pytest.raises(RateLimitError) as raised:
+        await groq(lambda r: next(responses)).generate("q")
+    assert raised.value.retry_after_s == 123 and no_sleep == []
+
+
+async def test_fallback_skips_groq_until_its_daily_limit_resets(no_sleep):
+    groq_calls = []
+
+    def handler(request):
+        groq_calls.append(request)
+        return httpx.Response(429, text=TPD_LIMIT)
+
+    clock = Clock()
+    backup = SimpleNamespace(name="backup", model="m")
+
+    async def answer(*args, **kwargs):
+        return "from backup"
+
+    backup.generate = answer
+    provider = FallbackProvider(groq(handler), backup, clock=clock)
+    assert await provider.generate("q") == "from backup"
+    assert await provider.generate("q") == "from backup"
+    assert len(groq_calls) == 1  # the second call goes straight to the backup
+    clock.now += 106
+    assert await provider.generate("q") == "from backup"
+    assert len(groq_calls) == 2  # tried again once the limit should have reset
+
+
 async def test_groq_streams_server_sent_events():
     body = (
         'data: {"choices": [{"delta": {"content": "Hel"}}]}\n\n'

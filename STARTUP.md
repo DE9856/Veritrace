@@ -102,7 +102,8 @@ cd frontend && npx tsc --noEmit && npm run lint && cd ..  # types and lint
 
 ## 5. Limits worth knowing
 
-- **Groq free tier:** 8,000 tokens a minute and 200,000 tokens per rolling 24 hours. A question uses several thousand tokens. If the per-minute limit is hit, the app waits and continues. If the daily cap is hit, Gemini takes over.
+- **Groq free tier:** 8,000 tokens a minute and 200,000 tokens per rolling 24 hours. A question on the sample documents uses several thousand tokens; on a long document, whose passages are full-length, several times more. If the per-minute limit is hit, the app waits (up to 30 seconds) and continues. If the daily cap is hit, Gemini takes over at once, and Groq is skipped until the reset time it gives. Tokens come back 24 hours after they were spent, so the quota recovers gradually.
+- **Calibration runs on Groq** (`calibration/run_groq.sh`) use the same daily quota as the app; a few dozen claims can use it up. Run them on Ollama, or not on the day of a demo.
 - **Gemini free tier:** 20 requests a day, about three questions.
 - **Ollama:** no limits. The first question takes about a minute while the model loads; later ones take 10 to 20 seconds. Use it for rehearsing so the Groq quota is left for the presentation.
 
@@ -116,7 +117,8 @@ cd frontend && npx tsc --noEmit && npm run lint && cd ..  # types and lint
 | `run 'ollama pull qwen3:4b-instruct' first` | Run it once (step 1). |
 | Header dot is amber | The model is not reachable. Hover over the dot for the reason: a wrong key, no internet or a rate limit. Without internet, restart with `./start.sh ollama`. |
 | Header dot is red | The backend is not running. Check the terminal for an error. |
-| A question fails with a rate-limit error | Groq and Gemini are both out of quota. Wait a minute, or switch to `./start.sh ollama`. |
+| A question fails with a rate-limit error | Groq and Gemini are both out of quota. Switch to `./start.sh ollama`; Groq's quota comes back over the next 24 hours. |
+| Questions take minutes instead of seconds | Groq's daily quota is spent and Gemini is serving (or out too). The status dot says so. Switch to `./start.sh ollama`. |
 | Documents panel is empty | Choose **Add the two sample documents**, or upload your own (.pdf, .txt, .md). |
 
 For the presentation itself (checklist, demo questions and what each shows), see [docs/demo.md](docs/demo.md).

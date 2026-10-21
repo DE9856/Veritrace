@@ -29,3 +29,13 @@ contradiction_threshold: 0.7
 strong_entailment: 0.85
 strong_consistency: 0.67
 novelty_threshold: 0.2      # share of claim words missing from the passage -> inferred
+
+# --- Calibrated chance of support ---
+# The score is not a probability: claims scored 0.6-0.9 turned out supported 88-100% of
+# the time. sigmoid(slope * score + intercept) maps it to the share of claims with that
+# score that are supported (stated or inferred). Platt scaling, fitted on the 84 dev
+# claims (qwen3:4b-instruct signals) by `python -m calibration.evaluate`, which prints the
+# fit; on the fresh held-out set it lowers the calibration error from 0.15 to 0.08.
+# Labels still come from the raw score and the thresholds above.
+support_slope: 6.27
+support_intercept: -2.07
