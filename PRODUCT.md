@@ -22,7 +22,9 @@ Other RAG assistants cite their sources. Veritrace checks the claims and shows t
 
 ## Operating Context
 
-- Runs locally: FastAPI backend on port 8000, Next.js frontend on port 3000, started with `./start.sh`. It is not deployed.
+- Deployed publicly on one AWS EC2 instance (Caddy, frontend and backend containers, HTTPS on an sslip.io hostname); every push to `master` goes live. Setup and limits: `docs/deployment.md`.
+- Also runs locally: FastAPI backend on port 8000, Next.js frontend on port 3000, started with `./start.sh`.
+- The public site is open to anyone with the URL, so all visitors share one Groq per-minute limit and one set of free-tier quotas. Concurrent questions wait for each other, and a spent quota slows questions down and then fails them until it recovers.
 - Models: Groq `openai/gpt-oss-120b` as the main model, a second Groq key as the first fallback and Gemini `gemini-3.5-flash` as the last. Free tiers only, so rate limits are part of normal use. The header status dot shows which model is serving and why.
 - A question takes from several seconds to about a minute, because the agent steps stream in live over SSE.
 - Two sample documents ship with it (Chandrayaan-3 and the James Webb Space Telescope) and can be added with one action.
@@ -45,10 +47,10 @@ Other RAG assistants cite their sources. Veritrace checks the claims and shows t
 
 ## Evidence on Hand
 
-- Evaluation with real numbers: `docs/evaluation.md`. On the held-out test set, hallucinations were caught with precision and recall of 0.93; there is also a per-signal ablation and the latency per question. The Groq evaluation is still in progress, so do not quote Groq figures until they are written there.
+- Evaluation with real numbers: `docs/evaluation.md`. On the held-out test set, hallucinations were caught with precision and recall of 0.93; there is also a per-signal ablation and the latency per question. No separate Groq evaluation is planned; quote only the figures `docs/evaluation.md` holds.
 - The design overview is `docs/project-overview.html`.
 - Sample documents are in `backend/samples/` and `frontend/public/samples/`.
-- There are no users, testimonials or deployment. Do not invent them.
+- There are no known users, usage figures or testimonials. The deployment is real, but do not invent traffic or adoption.
 
 ## Product Principles
 

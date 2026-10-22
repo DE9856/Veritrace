@@ -62,7 +62,7 @@ Backend ok: groq / openai/gpt-oss-120b, 2 documents
 Veritrace is running: open http://localhost:3000  (Ctrl+C to stop)
 ```
 
-Then open http://localhost:3000. The dot in the header should be green and name the model. If the documents panel is empty, choose **Add the two sample documents**.
+Then open http://localhost:3000/app (http://localhost:3000 is the landing page). The dot in the header should be green and name the model. If the documents panel is empty, choose **Add the two sample documents**.
 
 **To stop:** press Ctrl+C in the terminal running `start.sh`. It stops the backend and the frontend.
 

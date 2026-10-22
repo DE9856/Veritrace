@@ -13,7 +13,7 @@ import { MarkLegend } from "./inspector";
 import { ProofMark } from "./proof-mark";
 import type { Label } from "@/lib/types";
 
-const STEPS: { node: string; what: string }[] = [
+export const STEPS: { node: string; what: string }[] = [
   { node: "analyze", what: "Rewrites the question into search queries." },
   {
     node: "retrieve",
@@ -80,7 +80,7 @@ export function HowItWorks() {
       <div className="dark rail-scope bg-rail text-foreground">
         <nav className="mx-auto flex h-14 max-w-4xl items-center justify-between gap-4 px-5 sm:px-8">
           <Link
-            href="/"
+            href="/app"
             className="group -mx-2 inline-flex items-center gap-1.5 px-2 py-1 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground"
           >
             <ArrowLeftIcon className="size-4 transition-transform duration-150 ease-(--ease-out) group-hover:-translate-x-0.5" />

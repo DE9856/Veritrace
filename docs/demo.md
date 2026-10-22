@@ -5,13 +5,13 @@ How to run Veritrace for the presentation, which questions to ask, and what to d
 ## The day before
 
 - [ ] `cd backend && .venv/bin/pytest -q`: all tests pass.
-- [ ] `./start.sh`, then open http://localhost:3000 and ask question 1 below. This also confirms the Groq key works.
+- [ ] `./start.sh`, then open http://localhost:3000/app and ask question 1 below. This also confirms the Groq key works.
 - [ ] Go easy on Groq in the 24 hours before the presentation. Its free tier allows 200,000 tokens per rolling 24 hours, and every question spends tokens on the answer, the resampled answers and the judge. Rehearse sparingly and keep the quota for the presentation.
 
 ## On the day
 
 1. Start about five minutes early: `./start.sh`. The first start takes about 20 seconds to load the embedding and NLI models; wait for `Veritrace is running`.
-2. Open http://localhost:3000. The status dot in the header should be green and name `openai/gpt-oss-120b`. The documents panel should list the two sample documents (Chandrayaan-3 and the James Webb Space Telescope); if it is empty, choose **Add the two sample documents**.
+2. Open http://localhost:3000/app (the landing page at http://localhost:3000 links to it with **Open Veritrace**). The status dot in the header should be green and name `openai/gpt-oss-120b`. The documents panel should list the two sample documents (Chandrayaan-3 and the James Webb Space Telescope); if it is empty, choose **Add the two sample documents**.
 3. Leave about a minute between questions where you can. Groq's free tier allows 8000 tokens a minute and a question uses a few thousand. If the limit is hit, the app waits for it to reset instead of failing, so a question can take a minute. If the daily cap is hit instead, the backup Groq key takes over, then Gemini for about three more questions.
 
 ## Questions to ask

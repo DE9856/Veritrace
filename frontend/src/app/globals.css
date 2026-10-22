@@ -294,6 +294,87 @@
     animation: fade-in 160ms ease both;
   }
 
+  /* Landing page. The twelve columns are drawn here and nowhere else: faint bars on the ground,
+     each column drifting at its own speed as the page scrolls. */
+  .landing-bar {
+    height: calc(100% + 60vh);
+    background: repeating-linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--foreground) 1.25%, transparent) 0 var(--bar),
+      transparent var(--bar) calc(var(--bar) + var(--gap))
+    );
+    background-position-y: var(--offset);
+  }
+
+  /* The worked answer stays pinned beside the walkthrough on wide screens. Stacked, nothing pins:
+     each step carries its own copy of the sheet under its text. */
+  .landing-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 1.5rem;
+  }
+  .landing-hero {
+    grid-row: 1;
+  }
+  .landing-sheet {
+    grid-row: 2;
+  }
+  .walk-step {
+    grid-row-start: calc(var(--i) + 3);
+    padding-block: 3.5rem 0;
+  }
+  @media (min-width: 64rem) {
+    .landing-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      --sheet-top: clamp(1.25rem, 50svh - 22rem, 6rem);
+    }
+    .landing-sheet {
+      grid-row: 1 / span 5;
+      position: sticky;
+      margin-top: var(--sheet-top);
+      top: calc(3.5rem + var(--sheet-top));
+    }
+    .landing-tail {
+      grid-row: 6;
+      height: 45svh;
+    }
+    .walk-step {
+      grid-row-start: calc(var(--i) + 2);
+      min-height: 86svh;
+      padding-block: 4rem;
+      transition: opacity 300ms ease;
+    }
+    .walk-step[data-active="false"] {
+      opacity: 0.4;
+    }
+  }
+
+  /* The sheet's states change over rather than cut: underlines colour in, panels cross-fade. */
+  .specimen .sentence {
+    transition:
+      text-decoration-color 420ms var(--ease-out),
+      background-color 200ms ease,
+      opacity 300ms ease;
+  }
+  .specimen .sentence[data-label="none"] {
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+  }
+  .specimen-panel {
+    transition:
+      opacity 320ms var(--ease-out),
+      transform 320ms var(--ease-out);
+  }
+  .specimen-panel[data-show="false"] {
+    opacity: 0;
+    transform: translateY(6px);
+    visibility: hidden;
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease,
+      visibility 0s 160ms;
+  }
+
   /* A disclosure that animates its height without measuring it. */
   .disclosure {
     display: grid;
@@ -403,6 +484,20 @@
   }
 }
 
+@keyframes bar-drift {
+  to {
+    transform: translateY(var(--drift));
+  }
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .landing-bar {
+      animation: bar-drift linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+
 /* Reduced motion keeps the fades that explain a change and drops everything that travels. */
 @media (prefers-reduced-motion: reduce) {
   .proof-mark path,
@@ -423,7 +518,10 @@
   }
   .sheet-panel,
   .panel-dock,
-  .disclosure {
+  .disclosure,
+  .specimen-panel,
+  .specimen-panel[data-show="false"],
+  .specimen .sentence {
     transition: none;
   }
   [data-slot="tooltip-content"],

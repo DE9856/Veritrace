@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-21T12:00:00+00:00",
+  "generatedAt": "2026-10-22T12:00:00+00:00",
   "title": "Design System: Veritrace",
   "extensions": {
     "colorMeta": {
@@ -32,7 +32,9 @@
       "small": { "displayName": "Small", "purpose": "Metadata, notes, controls." },
       "label": { "displayName": "Label Caps", "purpose": "Uppercase column, table and panel heads that head the data they describe." },
       "figure": { "displayName": "Figure", "purpose": "Claim numbers, counts, superscripts; tabular lining, wdth 75." },
-      "code": { "displayName": "Code", "purpose": "Geist Mono, inline code only." }
+      "code": { "displayName": "Code", "purpose": "Geist Mono, inline code only." },
+      "landing-display": { "displayName": "Landing Display", "purpose": "Landing headline and close head; wdth 62, word-spacing 0.07em." },
+      "landing-section": { "displayName": "Landing Section", "purpose": "Landing agent band and evaluation heads; wdth 62, word-spacing 0.07em." }
     },
     "shadows": [
       { "name": "sheet-edge", "value": "-12px 0 32px rgb(0 0 0 / 0.16)", "purpose": "Open right slide-over sheet only (left sheet: 12px 0 32px rgb(0 0 0 / 0.2))." },
@@ -46,12 +48,16 @@
       { "name": "scale-tick", "value": "720ms ease-out, 90ms stagger", "purpose": "Claims slide from zero to their score when a verdict lands." },
       { "name": "arrive", "value": "240ms ease-out, translateY 6px", "purpose": "Rows and blocks entering; reduced motion keeps only the fade." },
       { "name": "mark-draw", "value": "420ms ease-out", "purpose": "Verdict marks and sentence underlines draw in once." },
-      { "name": "evidence-flash", "value": "1400ms ease-out", "purpose": "Matched passage line flashes violet once when a source opens." }
+      { "name": "evidence-flash", "value": "1400ms ease-out", "purpose": "Matched passage line flashes violet once when a source opens." },
+      { "name": "bar-drift", "value": "linear, animation-timeline: scroll(root); per-column drift 8vh to 32vh", "purpose": "Landing only: each column of background bars drifts at its own rate with scroll; static without scroll-timeline support or under reduced motion." },
+      { "name": "specimen-swap", "value": "320ms ease-out in (6px rise), 160ms ease out", "purpose": "Landing specimen's lower panels cross-fading in one grid cell; none under reduced motion." },
+      { "name": "walk-step-dim", "value": "300ms ease, inactive at 40% opacity", "purpose": "Landing walkthrough steps beside the pinned sheet (64rem and up)." }
     ],
     "breakpoints": [
       { "name": "sheet-two-column", "value": "36rem (container)", "purpose": "Exchange sheet switches from stacked to the 4 + 8 column split." },
       { "name": "rail-dock", "value": "64rem", "purpose": "Rail docks; below it is a left slide-over." },
-      { "name": "panel-dock", "value": "80rem", "purpose": "Claim panel docks by width; below it is a right slide-over sheet." }
+      { "name": "panel-dock", "value": "80rem", "purpose": "Claim panel docks by width; below it is a right slide-over sheet." },
+      { "name": "landing-pin", "value": "64rem", "purpose": "Landing: 12-column split, sticky specimen and 12 bar columns; below it nothing pins, each step carries its own sheet and 6 bar columns show." }
     ]
   },
   "components": [
@@ -126,6 +132,30 @@
       "description": "Ruled claim list row: number, claim, verdict mark and label, condensed score; violet wash on hover, tint when selected.",
       "html": "<ol class=\"ds-claims\"><li><button><span class=\"ds-n\">1</span><span>James E. Webb led NASA from 1961 to 1968.</span><span class=\"ds-v\" style=\"color:var(--inferred,#94701c)\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\"><path d=\"M2.5 9.2C4.4 6.4 6 6.4 8 8s3.6 1.6 5.5-1.2\"/></svg>Inferred</span><span class=\"ds-s\">52</span></button></li><li><button aria-pressed=\"true\"><span class=\"ds-n\">2</span><span>He guided the agency during Apollo.</span><span class=\"ds-v\" style=\"color:var(--halluc,#a52e47)\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\"><path d=\"M4 4l8 8\"/><path d=\"M12 4l-8 8\"/></svg>Possibly hallucinated</span><span class=\"ds-s\">42</span></button></li></ol>",
       "css": ".ds-claims { list-style: none; margin: 0; padding: 0; border-top: 2px solid var(--foreground, #111214); font-family: Archivo, Arial, sans-serif; } .ds-claims li { border-bottom: 1px solid var(--rule, #e3e3e0); } .ds-claims button { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) 11rem 3rem; align-items: baseline; gap: 16px; width: 100%; padding: 12px 0; border: 0; border-radius: 0; background: transparent; text-align: left; font: 400 15px/1.375 Archivo, Arial, sans-serif; color: var(--foreground, #111214); cursor: pointer; transition: background-color 150ms; } .ds-claims button:hover { background: color-mix(in oklch, var(--signal, #4a3aa8) 6%, transparent); } .ds-claims button:focus-visible { outline: 2px solid var(--signal, #4a3aa8); outline-offset: 2px; } .ds-claims button[aria-pressed=true] { background: var(--signal-soft, #ecebf6); } .ds-n { padding-left: 4px; font-weight: 700; font-stretch: 75%; font-variant-numeric: tabular-nums; } .ds-v { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; } .ds-s { padding-right: 4px; text-align: right; font-size: 1.625rem; line-height: 1; font-weight: 800; font-stretch: 62%; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Landing Calls to Action",
+      "kind": "button",
+      "refersTo": "button-primary-landing",
+      "description": "Landing pair: 48px violet primary with a trailing arrow (56px in the close) and a 48px outline with a 2px ink border.",
+      "html": "<a class=\"ds-cta\" href=\"#\">Open Veritrace <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a> <a class=\"ds-cta-outline\" href=\"#\">How it checks <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 5v14\"/><path d=\"m19 12-7 7-7-7\"/></svg></a>",
+      "css": ".ds-cta, .ds-cta-outline { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border-radius: 0; font: 600 15px/1 Archivo, Arial, sans-serif; text-decoration: none; transition: background-color 150ms ease-out, transform 150ms ease-out; } .ds-cta { background: var(--signal, #4a3aa8); color: var(--primary-foreground, #fff); } .ds-cta:hover { background: color-mix(in oklch, var(--signal, #4a3aa8) 85%, transparent); } .ds-cta svg, .ds-cta-outline svg { transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-cta:hover svg { transform: translateX(2px); } .ds-cta-outline { background: var(--sheet, #fff); color: var(--foreground, #111214); border: 2px solid var(--foreground, #111214); } .ds-cta-outline:hover { background: var(--muted, #ececea); } .ds-cta-outline:hover svg { transform: translateY(2px); } .ds-cta:active, .ds-cta-outline:active { transform: scale(0.97); } .ds-cta:focus-visible, .ds-cta-outline:focus-visible { outline: 2px solid var(--signal, #4a3aa8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Specimen Progress Row",
+      "kind": "custom",
+      "refersTo": "specimen-sheet",
+      "description": "Landing signature: the worked-answer sheet's four-step progress row; ink segments for done and current, border grey for next.",
+      "html": "<div class=\"ds-specimen\"><ol class=\"ds-progress\"><li data-state=\"done\"><i></i>Answer</li><li data-state=\"done\"><i></i>Claims</li><li data-state=\"now\"><i></i>Check</li><li data-state=\"next\"><i></i>Evidence</li></ol><p class=\"ds-specimen-q\">What did Chandrayaan-3 do on the Moon, and how did it get there?</p></div>",
+      "css": ".ds-specimen { background: var(--sheet, #fff); color: var(--foreground, #111214); border: 1px solid var(--border, #d6d6d2); border-top: 2px solid var(--foreground, #111214); padding: 20px 32px 24px; font-family: Archivo, Arial, sans-serif; } .ds-progress { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; } .ds-progress li { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground, #5c5d61); } .ds-progress i { width: 28px; height: 3px; background: var(--foreground, #111214); transition: background-color 300ms; } .ds-progress li[data-state=now] { color: var(--foreground, #111214); } .ds-progress li[data-state=next] { color: color-mix(in oklch, var(--muted-foreground, #5c5d61) 60%, transparent); } .ds-progress li[data-state=next] i { background: var(--border, #d6d6d2); } .ds-specimen-q { margin: 12px 0 0; max-width: 30ch; font-size: 1.75rem; line-height: 1.08; font-weight: 700; font-stretch: 80%; letter-spacing: -0.01em; }"
+    },
+    {
+      "name": "Figure Table",
+      "kind": "custom",
+      "refersTo": "figure-table",
+      "description": "Landing evaluation: label-caps caption on a 2px rule, hairline rows of a condensed figure, muted 'of N' and a description.",
+      "html": "<figure class=\"ds-figtable\"><figcaption>Fresh held-out set · 37 claims</figcaption><dl><div><dt><b>12</b><span>of 12</span></dt><dd>hallucinated claims caught</dd></div><div><dt><b>0</b><span>of 15</span></dt><dd>stated claims wrongly called hallucinated</dd></div></dl></figure>",
+      "css": ".ds-figtable { margin: 0; font-family: Archivo, Arial, sans-serif; color: var(--foreground, #111214); } .ds-figtable figcaption { border-top: 2px solid var(--foreground, #111214); padding-top: 8px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-foreground, #5c5d61); } .ds-figtable dl { margin: 0; } .ds-figtable dl > div { display: grid; grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr); align-items: baseline; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule, #e3e3e0); } .ds-figtable dt { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; } .ds-figtable dt b { font-size: 3.5rem; line-height: 0.85; font-weight: 800; font-stretch: 62%; letter-spacing: -0.02em; } .ds-figtable dt span { font-size: 15px; font-weight: 600; color: var(--muted-foreground, #5c5d61); } .ds-figtable dd { margin: 0; font-size: 15px; line-height: 1.375; }"
     }
   ],
   "narrative": {
@@ -145,7 +175,9 @@
       { "name": "The One Ramp Rule", "body": "Every neutral is a step of the tonal ramp; no off-ramp greys.", "section": "colors" },
       { "name": "The Tabular Figures Rule", "body": "Any number that sits in a column, a scale or updates live is set with tabular lining figures.", "section": "typography" },
       { "name": "The Width Is Hierarchy Rule", "body": "Change emphasis with width and weight within Archivo; never add a second display family. Geist Mono is for code and nothing else.", "section": "typography" },
-      { "name": "The Flat At Rest Rule", "body": "Nothing casts a shadow at rest. A shadow means a layer is temporarily floating over the sheet.", "section": "elevation" }
+      { "name": "The Open Condensed Rule", "body": "Condensed display heads on the landing open their word spacing so words do not run together: 0.07em at the 62% cut, 0.06em at the 70% cut.", "section": "typography" },
+      { "name": "The Flat At Rest Rule", "body": "Nothing casts a shadow at rest. A shadow means a layer is temporarily floating over the sheet. The landing's pinned specimen is at rest while sticky and stays flat.", "section": "elevation" },
+      { "name": "The Landing Bars Rule", "body": "The column bars belong to the landing page only, stay at 1.25% ink behind everything, and never appear on a sheet, in the app or on How it works.", "section": "layout" }
     ],
     "dos": [
       "Do open every sheet, list and panel section with a 2px ink rule and divide rows with 1px hairlines.",
@@ -153,7 +185,9 @@
       "Do place every new score on the same fixed 0 to 100 ramp against the 45 and 75 cut-offs, mirroring backend/config.yaml.",
       "Do reuse a claim's single number everywhere the claim appears.",
       "Do keep reading text at a 40rem measure and give spare width to the margins.",
-      "Do derive every neutral from the tonal ramp and flip to the dark ramp with the same roles."
+      "Do derive every neutral from the tonal ramp and flip to the dark ramp with the same roles.",
+      "Do keep the landing's column bars at 1.25% ink, behind the page, and still under reduced motion or without scroll-timeline support.",
+      "Do give every pinned or scroll-driven landing state a stacked, at-rest equivalent below 64rem and under reduced motion."
     ],
     "donts": [
       "Don't use violet on anything that cannot be pressed or is not selected.",
@@ -162,7 +196,8 @@
       "Don't round corners; only the spinner is round.",
       "Don't put shadows on anything at rest.",
       "Don't introduce a second display typeface; Geist Mono is for code only.",
-      "Don't set a label above a heading as an eyebrow; labels head the data they describe."
+      "Don't set a label above a heading as an eyebrow; labels head the data they describe.",
+      "Don't draw column guides, stripes or bars anywhere but the landing page's ground."
     ]
   }
 }

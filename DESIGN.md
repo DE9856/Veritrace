@@ -27,6 +27,20 @@ typography:
     lineHeight: 0.88
     letterSpacing: "-0.015em"
     fontVariation: "\"wdth\" 62"
+  landing-display:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "clamp(3rem, 4.6vw + 1rem, 5.25rem)"
+    fontWeight: 800
+    lineHeight: 0.88
+    letterSpacing: "-0.015em"
+    fontVariation: "\"wdth\" 62"
+  landing-section:
+    fontFamily: "Archivo, Arial, sans-serif"
+    fontSize: "clamp(2.25rem, 2.6vw + 1.25rem, 3.75rem)"
+    fontWeight: 800
+    lineHeight: 0.92
+    letterSpacing: "-0.015em"
+    fontVariation: "\"wdth\" 62"
   numeral:
     fontFamily: "Archivo, Arial, sans-serif"
     fontSize: "clamp(4rem, 9vw, 8.5rem)"
@@ -155,6 +169,32 @@ components:
     typography: "{typography.small}"
     rounded: "{rounded.none}"
     padding: "2px 8px"
+  button-primary-landing:
+    backgroundColor: "{colors.signal}"
+    textColor: "{colors.sheet-white}"
+    rounded: "{rounded.none}"
+    padding: "0 20px"
+    height: "48px"
+  button-primary-landing-close:
+    backgroundColor: "{colors.signal}"
+    textColor: "{colors.sheet-white}"
+    rounded: "{rounded.none}"
+    padding: "0 28px"
+    height: "56px"
+  button-outline-landing:
+    backgroundColor: "{colors.sheet-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    padding: "0 20px"
+    height: "48px"
+  specimen-sheet:
+    backgroundColor: "{colors.sheet-white}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    padding: "20px 32px 24px"
+  agent-band:
+    backgroundColor: "{colors.rail-black}"
+    textColor: "{colors.wash}"
 ---
 
 # Design System: Veritrace
@@ -220,6 +260,7 @@ The light ramp is #ffffff, #f4f4f2, #ececea, #e3e3e0, #d6d6d2, #b9b9b4, #5c5d61,
 
 ### Hierarchy
 - **Display** (800, 3.25rem to 6rem by container, line-height 0.88, wdth 62): the welcome and How it works headlines only.
+- **Landing display** (800, 3rem to 5.25rem, line-height 0.88, wdth 62): the landing headline and its closing head (up to 5.25rem). **Landing section** (800, 2.25rem to 3.75rem, line-height 0.92, wdth 62): the agent band and evaluation heads. Walkthrough step heads use the 70% cut (800, 1.75rem to 2.375rem, line-height 1.02), each under its condensed step numeral (2.75rem, wdth 62).
 - **Numeral** (800, 4rem stacked, 6.5rem two-column, 8.5rem wide; line-height 0.8; wdth 62; tabular): the answer's confidence. Smaller condensed scores repeat the voice: 3rem in the claim panel, 1.625rem in the claim list, 3.5rem for elapsed agent time.
 - **Headline** (700, 1.875rem to 2.625rem, line-height 1.05, wdth 80): the question at the top of each sheet.
 - **Title** (800, 2rem, line-height 1, wdth 70): How it works section heads; the uppercase VERITRACE wordmark uses the same cut.
@@ -231,17 +272,30 @@ The light ramp is #ffffff, #f4f4f2, #ececea, #e3e3e0, #d6d6d2, #b9b9b4, #5c5d61,
 ### Named Rules
 **The Tabular Figures Rule.** Any number that sits in a column, a scale or updates live is set with tabular lining figures.
 
+**The Open Condensed Rule.** Condensed display heads on the landing open their word spacing so words do not run together: 0.07em at the 62% cut, 0.06em at the 70% cut.
+
 **The Width Is Hierarchy Rule.** Change emphasis with width and weight within Archivo; never add a second display family. Geist Mono is for code and nothing else.
 
 ## Layout
 
 The shell is three bands: a 16rem black rail (documents, model status, theme), the grey canvas holding the thread, and the 26rem claim panel. A 56px top bar on the canvas states the search scope in label caps and carries the Claim check toggle. The thread is capped at 80rem and padded 12/24/32px by width; exchanges stack 32px apart.
 
-Each exchange sheet sits on a twelve-column grid with 24px gutters. Columns 1 to 4 hold the margin: the "Question N" note, the confidence numeral, the scale, the verdict counts and the agent steps (sticky at 24px from the top). Columns 5 to 12 hold the question, the answer at a 40rem measure, and the numbered claim list. The composer docks on the canvas at one size everywhere: the page's full measure, inset like a sheet's content, on the home page and under answers alike. The grid is not drawn: no column guides or stripes, on the sheet or the ground.
+Each exchange sheet sits on a twelve-column grid with 24px gutters. Columns 1 to 4 hold the margin: the "Question N" note, the confidence numeral, the scale, the verdict counts and the agent steps (sticky at 24px from the top). Columns 5 to 12 hold the question, the answer at a 40rem measure, and the numbered claim list. The composer docks on the canvas at one size everywhere: the page's full measure, inset like a sheet's content, on the home page and under answers alike. The grid is not drawn in the app: no column guides or stripes, on the sheet or the ground. The landing page is the one sanctioned exception (see Landing page below).
 
 Responsive behaviour is by container, not page: below 36rem of sheet the grid collapses to one column, the numeral and scale sit side by side in one strip above the answer, and counts and steps follow the claims so the answer stays in the first screen. The rail docks from 64rem and becomes a left slide-over below. The claim panel docks from 80rem (opening by width so the sheet narrows rather than being covered) and is a right slide-over sheet below. The panel is closed until a claim is picked; an explicit toggle is remembered in localStorage.
 
 Spacing rhythm: 4/8/12px inside rows, 24px gutters, 20px (narrow) and 32px sheet padding, 40px between answer sections.
+
+### Landing page
+The landing (route /; the app lives at /app) uses the same twelve columns at page scale: a 90rem container padded 16/32/64px with 24px gutters, under a sticky 56px canvas-grey top bar (wordmark, How it works, Evaluation, a 36px violet Open Veritrace). The first viewport splits 5 + 7 columns: the condensed headline, lede and two calls to action at left, the white specimen sheet at right.
+
+Here only, the twelve columns are drawn: a fixed layer behind the page carries one column of bars per grid column, ink at 1.25% (a color-mix of the foreground), each column a repeating run of bars and gaps of its own lengths. Each column drifts upward at its own rate as the page scrolls (a scroll-driven animation on the root scroller); where scroll timelines are unsupported, or motion is reduced, the bars stand still. Below 64rem only six columns of bars show.
+
+From 64rem the specimen sheet is sticky in columns 6 to 12 beside four walkthrough steps in columns 1 to 5. Each step block is at least 86svh tall; the step whose block has crossed 55% of the viewport drives the sheet, the other steps sit at 40% opacity, and a 45svh tail row lets the last step hold before the page moves on. Below 64rem nothing pins: every step carries its own copy of the sheet in that step's state, under its text.
+
+After the walkthrough come a full-bleed agent band (4 + 8 columns), the evaluation (4 + 8 columns) and a close (7 + 5 columns) opened by a 2px ink rule; sections sit 96 to 128px apart.
+
+**The Landing Bars Rule.** The column bars belong to the landing page only, stay at 1.25% ink behind everything, and never appear on a sheet, in the app or on How it works.
 
 ## Elevation & Depth
 
@@ -252,7 +306,7 @@ Flat at rest. Sheets separate from the canvas by tone and a 2px ink head rule, n
 - **Hover card** (`box-shadow: 0 8px 24px rgb(0 0 0 / 0.14)`): the citation preview while it is open.
 
 ### Named Rules
-**The Flat At Rest Rule.** Nothing casts a shadow at rest. A shadow means a layer is temporarily floating over the sheet.
+**The Flat At Rest Rule.** Nothing casts a shadow at rest. A shadow means a layer is temporarily floating over the sheet. The landing's pinned specimen is at rest while sticky and stays flat.
 
 ## Shapes
 
@@ -268,6 +322,7 @@ Formal and flat; colour carries the meaning, not shape.
 - **Hover / Focus:** 150ms colour transitions; press scales to 0.97; focus is a 2px violet ring offset 2px.
 - **Claim check toggle (open):** violet border, signal-soft fill, violet text.
 - **Ghost:** text only, wash on hover (rail links).
+- **Landing calls to action:** the primary is 48px tall, 20px sides, 15px semibold, with a trailing arrow that nudges 2px right on hover; the close's primary is 56px, 28px sides, 17px. The outline partner is 48px with a 2px ink border and a down arrow (How it checks). Inline links to further reading are violet semibold text with an arrow, underlined on hover.
 
 ### Chips
 - **Source tag:** a tiny square tag (S1, S2) in figure type, violet on signal-soft; solid violet with white text when its source is active.
@@ -299,6 +354,18 @@ Reading type at 40rem. Each sentence is underlined 2px, offset 6px, in the colou
 ### Claim List and Claim Panel
 The claim list is a ruled table: number, claim text, verdict mark and label, condensed score; hover is a 6% violet wash, selected is signal-soft. The claim panel opens with a 2px ink head and a "Claim check" label plus the claim range, then per claim: a 2px ink rule, number and verdict, a 3rem condensed score, the reasoning, signal meters (ink bars, red when alarming) and a framed link to the passage, where the matched line flashes violet once.
 
+### Worked Answer Specimen (landing signature)
+The landing's specimen is an exchange sheet (2px ink head, 1px border-grey sides, sheet white) holding the worked example: a progress row, the question in the headline cut, the checked answer, one swappable lower panel and a caption saying it is an illustration, not a recorded run.
+- **Progress row:** four 3px segments, ink when done or current and border grey when next, each followed by a label-caps name (Answer, Claims, Check, Evidence) in muted ink, the current one in ink.
+- **States:** 0 the finished check; 1 the answer with searched-for query chips and the source; 2 the numbered claim list, with the answer's superscripts in ink; 3 the confidence numeral, verdict counts and the threshold scale, its ticks replaying each time the step is reached; 4 the flagged claim opened to its passage, the rest of the answer dimmed, the matched words in signal-soft inside a 2px ink frame.
+- **Motion:** the lower panels share one grid cell so the sheet keeps its height; they cross-fade (320ms ease-out in with a 6px rise, 160ms out), and sentence underlines colour in over 420ms. Reduced motion drops the transitions and shows each state at rest.
+
+### Agent Band (landing)
+A full-bleed rail-black band rendered as a dark scope in both themes: a landing-section head and lede at left, the nine agent steps at right in a two-column list opened by a 2px rule, each row a condensed 1.75rem step numeral beside the step name and a muted one-line description, divided by 1px rules.
+
+### Figure Tables (landing)
+Evaluation results as ruled tables: a label-caps caption on a 2px ink rule, then rows divided by hairlines, each a condensed 62% figure (2.5rem to 3.5rem, tabular) followed by "of N" in 15px muted semibold, beside a plain description. Limitations follow as a ruled list under a 70% condensed head ("Where it falls short").
+
 ## Do's and Don'ts
 
 ### Do:
@@ -308,6 +375,8 @@ The claim list is a ruled table: number, claim text, verdict mark and label, con
 - **Do** reuse a claim's single number everywhere the claim appears.
 - **Do** keep reading text at a 40rem measure and give spare width to the margins.
 - **Do** derive every neutral from the tonal ramp and flip to the dark ramp with the same roles.
+- **Do** keep the landing's column bars at 1.25% ink, behind the page, and still under reduced motion or without scroll-timeline support.
+- **Do** give every pinned or scroll-driven landing state a stacked, at-rest equivalent below 64rem and under reduced motion.
 
 ### Don't:
 - **Don't** use violet on anything that cannot be pressed or is not selected.
@@ -317,3 +386,4 @@ The claim list is a ruled table: number, claim text, verdict mark and label, con
 - **Don't** put shadows on anything at rest.
 - **Don't** introduce a second display typeface; Geist Mono is for code only.
 - **Don't** set a label above a heading as an eyebrow; labels head the data they describe.
+- **Don't** draw column guides, stripes or bars anywhere but the landing page's ground.

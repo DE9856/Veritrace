@@ -37,7 +37,7 @@ const sentence = (index: number, text: string, label: Label, score: number): Sen
   claims: [claim(text, label, score)],
 });
 
-const EXAMPLE: SentenceResult[] = [
+export const EXAMPLE: SentenceResult[] = [
   sentence(0, "The Vikram lander touched down near the lunar south pole on 23 August 2023 [S1].", "high", 0.98),
   sentence(1, "Its rover confirmed sulphur in the lunar surface [S1].", "high", 0.95),
   sentence(2, "The rover stopped working because the lunar night left it without sunlight [S1].", "inferred", 0.66),

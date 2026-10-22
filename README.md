@@ -73,7 +73,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000, choose **Add the two sample documents**, and ask one of the suggested questions. Select a highlighted sentence to see its claim check, or a citation to read the source passage.
+Open http://localhost:3000/app, choose **Add the two sample documents**, and ask one of the suggested questions. Select a highlighted sentence to see its claim check, or a citation to read the source passage.
 
 ## Calibration and evaluation
 
